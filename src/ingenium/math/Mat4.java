@@ -1,7 +1,15 @@
 package ingenium.math;
 
 public class Mat4 {
-    float m[][] = new float[4][4];
+    private float m[][] = new float[4][4];
+
+    public float[][] getM() {
+        return m;
+    }
+
+    public void setM(float[][] m) {
+        this.m = m;
+    }
 
     public static Mat4 perspective(float fovDeg, float aspectRatio, float near, float far) {
         float fovRad = 1.f / (float) Math.tan(Rotation.degToRad(fovDeg * 0.5f));
@@ -59,21 +67,21 @@ public class Mat4 {
 
         Vec3 newRight = Vec3.cross(newUp, newForward);
         Mat4 matrix = new Mat4();
-        matrix.m[0][0] = newRight.x;
-        matrix.m[0][1] = newRight.y;
-        matrix.m[0][2] = newRight.z;
+        matrix.m[0][0] = newRight.getX();
+        matrix.m[0][1] = newRight.getY();
+        matrix.m[0][2] = newRight.getZ();
         matrix.m[0][3] = 0.f;
-        matrix.m[1][0] = newUp.x;
-        matrix.m[1][1] = newUp.y;
-        matrix.m[1][2] = newUp.z;
+        matrix.m[1][0] = newUp.getX();
+        matrix.m[1][1] = newUp.getY();
+        matrix.m[1][2] = newUp.getZ();
         matrix.m[1][3] = 0.f;
-        matrix.m[2][0] = newForward.x;
-        matrix.m[2][1] = newForward.y;
-        matrix.m[2][2] = newForward.z;
+        matrix.m[2][0] = newForward.getX();
+        matrix.m[2][1] = newForward.getY();
+        matrix.m[2][2] = newForward.getZ();
         matrix.m[2][3] = 0.f;
-        matrix.m[3][0] = pos.x;
-        matrix.m[3][1] = pos.y;
-        matrix.m[3][2] = pos.z;
+        matrix.m[3][0] = pos.getX();
+        matrix.m[3][1] = pos.getY();
+        matrix.m[3][2] = pos.getY();
         matrix.m[3][3] = 1.f;
         return matrix;
     }
@@ -158,9 +166,9 @@ public class Mat4 {
 
     public static Mat4 rotationOnPoint(float xRad, float yRad, float zRad, Vec3 pt) {
         Mat4 mat = Mat4.mul(
-                Mat4.mul(Mat4.translation(pt.x, pt.y, pt.z),
+                Mat4.mul(Mat4.translation(pt.getX(), pt.getY(), pt.getZ()),
                         Mat4.mul(Mat4.mul(Mat4.rotationX(xRad), Mat4.rotationY(yRad)), Mat4.rotationZ(zRad))),
-                Mat4.translation(-pt.x, -pt.y, -pt.z));
+                Mat4.translation(-pt.getX(), -pt.getY(), -pt.getZ()));
         return mat;
     }
 }

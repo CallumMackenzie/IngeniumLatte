@@ -93,9 +93,9 @@ public class GLWindow {
     }
 
     public void resize(GL2 gl, int width, int height) {
-        float r =  (float) ((clearColour & 0xFF0000) >> 16) / 255.f;
-        float g =  (float) ((clearColour & 0x00FF00) >> 8) / 255.f;
-        float b =  (float) ((clearColour & 0x0000FF)) / 255.f;
+        float r = (float) ((clearColour & 0xFF0000) >> 16) / 255.f;
+        float g = (float) ((clearColour & 0x00FF00) >> 8) / 255.f;
+        float b = (float) ((clearColour & 0x0000FF)) / 255.f;
         gl.glClearColor(r, g, b, clearAlpha);
         gl.glClearDepth(1);
         gl.glViewport(0, 0, width, height);
@@ -106,14 +106,15 @@ public class GLWindow {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         onRender(gl);
     }
-    protected void onRender (GL2 gl) {
-        
-    }
-    protected void onCreate (GL2 gl) {
+
+    protected void onRender(GL2 gl) {
 
     }
 
-    
+    protected void onCreate(GL2 gl) {
+
+    }
+
     public float getAspect() {
         return aspect;
     }

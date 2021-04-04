@@ -16,7 +16,7 @@ public class Ingenium extends GLWindow {
 
     @Override
     protected void onRender(GL2 gl) {
-
+        
     }
 
     public void onUpdate() {
