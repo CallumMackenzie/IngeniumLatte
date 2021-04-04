@@ -10,6 +10,7 @@ public class App extends Ingenium {
     App() {
         super("Ingneium Latte", 1600, 900);
         setClearColour(0xabcdef);
+        System.out.println("App start");
     }
 
     @Override

@@ -18,9 +18,10 @@ public class GLWindow {
     private float aspect;
     private GLCanvas canvas;
     private GLCapabilities glcapabilities;
-    protected Frame frame;
     private int clearColour = 0x000000;
     private float clearAlpha = 1;
+
+    protected Frame frame;
 
     public GLWindow(String name, int width, int height, GLCapabilities glcapabilities) {
         this.glcapabilities = glcapabilities;
@@ -69,10 +70,11 @@ public class GLWindow {
     }
 
     protected void create(GL2 gl) {
-
+        onCreate(gl);
     }
 
     protected void update() {
+
     }
 
     protected void fixedUpdate() {
@@ -104,11 +106,14 @@ public class GLWindow {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         onRender(gl);
     }
-
     protected void onRender (GL2 gl) {
+        
+    }
+    protected void onCreate (GL2 gl) {
 
     }
 
+    
     public float getAspect() {
         return aspect;
     }
