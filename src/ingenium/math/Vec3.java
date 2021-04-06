@@ -1,175 +1,317 @@
 package ingenium.math;
 
-public class Vec3 {
-    private float x;
-    private float y;
-    private float z;
-    private float w;
+public class Vec3 extends Vec {
+    protected float z;
 
+    /**
+     * 
+     * @param x x component of Vec3
+     * @param y y component of Vec3
+     * @param z z component of Vec3
+     * @param w w component of Vec3
+     */
     public Vec3(float x, float y, float z, float w) {
         this.x = x;
         this.y = y;
-        this.z = z;
         this.w = w;
+        this.z = z;
     }
 
+    /**
+     * 
+     * @param x x component of Vec3
+     * @param y y component of Vec3
+     * @param z z component of Vec3
+     */
     public Vec3(float x, float y, float z) {
-        this(x, y, z, 1);
+        this(x, y, z, 1.f);
     }
 
+    /**
+     * 
+     * @param x x component of Vec3
+     * @param y y component of Vec3
+     */
     public Vec3(float x, float y) {
-        this(x, y, 0, 1);
+        this(x, y, 0.f, 1.f);
     }
 
+    /**
+     * 
+     * @param x x component of Vec3
+     */
     public Vec3(float x) {
-        this(x, 0, 0, 1);
+        this(x, 0.f, 0.f, 1.f);
     }
 
+    /**
+     * @return a Vec3 with the values x, y, z = 0, w = 1
+     */
     public Vec3() {
-        this(0, 0, 0, 1);
+        this(0.f, 0.f, 0.f, 1.f);
     }
 
-    public float getX() {
-        return x;
+    /**
+     * 
+     * @param v the vector to copy
+     */
+    public Vec3(Vec3 v) {
+        this(v.x, v.y, v.z, v.w);
     }
 
-    public float getY() {
-        return y;
+    /**
+     * Creates a new Vec3 casting input doubles to floats
+     * 
+     * @param x the x component
+     * @param y the y component
+     * @param z the z component
+     * @param w the w component
+     */
+    public Vec3(double x, double y, double z, double w) {
+        this((float) x, (float) y, (float) z, (float) w);
     }
 
+    /**
+     * Creates a new Vec3 casting input doubles to floats
+     * 
+     * @param x the x component
+     * @param y the y component
+     * @param z the z component
+     */
+    public Vec3(double x, double y, double z) {
+        this((float) x, (float) y, (float) z);
+    }
+
+    /**
+     * Creates a new Vec3 casting input doubles to floats
+     * 
+     * @param x the x component
+     * @param y the y component
+     */
+    public Vec3(double x, double y) {
+        this((float) x, (float) y);
+    }
+
+    /**
+     * Creates a new Vec3 casting input doubles to floats
+     * 
+     * @param x the x component
+     */
+    public Vec3(double x) {
+        this((float) x);
+    }
+
+    /**
+     * 
+     * @return the z component of the Vec3
+     */
     public float getZ() {
         return z;
     }
 
-    public float getW() {
-        return w;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public void setY(float y) {
-        this.y = y;
-    }
-
+    /**
+     * 
+     * @param z the z value to set
+     */
     public void setZ(float z) {
         this.z = z;
     }
 
-    public void setW(float w) {
-        this.w = w;
+    /**
+     * 
+     * @param m the Mat4 to multiply the vector by
+     * @return a new vector with the multiplication result
+     */
+    public Vec3 mulMat4(Mat4 m) {
+        Vec3 v = new Vec3();
+        v.x = x * m.getM()[0][0] + y * m.getM()[1][0] + z * m.getM()[2][0] + w * m.getM()[3][0];
+        v.y = x * m.getM()[0][1] + y * m.getM()[1][1] + z * m.getM()[2][1] + w * m.getM()[3][1];
+        v.z = x * m.getM()[0][2] + y * m.getM()[1][2] + z * m.getM()[2][2] + w * m.getM()[3][2];
+        v.w = x * m.getM()[0][3] + y * m.getM()[1][3] + z * m.getM()[2][3] + w * m.getM()[3][3];
+        return v;
     }
 
-    public Vec3 add(Vec3 v) {
-        this.x += v.x;
-        this.y += v.y;
-        this.z += v.z;
-        return this;
+    /**
+     * 
+     * @param vs any number of vectors to add
+     * @return a new Vec3 with the sum
+     */
+    public Vec3 add(Vec3... vs) {
+        Vec3 vec = new Vec3(this);
+        for (Vec3 v : vs) {
+            vec.x += v.x;
+            vec.y += v.y;
+            vec.z += v.z;
+        }
+        return vec;
     }
 
-    public Vec3 sub(Vec3 v) {
-        this.x -= v.x;
-        this.y -= v.y;
-        this.z -= v.z;
-        return this;
+    /**
+     * 
+     * @param vs any number of vectors to subtract
+     * @return a new Vec3 with the difference
+     */
+    public Vec3 sub(Vec3... vs) {
+        Vec3 vec = new Vec3(this);
+        for (Vec3 v : vs) {
+            vec.x -= v.x;
+            vec.y -= v.y;
+            vec.z -= v.z;
+        }
+        return vec;
     }
 
-    public Vec3 mul(Vec3 v) {
-        this.x *= v.x;
-        this.y *= v.y;
-        this.z *= v.z;
-        return this;
+    /**
+     * 
+     * @param vs any number of vectors to multiply
+     * @return a new Vec3 with the product
+     */
+    public Vec3 mul(Vec3... vs) {
+        Vec3 vec = new Vec3(this);
+        for (Vec3 v : vs) {
+            vec.x *= v.x;
+            vec.y *= v.y;
+            vec.z *= v.z;
+        }
+        return vec;
     }
 
-    public Vec3 div(Vec3 v) {
-        this.x /= v.x;
-        this.y /= v.y;
-        this.z /= v.z;
-        return this;
+    /**
+     * 
+     * @param vs any number of vectors to divide
+     * @return a new Vec3 with the quotient
+     */
+    public Vec3 div(Vec3... vs) {
+        Vec3 vec = new Vec3(this);
+        for (Vec3 v : vs) {
+            vec.x /= v.x;
+            vec.y /= v.y;
+            vec.z /= v.z;
+        }
+        return vec;
     }
 
-    public Vec3 mulFloat(float n) {
-        this.x *= n;
-        this.y *= n;
-        this.z *= n;
-        return this;
+    /**
+     * 
+     * @param ns floats to multiply
+     * @return a new Vec3 with the product
+     */
+    public Vec3 mulFloat(float... ns) {
+        Vec3 vec = new Vec3(this);
+        for (float n : ns) {
+            vec.x *= n;
+            vec.y *= n;
+            vec.z *= n;
+        }
+        return vec;
     }
 
-    public Vec3 addFloat(float n) {
-        this.x += n;
-        this.y += n;
-        this.z += n;
-        return this;
+    /**
+     * 
+     * @param ns floats to add
+     * @return a new Vec3 with the sum
+     */
+    public Vec3 addFloat(float... ns) {
+        Vec3 vec = new Vec3(this);
+        for (float n : ns) {
+            vec.x += n;
+            vec.y += n;
+            vec.z += n;
+        }
+        return vec;
     }
 
-    public Vec3 subFloat(float n) {
-        this.x -= n;
-        this.y -= n;
-        this.z -= n;
-        return this;
+    /**
+     * 
+     * @param ns floats to multiply
+     * @return a new Vec3 with the difference
+     */
+    public Vec3 subFloat(float... ns) {
+        Vec3 vec = new Vec3(this);
+        for (float n : ns) {
+            vec.x -= n;
+            vec.y -= n;
+            vec.z -= n;
+        }
+        return vec;
     }
 
-    public Vec3 divFloat(float n) {
-        this.x /= n;
-        this.y /= n;
-        this.z /= n;
-        return this;
+    /**
+     * 
+     * @param ns floats to multiply
+     * @return a new Vec3 with the product
+     */
+    public Vec3 divFloat(float... ns) {
+        Vec3 vec = new Vec3(this);
+        for (float n : ns) {
+            vec.x /= n;
+            vec.y /= n;
+            vec.z /= n;
+        }
+        return vec;
     }
 
-    public static Vec3 sub(Vec3 v1, Vec3 v2) {
-        return new Vec3(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+    /**
+     * 
+     * @return a copy of the Vec3 normalized
+     */
+    public Vec3 normalized() {
+        Vec3 vec = new Vec3(this);
+        float l = vec.len();
+        if (l != 0.f) {
+            vec.x /= l;
+            vec.y /= l;
+            vec.z /= l;
+        }
+        return vec;
     }
 
-    public static Vec3 add(Vec3 v1, Vec3 v2) {
-        return new Vec3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+    /**
+     * 
+     * Normalizes the Vec3
+     */
+    public void normalize() {
+        float l = len();
+        if (l != 0.f) {
+            this.x /= l;
+            this.y /= l;
+            this.z /= l;
+        }
     }
 
-    public static Vec3 mul(Vec3 v1, Vec3 v2) {
-        return new Vec3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+    /**
+     * @return the length of the Vec3
+     */
+    public float len() {
+        return (float) Math.sqrt(Vec3.dot(this, this));
     }
 
-    public static Vec3 div(Vec3 v1, Vec3 v2) {
-        return new Vec3(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z);
+    @Override
+    public String toString() {
+        return "Vec3(" + x + "," + y + "," + z + ")";
     }
 
-    public static Vec3 mulFloat(Vec3 v1, float num) {
-        return new Vec3(v1.x * num, v1.y * num, v1.z * num);
-    }
-
-    public static Vec3 divFloat(Vec3 v1, float num) {
-        return new Vec3(v1.x / num, v1.y / num, v1.z / num);
-    }
-
+    /**
+     * 
+     * @param v1 the first Vec3
+     * @param v2 the second Vec3
+     * @return the dot product
+     */
     public static float dot(Vec3 v1, Vec3 v2) {
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     }
 
-    public static float len(Vec3 v) {
-        return (float) Math.sqrt(Vec3.dot(v, v));
-    }
-
-    public static Vec3 normalize(Vec3 v) {
-        float l = Vec3.len(v);
-        if (l != 0.f)
-            return new Vec3(v.x / l, v.y / l, v.z / l);
-        return new Vec3();
-    }
-
+    /**
+     * 
+     * @param v1 the first Vec3
+     * @param v2 the second Vec3
+     * @return the cross product
+     */
     public static Vec3 cross(Vec3 v1, Vec3 v2) {
         Vec3 v = new Vec3();
         v.x = v1.y * v2.z - v1.z * v2.y;
         v.y = v1.z * v2.x - v1.x * v2.z;
         v.z = v1.x * v2.y - v1.y * v2.x;
-        return v;
-    }
-
-    public static Vec3 mulMat(Vec3 i, Mat4 m) {
-        Vec3 v = new Vec3();
-        v.x = i.x * m.getM()[0][0] + i.y * m.getM()[1][0] + i.z * m.getM()[2][0] + i.w * m.getM()[3][0];
-        v.y = i.x * m.getM()[0][1] + i.y * m.getM()[1][1] + i.z * m.getM()[2][1] + i.w * m.getM()[3][1];
-        v.z = i.x * m.getM()[0][2] + i.y * m.getM()[1][2] + i.z * m.getM()[2][2] + i.w * m.getM()[3][2];
-        v.w = i.x * m.getM()[0][3] + i.y * m.getM()[1][3] + i.z * m.getM()[2][3] + i.w * m.getM()[3][3];
         return v;
     }
 }

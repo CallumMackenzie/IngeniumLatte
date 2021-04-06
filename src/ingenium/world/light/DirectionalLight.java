@@ -1,6 +1,9 @@
 package ingenium.world.light;
 
+import com.jogamp.opengl.GL4;
+
 import ingenium.math.Vec3;
+import ingenium.world.Shader;
 
 public class DirectionalLight extends Light {
     private Vec3 direction;
@@ -11,7 +14,7 @@ public class DirectionalLight extends Light {
     }
 
     public DirectionalLight(Vec3 direction, Vec3 ambient, Vec3 diffuse, Vec3 specular) {
-        this(direction, ambient, diffuse, specular, 1f);
+        this(direction, ambient, diffuse, specular, 1.f);
     }
 
     public DirectionalLight(Vec3 direction, Vec3 ambient, Vec3 diffuse) {
@@ -27,7 +30,14 @@ public class DirectionalLight extends Light {
     }
 
     public DirectionalLight() {
-        this(new Vec3(0f, -1f, 0.4f));
+        this(new Vec3(0.f, -1.f, 0.f));
+    }
+
+    public void sendToShader(GL4 gl, Shader shader) {
+        shader.setUniform(gl, "dirLight.direction", getDirection(), false);
+        shader.setUniform(gl, "dirLight.ambient", getAmbient(), false);
+        shader.setUniform(gl, "dirLight.specular", getSpecular().mulFloat(getIntensity()), false);
+        shader.setUniform(gl, "dirLight.diffuse", getDiffuse().mulFloat(getIntensity()), false);
     }
 
     public Vec3 getDirection() {

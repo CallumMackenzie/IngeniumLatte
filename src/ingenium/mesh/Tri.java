@@ -105,12 +105,15 @@ public class Tri {
     }
 
     public Vec3[] calculateTangents() {
-        Vec3 edge1 = Vec3.sub(v[1].p, v[0].p);
-        Vec3 edge2 = Vec3.sub(v[2].p, v[0].p);
-        Vec2 dUV1 = Vec2.sub(v[1].t, v[0].t);
-        Vec2 dUV2 = Vec2.sub(v[2].t, v[0].t);
+        Vec3 edge1 = v[1].p.sub(v[0].p);
+        Vec3 edge2 = v[2].p.sub(v[0].p);
+        Vec2 dUV1 = v[1].t.sub(v[0].t);
+        Vec2 dUV2 = v[2].t.sub(v[0].t);
 
-        float f = 1.f / (dUV1.getX() * dUV2.getY() - dUV2.getX() * dUV1.getY());
+        float div = (dUV1.getX() * dUV2.getY() - dUV2.getX() * dUV1.getY());
+        float f = 0.f;
+        if (div != 0.f)
+            f = 1.f / div;
 
         Vec3 tan = new Vec3();
 

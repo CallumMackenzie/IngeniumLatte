@@ -16,7 +16,7 @@ public class Light {
     }
 
     public Light(Vec3 ambient, Vec3 diffuse, Vec3 specular) {
-        this(ambient, diffuse, specular, 1f);
+        this(ambient, diffuse, specular, 1.f);
     }
 
     public Light(Vec3 ambient, Vec3 diffuse) {

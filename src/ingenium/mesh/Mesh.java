@@ -2,39 +2,39 @@ package ingenium.mesh;
 
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
+import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL4;
+
 import ingenium.math.*;
 import ingenium.world.Camera;
+import ingenium.world.Position3D;
 import ingenium.world.Shader;
 import ingenium.world.light.DirectionalLight;
+import ingenium.world.light.PointLight;
 
-public class Mesh {
-    private Vec3 position;
-    private Vec3 rotation;
-    private Vec3 rotationCenter;
+public class Mesh extends Position3D {
     private Vec3 scale;
     private Vec3 tint = new Vec3();
     private Material material;
 
     private boolean loaded = false;
     private FloatBuffer data;
-    private int mVBO;
-    private int mVAO;
-    private int mTVBO;
+    private int mVBO = GL4.GL_NONE;
+    private int mVAO = GL4.GL_NONE;
 
-    public Mesh(Vec3 position, Vec3 rotation, Vec3 scale, Vec3 rotationCenter, Material material) {
+    public Mesh(Vec3 position, Vec3 rotation, Vec3 scale, Vec3 rotationPoint, Material material) {
         this.rotation = rotation;
-        this.rotationCenter = rotationCenter;
+        this.rotationPoint = rotationPoint;
         this.position = position;
         this.scale = scale;
         this.material = material;
     }
 
-    public Mesh(Vec3 position, Vec3 rotation, Vec3 scale, Vec3 rotationCenter) {
-        this(position, rotation, rotationCenter, scale, new Material());
+    public Mesh(Vec3 position, Vec3 rotation, Vec3 scale, Vec3 rotationPoint) {
+        this(position, rotation, scale, rotationPoint, new Material());
     }
 
     public Mesh(Vec3 position, Vec3 rotation, Vec3 scale) {
@@ -42,7 +42,7 @@ public class Mesh {
     }
 
     public Mesh(Vec3 position, Vec3 rotation) {
-        this(position, rotation, new Vec3(1, 1, 1));
+        this(position, rotation, new Vec3(1.f, 1.f, 1.f));
     }
 
     public Mesh(Vec3 position) {
@@ -113,60 +113,85 @@ public class Mesh {
         texs.clear();
         float[] dataToWrite = new float[0];
         for (Tri t : tris) {
+            for (int k = 0; k < 3; k++) {
+                Tri.Vert v = t.getVert(k);
+                v.setRgb(v.getRgb().add(tint));
+                t.setVert(k, v);
+            }
             float triDat[] = t.toDataArray(this);
             int datLen = dataToWrite.length;
             int triLen = triDat.length;
             float newData[] = new float[datLen + triLen];
             System.arraycopy(dataToWrite, 0, newData, 0, datLen);
             System.arraycopy(triDat, 0, newData, datLen, triLen);
+            dataToWrite = newData;
         }
-        data = FloatBuffer.allocate(dataToWrite.length);
-        data.put(dataToWrite);
+        data = Buffers.newDirectFloatBuffer(dataToWrite);
     }
 
-    public void load(GL2 gl) {
+    public void load(GL4 gl) {
         if (!loaded) {
-            int aVBO[] = { mVBO };
-            int aVAO[] = { mVAO };
-            gl.glGenBuffers(1, aVBO, 0);
-            mVBO = aVBO[0];
-            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, mVBO);
-            gl.glBufferData(mVBO, data.position() * Float.BYTES, data, GL.GL_DYNAMIC_DRAW);
+            int[] buffers = new int[1];
+            int[] vertexArrays = new int[1];
+            int floatBytes = Float.BYTES;
 
-            gl.glGenVertexArrays(1, aVAO, 0);
-            mVAO = aVAO[0];
+            gl.glGenBuffers(1, buffers, 0);
+            gl.glGenVertexArrays(1, vertexArrays, 0);
+
+            mVBO = buffers[0];
+            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
+            long len = data.capacity() * floatBytes;
+            gl.glBufferData(GL4.GL_ARRAY_BUFFER, len, data, GL4.GL_STATIC_DRAW);
+
+            mVAO = vertexArrays[0];
             gl.glBindVertexArray(mVAO);
-            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, mVBO);
+            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
 
-            gl.glVertexAttribPointer(0, 4, GL.GL_FLOAT, false, Tri.Vert.vertSize * Float.BYTES, 0);
+            int stride = Tri.Vert.vertSize * floatBytes;
+
+            gl.glVertexAttribPointer(0, 3, GL4.GL_FLOAT, false, stride, 0); // Points (4)
             gl.glEnableVertexAttribArray(0);
 
-            gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, Tri.Vert.vertSize * Float.BYTES, 4 * Float.BYTES);
+            gl.glVertexAttribPointer(1, 3, GL4.GL_FLOAT, false, stride, 4 * floatBytes); // Texture UVs (3)
             gl.glEnableVertexAttribArray(1);
 
-            gl.glVertexAttribPointer(2, 4, GL.GL_FLOAT, false, Tri.Vert.vertSize * Float.BYTES, 7 * Float.BYTES);
+            gl.glVertexAttribPointer(2, 4, GL4.GL_FLOAT, false, stride, 7 * floatBytes); // RGBA tint (4)
             gl.glEnableVertexAttribArray(2);
 
-            gl.glVertexAttribPointer(3, 4, GL.GL_FLOAT, false, Tri.Vert.vertSize * Float.BYTES, 11 * Float.BYTES);
+            gl.glVertexAttribPointer(3, 3, GL4.GL_FLOAT, false, stride, 11 * floatBytes); // Normals (3)
             gl.glEnableVertexAttribArray(3);
 
-            gl.glVertexAttribPointer(4, 4, GL.GL_FLOAT, false, Tri.Vert.vertSize * Float.BYTES, 14 * Float.BYTES);
+            gl.glVertexAttribPointer(4, 3, GL4.GL_FLOAT, false, stride, 14 * floatBytes); // Tangents (3)
             gl.glEnableVertexAttribArray(4);
+
+            FloatBuffer b2 = Buffers.newDirectFloatBuffer(new float[data.capacity()]);
+            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
+            gl.glGetBufferSubData(GL4.GL_ARRAY_BUFFER, 0L, data.capacity() * Buffers.SIZEOF_FLOAT, b2);
+            boolean eq = b2.capacity() == data.capacity();
+            if (eq)
+                for (int x = 0; x < data.capacity(); x++)
+                    eq = eq && data.get(x) == b2.get(x);
+
+            System.out.println("Equal? " + (eq ? "true" : "false"));
 
             loaded = true;
         }
     }
 
-    public int getmTVBO() {
-        return mTVBO;
+    public Mat4 modelMatrix() {
+        Mat4 matRot = Mat4.rotationOnPoint(rotation.getX(), rotation.getY(), rotation.getZ(), rotationPoint);
+        Mat4 matTrans = Mat4.translation(position.getX(), position.getY(), position.getZ());
+        Mat4 matScale = Mat4.scale(scale.getX(), scale.getY(), scale.getZ());
+        Mat4 matWorld = matScale.mul(matRot, matTrans);
+        return matWorld;
     }
 
-    public int getmVAO() {
-        return mVAO;
+    public void bindVBO(GL4 gl) {
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
     }
 
-    public int getmVBO() {
-        return mVBO;
+    public void bindVAO(GL4 gl) {
+        gl.glBindVertexArray(mVAO);
     }
 
     public Buffer getData() {
@@ -175,30 +200,6 @@ public class Mesh {
 
     public boolean isLoaded() {
         return loaded;
-    }
-
-    public void setPosition(Vec3 position) {
-        this.position = position;
-    }
-
-    public Vec3 getPosition() {
-        return position;
-    }
-
-    public void setRotation(Vec3 rotation) {
-        this.rotation = rotation;
-    }
-
-    public Vec3 getRotation() {
-        return rotation;
-    }
-
-    public void setRotationCenter(Vec3 rotationCenter) {
-        this.rotationCenter = rotationCenter;
-    }
-
-    public Vec3 getRotationCenter() {
-        return rotationCenter;
     }
 
     public void setScale(Vec3 scale) {
@@ -225,7 +226,68 @@ public class Mesh {
         return material;
     }
 
-    public static void renderAll (GL2 gl, Shader shader, Camera camera, DirectionalLight dirLight, Mesh meshes[]) {
-        
+    public void sendToShader(GL4 gl, Shader shader) {
+        bindVAO(gl);
+        bindVBO(gl);
+        Mat4 model = modelMatrix();
+        shader.setUniform(gl, "model", model);
+        shader.setUniform(gl, "invModel", model.inverse());
+        shader.setUniform(gl, "material.shininess", material.getShininess());
+        shader.setUniform(gl, "heightScale", material.getParallaxScale());
+
+        gl.glActiveTexture(GL4.GL_TEXTURE0);
+        if (material.getDiffuseTexture() != GL4.GL_NONE) {
+            gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getDiffuseTexture());
+        }
+        gl.glActiveTexture(GL4.GL_TEXTURE1);
+        if (material.getSpecularTexture() != GL4.GL_NONE) {
+            gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getSpecularTexture());
+        }
+        gl.glActiveTexture(GL4.GL_TEXTURE2);
+        if (material.getNormalTexture() != GL4.GL_NONE) {
+            gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getNormalTexture());
+        }
+    }
+
+    public void render(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, PointLight pointLights[]) {
+        shader.use(gl);
+        Material.sendToShader(gl, shader);
+        camera.sendToShader(gl, shader);
+        shader.setUniform(gl, "u_time", (float) System.currentTimeMillis() / 1000.f);
+        dirLight.sendToShader(gl, shader);
+
+        for (int i = 0; i < pointLights.length; i++)
+            pointLights[i].sendToShader(gl, shader, i);
+
+        sendToShader(gl, shader);
+
+        int toddraw = data.capacity() / Tri.Vert.vertSize;
+        gl.glDrawArrays(GL4.GL_TRIANGLES, 0, toddraw);
+    }
+
+    public void render(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight) {
+        render(gl, shader, camera, dirLight, new PointLight[0]);
+    }
+
+    public static void renderAll(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, Mesh meshes[],
+            PointLight pointLights[]) {
+        shader.use(gl);
+        Material.sendToShader(gl, shader);
+        camera.sendToShader(gl, shader);
+        dirLight.sendToShader(gl, shader);
+        shader.setUniform(gl, "u_time", (float) (System.currentTimeMillis() / 1000L));
+
+        for (int i = 0; i < pointLights.length; i++)
+            pointLights[i].sendToShader(gl, shader, i);
+
+        for (int i = 0; i < meshes.length; i++) {
+            meshes[i].sendToShader(gl, shader);
+
+            gl.glDrawArrays(GL4.GL_TRIANGLES, 0, meshes[i].data.capacity() / Tri.Vert.vertSize);
+        }
+    }
+
+    public static void renderAll(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, Mesh meshes[]) {
+        Mesh.renderAll(gl, shader, camera, dirLight, meshes, new PointLight[] {});
     }
 }

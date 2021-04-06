@@ -1,10 +1,14 @@
 package ingenium.mesh;
 
+import com.jogamp.opengl.GL4;
+
+import ingenium.world.Shader;
+
 public class Material {
-    private int diffuseTexture = -1;
-    private int specularTexture = -1;
-    private int normalTexture = -1;
-    private int parallaxTexture = -1;
+    private int diffuseTexture = GL4.GL_NONE;
+    private int specularTexture = GL4.GL_NONE;
+    private int normalTexture = GL4.GL_NONE;
+    private int parallaxTexture = GL4.GL_NONE;
     private float shininess = 0.5f;
     private float parallaxScale = 1.f;
 
@@ -36,6 +40,10 @@ public class Material {
         this.parallaxScale = parallaxScale;
     }
 
+    public void setParallaxScale(double parallaxScale) {
+        this.parallaxScale = (float) parallaxScale;
+    }
+
     public float getParallaxScale() {
         return parallaxScale;
     }
@@ -52,7 +60,18 @@ public class Material {
         this.shininess = shininess;
     }
 
+    public void setShininess(double shininess) {
+        this.shininess = (float) shininess;
+    }
+
     public float getShininess() {
         return shininess;
+    }
+
+    public static void sendToShader(GL4 gl, Shader shader) {
+        shader.setUniform(gl, "material.diffuse", 0);
+        shader.setUniform(gl, "material.specular", 1);
+        shader.setUniform(gl, "material.normal", 2);
+        shader.setUniform(gl, "material.parallax", 3);
     }
 }
