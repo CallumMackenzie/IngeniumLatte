@@ -1,8 +1,6 @@
 package ingenium.mesh;
 
-import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 import com.jogamp.common.nio.Buffers;
@@ -25,6 +23,14 @@ public class Mesh extends Position3D {
     private int mVBO = GL4.GL_NONE;
     private int mVAO = GL4.GL_NONE;
 
+    /**
+     * 
+     * @param position      the position
+     * @param rotation      the rotation
+     * @param scale         the scale
+     * @param rotationPoint the relative point rotation is done around
+     * @param material      the material
+     */
     public Mesh(Vec3 position, Vec3 rotation, Vec3 scale, Vec3 rotationPoint, Material material) {
         this.rotation = rotation;
         this.rotationPoint = rotationPoint;
@@ -33,26 +39,55 @@ public class Mesh extends Position3D {
         this.material = material;
     }
 
+    /**
+     * 
+     * @param position      the position
+     * @param rotation      the rotation
+     * @param scale         the scale
+     * @param rotationPoint the relative point rotation is done around
+     */
     public Mesh(Vec3 position, Vec3 rotation, Vec3 scale, Vec3 rotationPoint) {
         this(position, rotation, scale, rotationPoint, new Material());
     }
 
+    /**
+     * 
+     * @param position the position
+     * @param rotation the rotation
+     * @param scale    the scale
+     */
     public Mesh(Vec3 position, Vec3 rotation, Vec3 scale) {
         this(position, rotation, scale, new Vec3());
     }
 
+    /**
+     * 
+     * @param position the position
+     * @param rotation the rotation
+     */
     public Mesh(Vec3 position, Vec3 rotation) {
         this(position, rotation, new Vec3(1.f, 1.f, 1.f));
     }
 
+    /**
+     * 
+     * @param position the position
+     */
     public Mesh(Vec3 position) {
         this(position, new Vec3());
     }
 
+    /**
+     * 
+     */
     public Mesh() {
         this(new Vec3());
     }
 
+    /**
+     * 
+     * @param raw the raw obj data in string form
+     */
     public void loadFromObjData(String raw) {
         ArrayList<Tri> tris = new ArrayList<Tri>();
         ArrayList<Vec3> verts = new ArrayList<Vec3>();
@@ -129,6 +164,11 @@ public class Mesh extends Position3D {
         data = Buffers.newDirectFloatBuffer(dataToWrite);
     }
 
+    /**
+     * Loads all the data onto the GPU
+     * 
+     * @param gl the GL4 object of the program
+     */
     public void load(GL4 gl) {
         if (!loaded) {
             int[] buffers = new int[1];
@@ -164,20 +204,14 @@ public class Mesh extends Position3D {
             gl.glVertexAttribPointer(4, 3, GL4.GL_FLOAT, false, stride, 14 * floatBytes); // Tangents (3)
             gl.glEnableVertexAttribArray(4);
 
-            FloatBuffer b2 = Buffers.newDirectFloatBuffer(new float[data.capacity()]);
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
-            gl.glGetBufferSubData(GL4.GL_ARRAY_BUFFER, 0L, data.capacity() * Buffers.SIZEOF_FLOAT, b2);
-            boolean eq = b2.capacity() == data.capacity();
-            if (eq)
-                for (int x = 0; x < data.capacity(); x++)
-                    eq = eq && data.get(x) == b2.get(x);
-
-            System.out.println("Equal? " + (eq ? "true" : "false"));
-
             loaded = true;
         }
     }
 
+    /**
+     * 
+     * @return the 3D transformation of the model
+     */
     public Mat4 modelMatrix() {
         Mat4 matRot = Mat4.rotationOnPoint(rotation.getX(), rotation.getY(), rotation.getZ(), rotationPoint);
         Mat4 matTrans = Mat4.translation(position.getX(), position.getY(), position.getZ());
@@ -186,46 +220,93 @@ public class Mesh extends Position3D {
         return matWorld;
     }
 
+    /**
+     * Binds the VBO
+     * 
+     * @param gl the GL4 object of the program
+     */
     public void bindVBO(GL4 gl) {
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
     }
 
+    /**
+     * Binds the VAO
+     * 
+     * @param gl the GL4 object of the program
+     */
     public void bindVAO(GL4 gl) {
         gl.glBindVertexArray(mVAO);
     }
 
-    public Buffer getData() {
+    /**
+     * 
+     * @return the data buffer
+     */
+    public FloatBuffer getData() {
         return data;
     }
 
+    /**
+     * 
+     * @return whether the data has been transferred to the GPU
+     */
     public boolean isLoaded() {
         return loaded;
     }
 
+    /**
+     * 
+     * @param scale the scale to set
+     */
     public void setScale(Vec3 scale) {
         this.scale = scale;
     }
 
+    /**
+     * 
+     * @return the scale of the mesh
+     */
     public Vec3 getScale() {
         return scale;
     }
 
+    /**
+     * 
+     * @param tint the tint to set
+     */
     public void setTint(Vec3 tint) {
         this.tint = tint;
     }
 
+    /**
+     * 
+     * @return the tint of the mesh
+     */
     public Vec3 getTint() {
         return tint;
     }
 
+    /**
+     * 
+     * @param material the material to set
+     */
     public void setMaterial(Material material) {
         this.material = material;
     }
 
+    /**
+     * 
+     * @return the material of the mesh
+     */
     public Material getMaterial() {
         return material;
     }
 
+    /**
+     * 
+     * @param gl     the GL4 object of the program
+     * @param shader the shader to send data to
+     */
     public void sendToShader(GL4 gl, Shader shader) {
         bindVAO(gl);
         bindVBO(gl);
@@ -249,6 +330,14 @@ public class Mesh extends Position3D {
         }
     }
 
+    /**
+     * 
+     * @param gl          the GL4 object of the program
+     * @param shader      the shader to render the mesh with
+     * @param camera      the camera
+     * @param dirLight    the global light
+     * @param pointLights point lights
+     */
     public void render(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, PointLight pointLights[]) {
         shader.use(gl);
         Material.sendToShader(gl, shader);
@@ -265,10 +354,26 @@ public class Mesh extends Position3D {
         gl.glDrawArrays(GL4.GL_TRIANGLES, 0, toddraw);
     }
 
+    /**
+     * 
+     * @param gl       the GL4 object of the program
+     * @param shader   the shader to render the mesh with
+     * @param camera   the camera
+     * @param dirLight the global light
+     */
     public void render(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight) {
         render(gl, shader, camera, dirLight, new PointLight[0]);
     }
 
+    /**
+     * 
+     * @param gl          the GL4 object of the program
+     * @param shader      the shader to render the mesh with
+     * @param camera      the camera
+     * @param dirLight    the global light
+     * @param meshes      the meshes to render
+     * @param pointLights point lights
+     */
     public static void renderAll(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, Mesh meshes[],
             PointLight pointLights[]) {
         shader.use(gl);
@@ -287,6 +392,14 @@ public class Mesh extends Position3D {
         }
     }
 
+    /**
+     * 
+     * @param gl       the GL4 object of the program
+     * @param shader   the shader to render the mesh with
+     * @param camera   the camera
+     * @param dirLight the global light
+     * @param meshes   the meshes to render
+     */
     public static void renderAll(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, Mesh meshes[]) {
         Mesh.renderAll(gl, shader, camera, dirLight, meshes, new PointLight[] {});
     }

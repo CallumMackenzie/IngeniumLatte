@@ -77,7 +77,7 @@ public class Mat4 {
 
     /**
      * 
-     * @param m a Mat4
+     * @param m a matrix
      * @return the inverse
      */
     public static Mat4 inverse(Mat4 m) {
@@ -119,7 +119,7 @@ public class Mat4 {
      * 
      * @param pos    the position
      * @param target the target
-     * @return a Mat4 associated with the direction of a point
+     * @return a matrix associated with the direction of a point
      */
     public static Mat4 pointedAt(Vec3 pos, Vec3 target) {
         return pointedAt(pos, target, new Vec3(0, 1.f, 0));
@@ -130,7 +130,7 @@ public class Mat4 {
      * @param pos    the position
      * @param target the target
      * @param up     the direction to treat as up
-     * @return a Mat4 associated with the direction of a point
+     * @return a matrix associated with the direction of a point
      */
     public static Mat4 pointedAt(Vec3 pos, Vec3 target, Vec3 up) {
         Vec3 newForward = target.sub(pos);
@@ -167,7 +167,7 @@ public class Mat4 {
      * @param x x scale
      * @param y y scale
      * @param z z scale
-     * @return a scale matrix
+     * @return a 3D scale matrix
      */
     public static Mat4 scale(float x, float y, float z) {
         Mat4 matrix = Mat4.identity();
@@ -182,7 +182,7 @@ public class Mat4 {
      * 
      * @param x x scale
      * @param y y scale
-     * @return a scale matrix
+     * @return a 3D scale matrix
      */
     public static Mat4 scale(float x, float y) {
         return scale(x, y, 1.f);
@@ -192,7 +192,7 @@ public class Mat4 {
      * Constructs a scale matrix
      * 
      * @param x x scale
-     * @return a scale matrix
+     * @return a 3D scale matrix
      */
     public static Mat4 scale(float x) {
         return scale(x, 1.f);
@@ -202,7 +202,7 @@ public class Mat4 {
      * Constructs a scale matrix
      * 
      * @param v a Vec3 representing a scale
-     * @return a scale matrix
+     * @return a 3D scale matrix
      */
     public static Mat4 scale(Vec3 v) {
         return scale(v.getX(), v.getY(), v.getZ());
@@ -214,7 +214,7 @@ public class Mat4 {
      * @param x x translation
      * @param y y translation
      * @param z z translation
-     * @return a translation matrix
+     * @return a 3D translation matrix
      */
     public static Mat4 translation(float x, float y, float z) {
         Mat4 matrix = new Mat4();
@@ -233,7 +233,7 @@ public class Mat4 {
      * 
      * @param x x translation
      * @param y y translation
-     * @return a translation matrix
+     * @return a 3D translation matrix
      */
     public static Mat4 translation(float x, float y) {
         return translation(x, y, 0.f);
@@ -243,7 +243,7 @@ public class Mat4 {
      * Constructs a translation matrix
      * 
      * @param x x translation
-     * @return a translation matrix
+     * @return a 3D translation matrix
      */
     public static Mat4 translation(float x) {
         return translation(x, 0.f);
@@ -253,7 +253,7 @@ public class Mat4 {
      * Constructs a translation matrix
      * 
      * @param v a Vec3 repersenting a transformation
-     * @return a translation matrix
+     * @return a 3D translation matrix
      */
     public static Mat4 translation(Vec3 v) {
         return translation(v.getX(), v.getY(), v.getZ());
@@ -262,7 +262,7 @@ public class Mat4 {
     /**
      * 
      * @param xRad x rotation in radians
-     * @return a rotation matrix with an x component only
+     * @return a 3D rotation matrix with an x component only
      */
     public static Mat4 rotationX(float xRad) {
         Mat4 matrix = new Mat4();
@@ -278,7 +278,7 @@ public class Mat4 {
     /**
      * 
      * @param yRad y rotation in radians
-     * @return a rotation matrix with an y component only
+     * @return a 3D rotation matrix with an y component only
      */
     public static Mat4 rotationY(float yRad) {
         Mat4 matrix = new Mat4();
@@ -294,7 +294,7 @@ public class Mat4 {
     /**
      * 
      * @param zRad z rotation in radians
-     * @return a rotation matrix with an z component only
+     * @return a 3D rotation matrix with an z component only
      */
     public static Mat4 rotationZ(float zRad) {
         Mat4 matrix = new Mat4();
@@ -312,7 +312,7 @@ public class Mat4 {
      * @param xRad x rotation in radians
      * @param yRad y rotation in radians
      * @param zRad z rotation in radians
-     * @return a full rotation matrix
+     * @return a full 3D rotation matrix
      */
     public static Mat4 rotation(float xRad, float yRad, float zRad) {
         return rotationX(xRad).mul(rotationY(yRad), rotationZ(zRad));
@@ -321,7 +321,7 @@ public class Mat4 {
     /**
      * 
      * @param rotation a Vec3 repersenting a rotation
-     * @return a full rotation matrix
+     * @return a full 3D rotation matrix
      */
     public static Mat4 rotation(Vec3 rotation) {
         return rotation(rotation.getX(), rotation.getY(), rotation.getZ());
@@ -330,7 +330,7 @@ public class Mat4 {
     /**
      * 
      * @param mat the matrix to flatten
-     * @return a flattened Mat4
+     * @return the flattened matrix
      */
     public static float[] flatten(Mat4 mat) {
         float f[] = new float[16];
@@ -349,7 +349,7 @@ public class Mat4 {
      * @param yRad y rotation in radians
      * @param zRad z rotation in radians
      * @param pt   a Vec3 repersenting the relative point to rotate around
-     * @return a rotation matrix around a point
+     * @return a 3D rotation matrix around a point
      */
     public static Mat4 rotationOnPoint(float xRad, float yRad, float zRad, Vec3 pt) {
         Mat4 mat = translation(pt).mul(rotation(xRad, yRad, zRad),
@@ -361,7 +361,7 @@ public class Mat4 {
      * 
      * @param rotation a Vec3 repersenting a rotation
      * @param point    a Vec3 repersenting the relative point to rotate around
-     * @return a rotation matrix around a point
+     * @return a 3D rotation matrix around a point
      */
     public static Mat4 rotationOnPoint(Vec3 rotation, Vec3 point) {
         return rotationOnPoint(rotation.getX(), rotation.getY(), rotation.getZ(), point);

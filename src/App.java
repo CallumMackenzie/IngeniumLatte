@@ -43,7 +43,6 @@ public class App extends Ingenium {
     protected void onRender(GL4 gl) {
         camera.stdControl(input, 0.1f);
         m.setRotation(m.getRotation().add(new Vec3(0.01f, 0.01f, 0.01f)));
-        System.out.println(camera.getPosition());
         clear(gl);
         Mesh.renderAll(gl, shader, camera, dLight, new Mesh[] { m });
     }
