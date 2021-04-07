@@ -1,6 +1,6 @@
 #version 330 core
 
-#define NR_POINT_LIGHTS 0
+#define NR_POINT_LIGHTS 1
 
 struct Material {
     sampler2D diffuse;
@@ -46,12 +46,7 @@ in vec3 Tangent0;
 void main () 
 {
     vec2 cUV = vec2(UV.x, 1.0 - UV.y);
-    vec3 norm;
-    if (hasNormalTexture) {
-        norm = CalcBumpedNormal(cUV); // normalize(TBN * (texture(material.normal, cUV).rgb * 2.0 - 1.0));
-    } else {
-        norm = normalize(normal); 
-    }
+    vec3 norm = CalcBumpedNormal(cUV); // normalize(TBN * (texture(material.normal, cUV).rgb * 2.0 - 1.0));
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 result = CalcDirLight(dirLight, norm, viewDir, cUV);
 #if NR_POINT_LIGHTS > 0

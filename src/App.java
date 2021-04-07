@@ -11,6 +11,7 @@ public class App extends Ingenium {
     Shader shader;
     Camera camera = new Camera(9.f / 16.f);
     DirectionalLight dLight = new DirectionalLight();
+    PointLight p[] = new PointLight[] { new PointLight(new Vec3(0, 1, 2.5)) };
 
     public static void main(String[] args) throws Exception {
         new App().start();
@@ -18,19 +19,22 @@ public class App extends Ingenium {
 
     App() {
         super("Ingneium Latte", 1600.f, 900.f);
-        setClearColour(0xabcdef, 1.f);
+        setClearColour(0x404040, 1);
+        dLight.setDirection(new Vec3());
+        p[0].setIntensity(2);
+        p[0].setSpecular(new Vec3(0.1, 0.1, 0.1));
     }
 
     @Override
     protected void onCreate(GL4 gl) {
-        shader = new Shader(gl, Utils.getFileAsString("./shaders/vert3dpf.vert"),
-                Utils.getFileAsString("./shaders/phongpf.frag"));
+        shader = new Shader(gl, Utils.getFileAsString("./shaders/vert3d.vert"),
+                Utils.getFileAsString("./shaders/phong.frag"));
         m = new Mesh();
-        m.setTint(new Vec3(0.5, 0.5, 0.5));
         Material mtrl = m.getMaterial();
-        mtrl.setShininess(1);
+        mtrl.setShininess(0.2);
         m.setMaterial(mtrl);
-        m.loadFromObjData(Utils.getFileAsString("D:\\3D Models\\torusnt.obj"));
+        m.loadFromObjData(Utils.getFileAsString("./resource/uvsmoothnt.obj"));
+        m.setTexture(gl, "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg");
         m.load(gl);
         m.setPosition(new Vec3(0f, 0f, 3f));
 
@@ -44,7 +48,7 @@ public class App extends Ingenium {
         camera.stdControl(input, 0.1f);
         m.setRotation(m.getRotation().add(new Vec3(0.01f, 0.01f, 0.01f)));
         clear(gl);
-        Mesh.renderAll(gl, shader, camera, dLight, new Mesh[] { m });
+        Mesh.renderAll(gl, shader, camera, dLight, new Mesh[] { m }, p);
     }
 
     @Override

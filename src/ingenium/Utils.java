@@ -5,12 +5,23 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.jogamp.opengl.GL4;
-
 import java.util.Arrays;
 
 public class Utils {
+    public static String NO_VALUE = "NO_VALUE";
+
+    public static class IngeniumException extends Exception {
+        /**
+         *
+         */
+        private static final long serialVersionUID = 1L;
+
+        public IngeniumException(String eString) {
+            super(eString);
+        }
+    }
+
     public static <T> void printArray(T[] array, String prefix, String suffix) {
         for (int i = 0; i < array.length; i++) {
             System.out.print(prefix.replaceAll("\\{i\\}", Integer.toString(i)));

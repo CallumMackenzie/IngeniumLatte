@@ -6,7 +6,9 @@ import ingenium.math.Vec3;
 import ingenium.world.Shader;
 
 public class PointLight extends Light {
-    private Vec3 position;
+    private static int numPointLights = 0;
+
+    private Vec3 position = new Vec3();
     private float constant = 1f;
     private float linear = 0.09f;
     private float quadratic = 0.032f;
@@ -14,6 +16,7 @@ public class PointLight extends Light {
     public PointLight(Vec3 position, Vec3 ambient, Vec3 diffuse, Vec3 specular, float intensity) {
         super(ambient, diffuse, specular, intensity);
         this.position = position;
+        numPointLights++;
     }
 
     public PointLight(Vec3 position, Vec3 ambient, Vec3 diffuse, Vec3 specular) {
@@ -76,5 +79,9 @@ public class PointLight extends Light {
 
     public void setQuadratic(float quadratic) {
         this.quadratic = quadratic;
+    }
+
+    public static int getNumPointLights() {
+        return numPointLights;
     }
 }

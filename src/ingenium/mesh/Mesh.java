@@ -1,11 +1,17 @@
 package ingenium.mesh;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
 
+import ingenium.Utils;
 import ingenium.math.*;
 import ingenium.world.Camera;
 import ingenium.world.Position3D;
@@ -14,6 +20,12 @@ import ingenium.world.light.DirectionalLight;
 import ingenium.world.light.PointLight;
 
 public class Mesh extends Position3D {
+    private static boolean cacheGeometry = false;
+    private static boolean cacheTextures = false;
+
+    private static HashMap<String, Integer> cachedTextures = new HashMap<String, Integer>();
+    private static HashMap<String, Integer> cachedGeometry = new HashMap<String, Integer>();
+
     private Vec3 scale;
     private Vec3 tint = new Vec3();
     private Material material;
@@ -88,7 +100,9 @@ public class Mesh extends Position3D {
      * 
      * @param raw the raw obj data in string form
      */
-    public void loadFromObjData(String raw) {
+    private void loadFromObjData(String raw, boolean path) {
+        if (path)
+            raw = Utils.getFileAsString(raw);
         ArrayList<Tri> tris = new ArrayList<Tri>();
         ArrayList<Vec3> verts = new ArrayList<Vec3>();
         ArrayList<Vec3> normals = new ArrayList<Vec3>();
@@ -162,6 +176,42 @@ public class Mesh extends Position3D {
             dataToWrite = newData;
         }
         data = Buffers.newDirectFloatBuffer(dataToWrite);
+        if (path)
+            if (cacheGeometry)
+                if (cachedGeometry.containsKey(path))
+    }
+
+    public void loadFromObjData(String path) {
+        loadFromObjData(path, true);
+    }
+
+    /**
+     * Loads the specified images onto the GPU, and their locations into the
+     * material associated with the mesh
+     * 
+     * @param gl           the GL4 object of this program
+     * @param diffusePath  the path to the diffuse texture
+     * @param specularPath the path to the specular texture
+     * @param normalPath   the path to the normal texture
+     */
+    public void setTexture(GL4 gl, String diffusePath, String specularPath, String normalPath) {
+        if (!diffusePath.equals(Utils.NO_VALUE))
+            material.setDiffuseTexture(findAndLoadTexture(gl, diffusePath, GL4.GL_TEXTURE0));
+        if (!specularPath.equals(Utils.NO_VALUE))
+            material.setSpecularTexture(findAndLoadTexture(gl, specularPath, GL4.GL_TEXTURE1));
+        if (!normalPath.equals(Utils.NO_VALUE))
+            material.setNormalTexture(findAndLoadTexture(gl, normalPath, GL4.GL_TEXTURE2));
+    }
+
+    /**
+     * 
+     * @param gl           the GL4 object of the program
+     * @param diffusePath  the path to the diffuse texture
+     * @param specularPath the path to the specular texture
+     * @param normalPath   the path to the normal texture
+     */
+    public void make(GL4 gl, String diffusePath, String specularPath, String normalPath) {
+
     }
 
     /**
@@ -402,5 +452,83 @@ public class Mesh extends Position3D {
      */
     public static void renderAll(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, Mesh meshes[]) {
         Mesh.renderAll(gl, shader, camera, dirLight, meshes, new PointLight[] {});
+    }
+
+    /**
+     * 
+     * @param gl        the GL4 object of the program
+     * @param path      the path to the image
+     * @param texSlot   the texture slot to use
+     * @param sWrap     texture wrap s mode
+     * @param tWrap     texture wrap t mode
+     * @param minFilter min filter mode
+     * @param magFilter mag filter mode
+     * @return a new texture
+     */
+    private static int findAndLoadTexture(GL4 gl, String path, int texSlot, int sWrap, int tWrap, int minFilter,
+            int magFilter) {
+        if (cacheTextures)
+            if (cachedTextures.containsKey(path))
+                if (cachedTextures.get(path) != GL4.GL_NONE)
+                    return cachedTextures.get(path);
+        try {
+            gl.glActiveTexture(texSlot);
+            Texture t = TextureIO.newTexture(new File(path), true);
+            t.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_S, sWrap);
+            t.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_T, tWrap);
+            t.setTexParameteri(gl, GL4.GL_TEXTURE_MIN_FILTER, minFilter);
+            t.setTexParameteri(gl, GL4.GL_TEXTURE_MAG_FILTER, magFilter);
+            if (cacheTextures)
+                cachedTextures.put(path, t.getTextureObject());
+            return t.getTextureObject();
+        } catch (IOException e) {
+            System.err.println("Could not find image: " + path + ". Terminating...");
+            System.exit(0);
+            return GL4.GL_NONE;
+        }
+    }
+
+    /**
+     * 
+     * @param gl      the GL4 object of the program
+     * @param path    the path to the image
+     * @param texSlot the texture slot to use
+     * @return a new texture
+     */
+    private static int findAndLoadTexture(GL4 gl, String path, int texSlot) {
+        return findAndLoadTexture(gl, path, texSlot, GL4.GL_REPEAT, GL4.GL_REPEAT, GL4.GL_LINEAR_MIPMAP_LINEAR,
+                GL4.GL_LINEAR);
+    }
+
+    /**
+     * 
+     * @return whether the mesh class is caching geometry data
+     */
+    public static boolean cachingGeometry() {
+        return cacheGeometry;
+    }
+
+    /**
+     * 
+     * @return whether the mesh class is caching image data
+     */
+    public static boolean cachingTextures() {
+        return cacheTextures;
+    }
+
+    /**
+     * 
+     * @param cache whether geometry data should be cached
+     */
+    public static void cacheGeometry(boolean cache) {
+        cacheGeometry = cache;
+    }
+
+    /**
+     * 
+     * @param cache whether texture data should be cached
+     */
+    public static void cacheTextures(boolean cache) {
+        cacheTextures = cache;
     }
 }
