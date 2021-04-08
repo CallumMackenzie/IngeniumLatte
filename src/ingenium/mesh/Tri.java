@@ -8,6 +8,7 @@ public class Tri {
 
     public static class Vert {
         public static final int vertSize = 17;
+        public static final int floatVertSize = vertSize * 3;
 
         private Vec3 p; // Point (4)
         private Vec2 t; // Texture coords (3)

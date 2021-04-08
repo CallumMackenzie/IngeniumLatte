@@ -33,7 +33,7 @@ public class GLWindow {
         frame = new Frame(this.name);
         this.aspect = height / width;
 
-        animator = new FPSAnimator(60);
+        animator = new FPSAnimator(120);
         animator.add(canvas);
 
         canvas.addGLEventListener(new GLEventListener() {

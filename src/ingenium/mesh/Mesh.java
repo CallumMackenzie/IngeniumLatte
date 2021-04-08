@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
@@ -20,20 +19,20 @@ import ingenium.world.light.DirectionalLight;
 import ingenium.world.light.PointLight;
 
 public class Mesh extends Position3D {
-    private static boolean cacheGeometry = false;
-    private static boolean cacheTextures = false;
 
-    private static HashMap<String, Integer> cachedTextures = new HashMap<String, Integer>();
-    private static HashMap<String, Integer> cachedGeometry = new HashMap<String, Integer>();
+    private static final Cache<String, Geometry.ValueCacheElement> geometryValueCache = new Cache<>("geometry cache",
+            false); // 1
+    private static final Cache<String, Integer[]> geometryReferenceCache = new Cache<>("geometry cache", false); // 2
+    private static final Cache<String, Integer> textureReferenceCache = new Cache<>("geometry cache", false);
 
     private Vec3 scale;
     private Vec3 tint = new Vec3();
     private Material material;
-
     private boolean loaded = false;
-    private FloatBuffer data;
+    private FloatBuffer data = null;
     private int mVBO = GL4.GL_NONE;
     private int mVAO = GL4.GL_NONE;
+    private int numVerts = 0;
 
     /**
      * 
@@ -97,10 +96,34 @@ public class Mesh extends Position3D {
     }
 
     /**
+     * Loads a .obj file into the data field
      * 
      * @param raw the raw obj data in string form
      */
     private void loadFromObjData(String raw, boolean path) {
+        boolean cacheDebug = true;
+        boolean debugLoading = false;
+        String objPath = "string obj data" + raw.hashCode();
+        if (path)
+            objPath = raw;
+        long time = System.currentTimeMillis();
+        if (geometryValueCache.isUsed())
+            if (geometryValueCache.containsKey(objPath)) {
+                Geometry.ValueCacheElement elem = geometryValueCache.getCacheValue(objPath);
+                data = elem.getBuffer();
+                numVerts = elem.getNumVerts();
+                if (cacheDebug)
+                    System.out.println(
+                            "Value cache hit (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
+                return;
+            }
+        if (geometryReferenceCache.isUsed())
+            if (geometryReferenceCache.containsKey(objPath)) {
+                if (cacheDebug)
+                    System.out.println(
+                            "Reference cache hit (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
+                return;
+            }
         if (path)
             raw = Utils.getFileAsString(raw);
         ArrayList<Tri> tris = new ArrayList<Tri>();
@@ -111,23 +134,23 @@ public class Mesh extends Position3D {
 
         boolean hasNormals = raw.contains("vn");
         boolean hasTexture = raw.contains("vt");
+        if (cacheDebug)
+            System.out.println("Loading .obj with " + lines.length + " lines...");
 
         for (int i = 0; i < lines.length; i++) {
+            if (debugLoading)
+                System.out.println(((float) i / (float) lines.length) + "% loading (" + i + " / " + lines.length + ")");
             String line = lines[i];
             if (line.charAt(0) == 'v') {
                 if (line.charAt(1) == 't') {
                     String seg[] = line.split(" ");
-                    Vec2 v = new Vec2(Float.parseFloat(seg[1]), Float.parseFloat(seg[2]));
-                    texs.add(v);
+                    texs.add(new Vec2(Float.parseFloat(seg[1]), Float.parseFloat(seg[2])));
                 } else if (line.charAt(1) == 'n') {
                     String seg[] = line.split(" ");
-                    Vec3 normal = new Vec3(Float.parseFloat(seg[1]), Float.parseFloat(seg[2]),
-                            Float.parseFloat(seg[3]));
-                    normals.add(normal);
+                    normals.add(new Vec3(Float.parseFloat(seg[1]), Float.parseFloat(seg[2]), Float.parseFloat(seg[3])));
                 } else {
                     String seg[] = line.split(" ");
-                    Vec3 ve = new Vec3(Float.parseFloat(seg[1]), Float.parseFloat(seg[2]), Float.parseFloat(seg[3]));
-                    verts.add(ve);
+                    verts.add(new Vec3(Float.parseFloat(seg[1]), Float.parseFloat(seg[2]), Float.parseFloat(seg[3])));
                 }
             } else if (line.charAt(0) == 'f') {
                 int params = 1;
@@ -160,25 +183,27 @@ public class Mesh extends Position3D {
         verts.clear();
         normals.clear();
         texs.clear();
-        float[] dataToWrite = new float[0];
-        for (Tri t : tris) {
-            for (int k = 0; k < 3; k++) {
-                Tri.Vert v = t.getVert(k);
-                v.setRgb(v.getRgb().add(tint));
-                t.setVert(k, v);
-            }
-            float triDat[] = t.toDataArray(this);
-            int datLen = dataToWrite.length;
-            int triLen = triDat.length;
-            float newData[] = new float[datLen + triLen];
-            System.arraycopy(dataToWrite, 0, newData, 0, datLen);
-            System.arraycopy(triDat, 0, newData, datLen, triLen);
-            dataToWrite = newData;
+        float[] dataToWrite = new float[tris.size() * Tri.Vert.vertSize * 3];
+        for (int l = 0; l < tris.size(); l++) {
+            if (debugLoading)
+                System.out.println(
+                        ((float) l / (float) tris.size() * 100f) + "% formatting (" + l + " / " + tris.size() + ")");
+            if (tint.getX() != 0 && tint.getY() != 0 && tint.getZ() != 0)
+                for (int k = 0; k < 3; k++) {
+                    Tri.Vert v = tris.get(l).getVert(k);
+                    v.setRgb(v.getRgb().add(tint));
+                    tris.get(l).setVert(k, v);
+                    numVerts++;
+                }
+            else
+                numVerts += 3;
+            System.arraycopy(tris.get(l).toDataArray(this), 0, dataToWrite, l * Tri.Vert.floatVertSize,
+                    Tri.Vert.floatVertSize);
         }
         data = Buffers.newDirectFloatBuffer(dataToWrite);
-        if (path)
-            if (cacheGeometry)
-                if (cachedGeometry.containsKey(path))
+        geometryValueCache.add(objPath, new Geometry.ValueCacheElement(data, numVerts));
+        if (cacheDebug)
+            System.out.println("No cache hits (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
     }
 
     public void loadFromObjData(String path) {
@@ -206,12 +231,23 @@ public class Mesh extends Position3D {
     /**
      * 
      * @param gl           the GL4 object of the program
+     * @param objPath      the path to the object file
      * @param diffusePath  the path to the diffuse texture
      * @param specularPath the path to the specular texture
      * @param normalPath   the path to the normal texture
      */
-    public void make(GL4 gl, String diffusePath, String specularPath, String normalPath) {
-
+    public void make(GL4 gl, String objPath, String diffusePath, String specularPath, String normalPath) {
+        loadFromObjData(objPath);
+        setTexture(gl, diffusePath, specularPath, normalPath);
+        if (geometryReferenceCache.containsKey(objPath) && geometryReferenceCache.isUsed() && data == null) {
+            mVBO = geometryReferenceCache.getCacheValue(objPath)[0];
+            mVAO = geometryReferenceCache.getCacheValue(objPath)[1];
+            numVerts = geometryReferenceCache.getCacheValue(objPath)[2];
+            loaded = true;
+        }
+        load(gl);
+        if (!geometryReferenceCache.containsKey(objPath) && geometryReferenceCache.isUsed())
+            geometryReferenceCache.add(objPath, new Integer[] { mVBO, mVAO, numVerts });
     }
 
     /**
@@ -230,8 +266,7 @@ public class Mesh extends Position3D {
 
             mVBO = buffers[0];
             gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
-            long len = data.capacity() * floatBytes;
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, len, data, GL4.GL_STATIC_DRAW);
+            gl.glBufferData(GL4.GL_ARRAY_BUFFER, data.capacity() * floatBytes, data, GL4.GL_STATIC_DRAW);
 
             mVAO = vertexArrays[0];
             gl.glBindVertexArray(mVAO);
@@ -354,6 +389,38 @@ public class Mesh extends Position3D {
 
     /**
      * 
+     * @return the geometry value cache
+     */
+    public static Cache<String, Geometry.ValueCacheElement> getGeometryValueCache() {
+        return geometryValueCache;
+    }
+
+    /**
+     * 
+     * @return the geometry reference cache
+     */
+    public static Cache<String, Integer[]> getGeometryReferenceCache() {
+        return geometryReferenceCache;
+    }
+
+    /**
+     * 
+     * @return the texture reference cache
+     */
+    public static Cache<String, Integer> getTextureReferenceCache() {
+        return textureReferenceCache;
+    }
+
+    /**
+     * 
+     * @return the number of vertecies in the mesh
+     */
+    public int getNumVerts() {
+        return numVerts;
+    }
+
+    /**
+     * 
      * @param gl     the GL4 object of the program
      * @param shader the shader to send data to
      */
@@ -400,8 +467,7 @@ public class Mesh extends Position3D {
 
         sendToShader(gl, shader);
 
-        int toddraw = data.capacity() / Tri.Vert.vertSize;
-        gl.glDrawArrays(GL4.GL_TRIANGLES, 0, toddraw);
+        gl.glDrawArrays(GL4.GL_TRIANGLES, 0, numVerts);
     }
 
     /**
@@ -437,8 +503,7 @@ public class Mesh extends Position3D {
 
         for (int i = 0; i < meshes.length; i++) {
             meshes[i].sendToShader(gl, shader);
-
-            gl.glDrawArrays(GL4.GL_TRIANGLES, 0, meshes[i].data.capacity() / Tri.Vert.vertSize);
+            gl.glDrawArrays(GL4.GL_TRIANGLES, 0, meshes[i].numVerts);
         }
     }
 
@@ -467,10 +532,15 @@ public class Mesh extends Position3D {
      */
     private static int findAndLoadTexture(GL4 gl, String path, int texSlot, int sWrap, int tWrap, int minFilter,
             int magFilter) {
-        if (cacheTextures)
-            if (cachedTextures.containsKey(path))
-                if (cachedTextures.get(path) != GL4.GL_NONE)
-                    return cachedTextures.get(path);
+        boolean debug = false;
+        long time = System.currentTimeMillis();
+        if (textureReferenceCache.isUsed() && textureReferenceCache.containsKey(path)
+                && textureReferenceCache.getCacheValue(path) != GL4.GL_NONE) {
+            if (debug)
+                System.out.println(
+                        "Texture reference cache hit (" + path + "): " + (System.currentTimeMillis() - time) + "ms");
+            return textureReferenceCache.getCacheValue(path);
+        }
         try {
             gl.glActiveTexture(texSlot);
             Texture t = TextureIO.newTexture(new File(path), true);
@@ -478,12 +548,12 @@ public class Mesh extends Position3D {
             t.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_T, tWrap);
             t.setTexParameteri(gl, GL4.GL_TEXTURE_MIN_FILTER, minFilter);
             t.setTexParameteri(gl, GL4.GL_TEXTURE_MAG_FILTER, magFilter);
-            if (cacheTextures)
-                cachedTextures.put(path, t.getTextureObject());
+            textureReferenceCache.add(path, t.getTextureObject());
+            if (debug)
+                System.out.println("No cache hits (" + path + "): " + (System.currentTimeMillis() - time) + "ms");
             return t.getTextureObject();
         } catch (IOException e) {
-            System.err.println("Could not find image: " + path + ". Terminating...");
-            System.exit(0);
+            System.err.println("Could not find image: " + path);
             return GL4.GL_NONE;
         }
     }
@@ -500,35 +570,4 @@ public class Mesh extends Position3D {
                 GL4.GL_LINEAR);
     }
 
-    /**
-     * 
-     * @return whether the mesh class is caching geometry data
-     */
-    public static boolean cachingGeometry() {
-        return cacheGeometry;
-    }
-
-    /**
-     * 
-     * @return whether the mesh class is caching image data
-     */
-    public static boolean cachingTextures() {
-        return cacheTextures;
-    }
-
-    /**
-     * 
-     * @param cache whether geometry data should be cached
-     */
-    public static void cacheGeometry(boolean cache) {
-        cacheGeometry = cache;
-    }
-
-    /**
-     * 
-     * @param cache whether texture data should be cached
-     */
-    public static void cacheTextures(boolean cache) {
-        cacheTextures = cache;
-    }
 }

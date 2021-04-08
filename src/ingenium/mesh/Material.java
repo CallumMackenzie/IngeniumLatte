@@ -14,6 +14,48 @@ public class Material {
 
     /**
      * 
+     * @param shininess       the shininess of the material
+     * @param parallaxScale   the scale for the parallax texture
+     * @param diffuseTexture  the diffuse texture location
+     * @param specularTexture the specular texture location
+     * @param normalTexture   the normal texture location
+     * @param parallaxTexture the parallax texture location
+     */
+    public Material(float shininess, float parallaxScale, int diffuseTexture, int specularTexture, int normalTexture,
+            int parallaxTexture) {
+        this.shininess = shininess;
+        this.parallaxScale = parallaxScale;
+        this.diffuseTexture = diffuseTexture;
+        this.specularTexture = specularTexture;
+        this.normalTexture = normalTexture;
+        this.parallaxTexture = parallaxTexture;
+    }
+
+    /**
+     * 
+     * @param shininess the shininess of the material
+     */
+    public Material(float shininess) {
+        this.shininess = shininess;
+    }
+
+    /**
+     * 
+     * @param shininess the shininess of the material
+     */
+    public Material(double shininess) {
+        this.shininess = (float) shininess;
+    }
+
+    /**
+     * Constructs a default empty material
+     */
+    public Material() {
+
+    }
+
+    /**
+     * 
      * @return the diffuse texture location
      */
     public int getDiffuseTexture() {
