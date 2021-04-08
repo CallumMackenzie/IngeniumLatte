@@ -19,10 +19,9 @@ public class GLWindow {
     private float aspect;
     private GLCanvas canvas;
     private GLCapabilities glcapabilities;
-    private int clearColour = 0x000000;
-    private float clearAlpha = 1.f;
-    protected Frame frame;
     private FPSAnimator animator;
+    protected Frame frame;
+    protected Time time = new Time();
 
     public GLWindow(String name, float width, float height, GLCapabilities glcapabilities) {
         this.glcapabilities = glcapabilities;
@@ -33,9 +32,6 @@ public class GLWindow {
         frame = new Frame(this.name);
         this.aspect = height / width;
 
-        animator = new FPSAnimator(120);
-        animator.add(canvas);
-
         canvas.addGLEventListener(new GLEventListener() {
 
             @Override
@@ -45,7 +41,7 @@ public class GLWindow {
 
             @Override
             public void init(GLAutoDrawable glautodrawable) {
-                create(glautodrawable.getGL().getGL4());
+                createGL(glautodrawable.getGL().getGL4());
             }
 
             @Override
@@ -74,16 +70,21 @@ public class GLWindow {
     }
 
     public void start() {
+        animator = new FPSAnimator((int) (time.getTargetRenderFPS() + 0.5f));
+        animator.add(canvas);
         animator.start();
     }
 
-    public void setClearColour(int hex, float alpha) {
-        this.clearColour = hex;
-        this.clearAlpha = alpha;
+    public void setClearColour(GL4 gl, int hex, float alpha) {
+        float r = (float) ((hex & 0xFF0000) >> 16) / 255.f;
+        float g = (float) ((hex & 0x00FF00) >> 8) / 255.f;
+        float b = (float) ((hex & 0x0000FF)) / 255.f;
+        gl.glClearColor(r, g, b, alpha);
+        gl.glClearDepth(1.f);
     }
 
-    public void setClearColour(int hex) {
-        setClearColour(hex, 1.f);
+    public void setClearColour(GL4 gl, int hex) {
+        setClearColour(gl, hex, 1.f);
     }
 
     public void clear(GL4 gl) {
@@ -91,46 +92,82 @@ public class GLWindow {
     }
 
     public void resize(GL4 gl, int width, int height) {
-        float r = (float) ((clearColour & 0xFF0000) >> 16) / 255.f;
-        float g = (float) ((clearColour & 0x00FF00) >> 8) / 255.f;
-        float b = (float) ((clearColour & 0x0000FF)) / 255.f;
-        gl.glClearColor(r, g, b, clearAlpha);
-        gl.glClearDepth(1.f);
         gl.glViewport(0, 0, width, height);
     }
 
-    protected void displayGL(GL4 gl, int surfaceWidth, int surfaceHeight) {
+    private void displayGL(GL4 gl, int surfaceWidth, int surfaceHeight) {
+        time.updateRenderDeltaTime();
         render(gl);
     }
 
+    private void createGL(GL4 gl) {
+        create(gl);
+        time.updateRenderDeltaTime();
+    }
+
+    /**
+     * Called on program initialization
+     * 
+     * @param gl the GL4 object of the program
+     */
     protected void create(GL4 gl) {
 
     }
 
+    /**
+     * Called just before program termination
+     * 
+     * @param gl the GL4 object of the program
+     */
     protected void close(GL4 gl) {
 
     }
 
+    /**
+     * Called every frame
+     * 
+     * @param gl the GL4 object of the program
+     */
     protected void render(GL4 gl) {
 
     }
 
+    /**
+     * 
+     * @return the aspect ratio
+     */
     public float getAspect() {
         return aspect;
     }
 
+    /**
+     * 
+     * @return the window name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * 
+     * @return the window height
+     */
     public float getHeight() {
         return height;
     }
 
+    /**
+     * 
+     * @return the window width
+     */
     public float getWidth() {
         return width;
     }
 
+    /**
+     * 
+     * @return the GLCanvas object of the window
+     */
     public GLCanvas getCanvas() {
         return canvas;
     }

@@ -7,8 +7,13 @@ import com.jogamp.opengl.GL4;
 public class Ingenium extends GLWindow {
 
     protected Input input = new Input();
-    private boolean created = false;
 
+    /**
+     * 
+     * @param name   the window name
+     * @param width  the window width
+     * @param height the window height
+     */
     public Ingenium(String name, float width, float height) {
         super(name, width, height, new GLCapabilities(GLProfile.getDefault()));
 
@@ -20,8 +25,7 @@ public class Ingenium extends GLWindow {
     @Override
     protected void render(GL4 gl) {
         frame.requestFocus();
-        if (created)
-            onRender(gl);
+        onRender(gl);
     }
 
     @Override
@@ -33,7 +37,6 @@ public class Ingenium extends GLWindow {
         gl.glDepthFunc(GL4.GL_LEQUAL);
         gl.glDepthRange(0.0, 1.0);
         onCreate(gl);
-        created = true;
     }
 
     @Override

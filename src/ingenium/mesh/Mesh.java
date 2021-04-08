@@ -33,6 +33,9 @@ public class Mesh extends Position3D {
     private int mVBO = GL4.GL_NONE;
     private int mVAO = GL4.GL_NONE;
     private int numVerts = 0;
+    private boolean useTextureReferenceCache = true;
+    private boolean useGeometryReferenceCache = true;
+    private boolean useGeometryValueCache = true;
 
     /**
      * 
@@ -96,9 +99,9 @@ public class Mesh extends Position3D {
     }
 
     /**
-     * Loads a .obj file into the data field
      * 
-     * @param raw the raw obj data in string form
+     * @param raw  the path or raw obj data
+     * @param path whether the passed value is a path or raw data
      */
     private void loadFromObjData(String raw, boolean path) {
         boolean cacheDebug = true;
@@ -107,7 +110,7 @@ public class Mesh extends Position3D {
         if (path)
             objPath = raw;
         long time = System.currentTimeMillis();
-        if (geometryValueCache.isUsed())
+        if (geometryValueCache.isUsed() && useGeometryValueCache)
             if (geometryValueCache.containsKey(objPath)) {
                 Geometry.ValueCacheElement elem = geometryValueCache.getCacheValue(objPath);
                 data = elem.getBuffer();
@@ -117,7 +120,7 @@ public class Mesh extends Position3D {
                             "Value cache hit (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
                 return;
             }
-        if (geometryReferenceCache.isUsed())
+        if (geometryReferenceCache.isUsed() && useGeometryReferenceCache)
             if (geometryReferenceCache.containsKey(objPath)) {
                 if (cacheDebug)
                     System.out.println(
@@ -221,11 +224,12 @@ public class Mesh extends Position3D {
      */
     public void setTexture(GL4 gl, String diffusePath, String specularPath, String normalPath) {
         if (!diffusePath.equals(Utils.NO_VALUE))
-            material.setDiffuseTexture(findAndLoadTexture(gl, diffusePath, GL4.GL_TEXTURE0));
+            material.setDiffuseTexture(findAndLoadTexture(gl, diffusePath, GL4.GL_TEXTURE0, useTextureReferenceCache));
         if (!specularPath.equals(Utils.NO_VALUE))
-            material.setSpecularTexture(findAndLoadTexture(gl, specularPath, GL4.GL_TEXTURE1));
+            material.setSpecularTexture(
+                    findAndLoadTexture(gl, specularPath, GL4.GL_TEXTURE1, useTextureReferenceCache));
         if (!normalPath.equals(Utils.NO_VALUE))
-            material.setNormalTexture(findAndLoadTexture(gl, normalPath, GL4.GL_TEXTURE2));
+            material.setNormalTexture(findAndLoadTexture(gl, normalPath, GL4.GL_TEXTURE2, useTextureReferenceCache));
     }
 
     /**
@@ -421,6 +425,55 @@ public class Mesh extends Position3D {
 
     /**
      * 
+     * @param useGeometryReferenceCache whether to check the geometry reference
+     *                                  cache
+     */
+    public void useGeometryReferenceCache(boolean useGeometryReferenceCache) {
+        this.useGeometryReferenceCache = useGeometryReferenceCache;
+    }
+
+    /**
+     * 
+     * @param useGeometryValueCache whether to check the geometry value cache
+     */
+    public void useGeometryValueCache(boolean useGeometryValueCache) {
+        this.useGeometryValueCache = useGeometryValueCache;
+    }
+
+    /**
+     * 
+     * @param useTextureReferenceCache whether to check the texture reference cache
+     */
+    public void useTextureReferenceCache(boolean useTextureReferenceCache) {
+        this.useTextureReferenceCache = useTextureReferenceCache;
+    }
+
+    /**
+     * 
+     * @return whether the texture reference cache is being used
+     */
+    public boolean usingTextureReferenceCache() {
+        return useTextureReferenceCache;
+    }
+
+    /**
+     * 
+     * @return whether the geometry value cache is being used
+     */
+    public boolean usingGeometryValueCache() {
+        return useGeometryValueCache;
+    }
+
+    /**
+     * 
+     * @return whether the geometry reference cache is being used
+     */
+    public boolean usingGeometryReferenceCache() {
+        return useGeometryReferenceCache;
+    }
+
+    /**
+     * 
      * @param gl     the GL4 object of the program
      * @param shader the shader to send data to
      */
@@ -531,11 +584,11 @@ public class Mesh extends Position3D {
      * @return a new texture
      */
     private static int findAndLoadTexture(GL4 gl, String path, int texSlot, int sWrap, int tWrap, int minFilter,
-            int magFilter) {
+            int magFilter, boolean useTexCache) {
         boolean debug = false;
         long time = System.currentTimeMillis();
         if (textureReferenceCache.isUsed() && textureReferenceCache.containsKey(path)
-                && textureReferenceCache.getCacheValue(path) != GL4.GL_NONE) {
+                && textureReferenceCache.getCacheValue(path) != GL4.GL_NONE && useTexCache) {
             if (debug)
                 System.out.println(
                         "Texture reference cache hit (" + path + "): " + (System.currentTimeMillis() - time) + "ms");
@@ -565,9 +618,9 @@ public class Mesh extends Position3D {
      * @param texSlot the texture slot to use
      * @return a new texture
      */
-    private static int findAndLoadTexture(GL4 gl, String path, int texSlot) {
+    private static int findAndLoadTexture(GL4 gl, String path, int texSlot, boolean useTexCache) {
         return findAndLoadTexture(gl, path, texSlot, GL4.GL_REPEAT, GL4.GL_REPEAT, GL4.GL_LINEAR_MIPMAP_LINEAR,
-                GL4.GL_LINEAR);
+                GL4.GL_LINEAR, useTexCache);
     }
 
 }
