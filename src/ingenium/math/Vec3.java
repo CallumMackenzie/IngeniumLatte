@@ -119,6 +119,14 @@ public class Vec3 extends Vec {
 
     /**
      * 
+     * @param z the z value to set
+     */
+    public void setZ(double z) {
+        this.z = (float) z;
+    }
+
+    /**
+     * 
      * @param m the Mat4 to multiply the vector by
      * @return a new vector with the multiplication result
      */

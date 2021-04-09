@@ -9,6 +9,7 @@ uniform mat4 projection;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 invModel;
+uniform vec4 meshTint;
 
 out vec3 UV;
 out vec4 tint;
@@ -20,7 +21,7 @@ void main () {
     transformed.x = - transformed.x;
     gl_Position = transformed;
     UV = vec3(vertexUV.x, vertexUV.y, 1);
-    tint = vertexRGB.rgba;
+    tint = vertexRGB + meshTint;
     normal =  mat3(transpose(invModel)) * vertexNormal.xyz;
     fragPos = vec3(model * vertexPosition);
 }

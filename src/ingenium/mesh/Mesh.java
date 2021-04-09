@@ -3,13 +3,9 @@ package ingenium.mesh;
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-
-import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-
 import ingenium.Utils;
 import ingenium.math.*;
 import ingenium.world.Camera;
@@ -20,9 +16,6 @@ import ingenium.world.light.PointLight;
 
 public class Mesh extends Position3D {
 
-    private static final Cache<String, Geometry.ValueCacheElement> geometryValueCache = new Cache<>("geometry cache",
-            false); // 1
-    private static final Cache<String, Integer[]> geometryReferenceCache = new Cache<>("geometry cache", false); // 2
     private static final Cache<String, Integer> textureReferenceCache = new Cache<>("geometry cache", false);
 
     private Vec3 scale;
@@ -99,121 +92,6 @@ public class Mesh extends Position3D {
     }
 
     /**
-     * 
-     * @param raw  the path or raw obj data
-     * @param path whether the passed value is a path or raw data
-     */
-    private void loadFromObjData(String raw, boolean path) {
-        boolean cacheDebug = true;
-        boolean debugLoading = false;
-        String objPath = "string obj data" + raw.hashCode();
-        if (path)
-            objPath = raw;
-        long time = System.currentTimeMillis();
-        if (geometryValueCache.isUsed() && useGeometryValueCache)
-            if (geometryValueCache.containsKey(objPath)) {
-                Geometry.ValueCacheElement elem = geometryValueCache.getCacheValue(objPath);
-                data = elem.getBuffer();
-                numVerts = elem.getNumVerts();
-                if (cacheDebug)
-                    System.out.println(
-                            "Value cache hit (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
-                return;
-            }
-        if (geometryReferenceCache.isUsed() && useGeometryReferenceCache)
-            if (geometryReferenceCache.containsKey(objPath)) {
-                if (cacheDebug)
-                    System.out.println(
-                            "Reference cache hit (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
-                return;
-            }
-        if (path)
-            raw = Utils.getFileAsString(raw);
-        ArrayList<Tri> tris = new ArrayList<Tri>();
-        ArrayList<Vec3> verts = new ArrayList<Vec3>();
-        ArrayList<Vec3> normals = new ArrayList<Vec3>();
-        ArrayList<Vec2> texs = new ArrayList<Vec2>();
-        String lines[] = raw.split("\n");
-
-        boolean hasNormals = raw.contains("vn");
-        boolean hasTexture = raw.contains("vt");
-        if (cacheDebug)
-            System.out.println("Loading .obj with " + lines.length + " lines...");
-
-        for (int i = 0; i < lines.length; i++) {
-            if (debugLoading)
-                System.out.println(((float) i / (float) lines.length) + "% loading (" + i + " / " + lines.length + ")");
-            String line = lines[i];
-            if (line.charAt(0) == 'v') {
-                if (line.charAt(1) == 't') {
-                    String seg[] = line.split(" ");
-                    texs.add(new Vec2(Float.parseFloat(seg[1]), Float.parseFloat(seg[2])));
-                } else if (line.charAt(1) == 'n') {
-                    String seg[] = line.split(" ");
-                    normals.add(new Vec3(Float.parseFloat(seg[1]), Float.parseFloat(seg[2]), Float.parseFloat(seg[3])));
-                } else {
-                    String seg[] = line.split(" ");
-                    verts.add(new Vec3(Float.parseFloat(seg[1]), Float.parseFloat(seg[2]), Float.parseFloat(seg[3])));
-                }
-            } else if (line.charAt(0) == 'f') {
-                int params = 1;
-                if (hasNormals)
-                    params++;
-                if (hasTexture)
-                    params++;
-
-                ArrayList<Integer> vals = new ArrayList<Integer>();
-                String seg[] = line.replace("f", "").split("[\\/\\s]+");
-
-                for (int l = 1; l < seg.length; l++)
-                    vals.add(Integer.parseInt(seg[l]));
-
-                Tri push = new Tri();
-                for (int k = 0; k < 3; k++) {
-                    Tri.Vert v = new Tri.Vert(verts.get(vals.get(params * k) - 1));
-                    if (hasTexture)
-                        v.setT(texs.get(vals.get((params * k) + 1) - 1));
-                    if (hasNormals && !hasTexture)
-                        v.setN(normals.get(vals.get((params * k) + 1) - 1));
-                    if (hasNormals && hasTexture)
-                        v.setN(normals.get(vals.get((params * k) + 2) - 1));
-                    push.setVert(k, v);
-                }
-
-                tris.add(push);
-            }
-        }
-        verts.clear();
-        normals.clear();
-        texs.clear();
-        float[] dataToWrite = new float[tris.size() * Tri.Vert.vertSize * 3];
-        for (int l = 0; l < tris.size(); l++) {
-            if (debugLoading)
-                System.out.println(
-                        ((float) l / (float) tris.size() * 100f) + "% formatting (" + l + " / " + tris.size() + ")");
-            if (tint.getX() != 0 && tint.getY() != 0 && tint.getZ() != 0)
-                for (int k = 0; k < 3; k++) {
-                    Tri.Vert v = tris.get(l).getVert(k);
-                    v.setRgb(v.getRgb().add(tint));
-                    tris.get(l).setVert(k, v);
-                    numVerts++;
-                }
-            else
-                numVerts += 3;
-            System.arraycopy(tris.get(l).toDataArray(this), 0, dataToWrite, l * Tri.Vert.floatVertSize,
-                    Tri.Vert.floatVertSize);
-        }
-        data = Buffers.newDirectFloatBuffer(dataToWrite);
-        geometryValueCache.add(objPath, new Geometry.ValueCacheElement(data, numVerts));
-        if (cacheDebug)
-            System.out.println("No cache hits (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
-    }
-
-    public void loadFromObjData(String path) {
-        loadFromObjData(path, true);
-    }
-
-    /**
      * Loads the specified images onto the GPU, and their locations into the
      * material associated with the mesh
      * 
@@ -241,17 +119,18 @@ public class Mesh extends Position3D {
      * @param normalPath   the path to the normal texture
      */
     public void make(GL4 gl, String objPath, String diffusePath, String specularPath, String normalPath) {
-        loadFromObjData(objPath);
         setTexture(gl, diffusePath, specularPath, normalPath);
-        if (geometryReferenceCache.containsKey(objPath) && geometryReferenceCache.isUsed() && data == null) {
-            mVBO = geometryReferenceCache.getCacheValue(objPath)[0];
-            mVAO = geometryReferenceCache.getCacheValue(objPath)[1];
-            numVerts = geometryReferenceCache.getCacheValue(objPath)[2];
+        Geometry.Object3D object3d = Geometry.loadFromObjData(objPath, true, useGeometryReferenceCache,
+                useGeometryValueCache);
+        if (object3d.isReference()) {
+            this.mVBO = object3d.getVBO();
+            this.mVAO = object3d.getVAO();
             loaded = true;
-        }
+        } else
+            this.data = object3d.getData();
+        this.numVerts = object3d.getNumVerts();
         load(gl);
-        if (!geometryReferenceCache.containsKey(objPath) && geometryReferenceCache.isUsed())
-            geometryReferenceCache.add(objPath, new Integer[] { mVBO, mVAO, numVerts });
+        Geometry.getReferenceCache().checkAddCache(objPath, new Integer[] { mVBO, mVAO, numVerts });
     }
 
     /**
@@ -393,22 +272,6 @@ public class Mesh extends Position3D {
 
     /**
      * 
-     * @return the geometry value cache
-     */
-    public static Cache<String, Geometry.ValueCacheElement> getGeometryValueCache() {
-        return geometryValueCache;
-    }
-
-    /**
-     * 
-     * @return the geometry reference cache
-     */
-    public static Cache<String, Integer[]> getGeometryReferenceCache() {
-        return geometryReferenceCache;
-    }
-
-    /**
-     * 
      * @return the texture reference cache
      */
     public static Cache<String, Integer> getTextureReferenceCache() {
@@ -485,19 +348,14 @@ public class Mesh extends Position3D {
         shader.setUniform(gl, "invModel", model.inverse());
         shader.setUniform(gl, "material.shininess", material.getShininess());
         shader.setUniform(gl, "heightScale", material.getParallaxScale());
+        shader.setUVec4(gl, "meshTint", tint);
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
-        if (material.getDiffuseTexture() != GL4.GL_NONE) {
-            gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getDiffuseTexture());
-        }
+        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getDiffuseTexture());
         gl.glActiveTexture(GL4.GL_TEXTURE1);
-        if (material.getSpecularTexture() != GL4.GL_NONE) {
-            gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getSpecularTexture());
-        }
+        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getSpecularTexture());
         gl.glActiveTexture(GL4.GL_TEXTURE2);
-        if (material.getNormalTexture() != GL4.GL_NONE) {
-            gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getNormalTexture());
-        }
+        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getNormalTexture());
     }
 
     /**
@@ -585,6 +443,8 @@ public class Mesh extends Position3D {
      */
     private static int findAndLoadTexture(GL4 gl, String path, int texSlot, int sWrap, int tWrap, int minFilter,
             int magFilter, boolean useTexCache) {
+        if (path.equals(Utils.NO_VALUE))
+            return GL4.GL_NONE;
         boolean debug = false;
         long time = System.currentTimeMillis();
         if (textureReferenceCache.isUsed() && textureReferenceCache.containsKey(path)

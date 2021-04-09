@@ -103,4 +103,12 @@ public class Utils {
             System.err.println("OpenGL Error Code: " + Integer.toHexString(err));
         }
     }
+
+    public static double sinPulse(double time, double frequency) {
+        return (0.5 * (1 + Math.sin(2 * frequency * 3.14159 * time)));
+    }
+
+    public static double cosPulse(double time, double frequency) {
+        return (0.5 * (1 + Math.cos(2 * frequency * 3.14159 * time)));
+    }
 }

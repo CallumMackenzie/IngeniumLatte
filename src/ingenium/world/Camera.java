@@ -144,7 +144,9 @@ public class Camera extends Position3D {
         if (in.getKeyState(40)) // Arrow down
             rotate.setX(cameraMoveSpeed);
         if (in.getKeyState(16))
-            speed *= 5.f;
+            speed *= 3.f;
+        if (in.getKeyState(17))
+            speed *= 7.f;
 
         this.rotation = this.rotation.add(rotate.mulFloat(deltaTime));
         this.position = this.position.add(forward.normalized().mulFloat(speed * deltaTime));

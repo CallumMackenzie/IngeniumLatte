@@ -102,4 +102,9 @@ public class Cache<KEY, DATA> {
         return cacheHits;
     }
 
+    public void checkAddCache(KEY key, DATA data) {
+        if (use && !containsKey(key))
+            add(key, data);
+    }
+
 }

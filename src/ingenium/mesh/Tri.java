@@ -134,7 +134,7 @@ public class Tri {
         return ret;
     }
 
-    public float[] toDataArray(Mesh m) {
+    public float[] toDataArray() {
         float ret[] = new float[Vert.vertSize * 3];
         Vec3 tangent[] = calculateTangents();
         for (int i = 0; i < 3; i++) {
@@ -147,9 +147,9 @@ public class Tri {
             ret[(i * Vert.vertSize) + 5] = (v[i].t.getY());
             ret[(i * Vert.vertSize) + 6] = (v[i].t.getW());
 
-            ret[(i * Vert.vertSize) + 7] = (v[i].rgb.getX() + m.getTint().getX());
-            ret[(i * Vert.vertSize) + 8] = (v[i].rgb.getY() + m.getTint().getY());
-            ret[(i * Vert.vertSize) + 9] = (v[i].rgb.getZ() + m.getTint().getZ());
+            ret[(i * Vert.vertSize) + 7] = (v[i].rgb.getX());
+            ret[(i * Vert.vertSize) + 8] = (v[i].rgb.getY());
+            ret[(i * Vert.vertSize) + 9] = (v[i].rgb.getZ());
             ret[(i * Vert.vertSize) + 10] = (v[i].rgb.getW());
 
             ret[(i * Vert.vertSize) + 11] = (v[i].n.getX());
