@@ -7,7 +7,7 @@ import ingenium.world.*;
 import ingenium.world.light.*;
 
 public class App extends Ingenium {
-    Mesh m[] = new Mesh[300];
+    Mesh m[] = new Mesh[500];
     Shader shader;
     Camera camera = new Camera(9.f / 16.f);
     DirectionalLight dLight = new DirectionalLight();
@@ -26,7 +26,7 @@ public class App extends Ingenium {
         p[0].setIntensity(10);
         p[0].setAmbient(new Vec3());
         p[0].getPosition().setZ(-1.5);
-        time.setTargetRenderFPS(1000);
+        time.setTargetRenderFPS(75);
     }
 
     @Override
@@ -46,10 +46,10 @@ public class App extends Ingenium {
             {"./resource/gate/b.jpg", "./resource/gate/s.jpg", "./resource/gate/n.jpg"}
         };
         String objectPaths[] = new String[] {
+            "./resource/cubent.obj",
             "./resource/suzanne.obj",
             "./resource/uvspherent.obj",
             "./resource/uvsmoothnt.obj",
-            "./resource/cubent.obj",
             "./resource/torusnt.obj",
             "./resource/planent.obj"
         };
@@ -73,7 +73,7 @@ public class App extends Ingenium {
 
     @Override
     protected void onRender(GL4 gl) {
-        // System.out.println("FPS: " + Time.deltaTimeToFPS(time.getRenderDeltaTime()));
+        System.out.println("FPS: " + Time.deltaTimeToFPS(time.getRenderDeltaTime()));
         camera.stdControl(input, time.getRenderDeltaTime(), 4, 6);
         frame += 1 * time.getRenderDeltaTime();
         for (int i = 1; i < m.length; i++) {
@@ -88,11 +88,11 @@ public class App extends Ingenium {
                         Math.random() + ((float) i / 100)
                     ).mulFloat(time.getRenderDeltaTime())));
         }
-        double lightVal = Utils.sinPulse(frame, 0.1) * m[m.length - 1].getPosition().getX();
-        p[0].getPosition().setX(lightVal);
-        float sinSpeed = 0.5f;
-        p[0].setDiffuse(new Vec3(Utils.sinPulse(frame, sinSpeed), Utils.sinPulse(frame + 1, sinSpeed), Utils.sinPulse(frame + 2, sinSpeed)));
-        p[0].setSpecular(p[0].getAmbient());
+        // double lightVal = Utils.sinPulse(frame, 0.1) * m[m.length - 1].getPosition().getX();
+        // p[0].getPosition().setX(lightVal);
+        // float sinSpeed = 0.5f;
+        // p[0].setDiffuse(new Vec3(Utils.sinPulse(frame, sinSpeed), Utils.sinPulse(frame + 1, sinSpeed), Utils.sinPulse(frame + 2, sinSpeed)));
+        // p[0].setSpecular(p[0].getAmbient());
         clear(gl);
         Mesh.renderAll(gl, shader, camera, dLight, m, p);
     }
