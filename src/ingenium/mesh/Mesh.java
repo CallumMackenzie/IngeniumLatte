@@ -6,186 +6,29 @@ import java.nio.FloatBuffer;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-import ingenium.Utils;
-import ingenium.math.*;
-import ingenium.world.Camera;
-import ingenium.world.Position3D;
-import ingenium.world.Shader;
-import ingenium.world.light.DirectionalLight;
-import ingenium.world.light.PointLight;
+import ingenium.Ingenium;
+import ingenium.math.Vec3;
+import ingenium.utilities.Cache;
+import ingenium.world.Position;
 
-public class Mesh extends Position3D {
+public class Mesh<positionType, rotationType> extends Position<positionType, rotationType> implements Loadable {
+    protected static final Cache<String, Integer> textureReferenceCache = new Cache<>("geometry cache", false);
 
-    private static final Cache<String, Integer> textureReferenceCache = new Cache<>("geometry cache", false);
+    protected Vec3 tint = new Vec3();
+    protected positionType scale;
+    protected Material material;
+    protected FloatBuffer data = null;
+    protected boolean loaded = false;
+    protected int mVBO = GL4.GL_NONE;
+    protected int mVAO = GL4.GL_NONE;
+    protected int numVerts = 0;
+    protected boolean useTextureReferenceCache = true;
+    protected boolean useGeometryReferenceCache = true;
+    protected boolean useGeometryValueCache = true;
 
-    private Vec3 scale;
-    private Vec3 tint = new Vec3();
-    private Material material;
-    private boolean loaded = false;
-    private FloatBuffer data = null;
-    private int mVBO = GL4.GL_NONE;
-    private int mVAO = GL4.GL_NONE;
-    private int numVerts = 0;
-    private boolean useTextureReferenceCache = true;
-    private boolean useGeometryReferenceCache = true;
-    private boolean useGeometryValueCache = true;
-
-    /**
-     * 
-     * @param position      the position
-     * @param rotation      the rotation
-     * @param scale         the scale
-     * @param rotationPoint the relative point rotation is done around
-     * @param material      the material
-     */
-    public Mesh(Vec3 position, Vec3 rotation, Vec3 scale, Vec3 rotationPoint, Material material) {
-        this.rotation = rotation;
-        this.rotationPoint = rotationPoint;
-        this.position = position;
-        this.scale = scale;
-        this.material = material;
-    }
-
-    /**
-     * 
-     * @param position      the position
-     * @param rotation      the rotation
-     * @param scale         the scale
-     * @param rotationPoint the relative point rotation is done around
-     */
-    public Mesh(Vec3 position, Vec3 rotation, Vec3 scale, Vec3 rotationPoint) {
-        this(position, rotation, scale, rotationPoint, new Material());
-    }
-
-    /**
-     * 
-     * @param position the position
-     * @param rotation the rotation
-     * @param scale    the scale
-     */
-    public Mesh(Vec3 position, Vec3 rotation, Vec3 scale) {
-        this(position, rotation, scale, new Vec3());
-    }
-
-    /**
-     * 
-     * @param position the position
-     * @param rotation the rotation
-     */
-    public Mesh(Vec3 position, Vec3 rotation) {
-        this(position, rotation, new Vec3(1.f, 1.f, 1.f));
-    }
-
-    /**
-     * 
-     * @param position the position
-     */
-    public Mesh(Vec3 position) {
-        this(position, new Vec3());
-    }
-
-    /**
-     * 
-     */
-    public Mesh() {
-        this(new Vec3());
-    }
-
-    /**
-     * Loads the specified images onto the GPU, and their locations into the
-     * material associated with the mesh
-     * 
-     * @param gl           the GL4 object of this program
-     * @param diffusePath  the path to the diffuse texture
-     * @param specularPath the path to the specular texture
-     * @param normalPath   the path to the normal texture
-     */
-    public void setTexture(GL4 gl, String diffusePath, String specularPath, String normalPath) {
-        if (!diffusePath.equals(Utils.NO_VALUE))
-            material.setDiffuseTexture(findAndLoadTexture(gl, diffusePath, GL4.GL_TEXTURE0, useTextureReferenceCache));
-        if (!specularPath.equals(Utils.NO_VALUE))
-            material.setSpecularTexture(
-                    findAndLoadTexture(gl, specularPath, GL4.GL_TEXTURE1, useTextureReferenceCache));
-        if (!normalPath.equals(Utils.NO_VALUE))
-            material.setNormalTexture(findAndLoadTexture(gl, normalPath, GL4.GL_TEXTURE2, useTextureReferenceCache));
-    }
-
-    /**
-     * 
-     * @param gl           the GL4 object of the program
-     * @param objPath      the path to the object file
-     * @param diffusePath  the path to the diffuse texture
-     * @param specularPath the path to the specular texture
-     * @param normalPath   the path to the normal texture
-     */
-    public void make(GL4 gl, String objPath, String diffusePath, String specularPath, String normalPath) {
-        setTexture(gl, diffusePath, specularPath, normalPath);
-        Geometry.Object3D object3d = Geometry.loadFromObjData(objPath, true, useGeometryReferenceCache,
-                useGeometryValueCache);
-        if (object3d.isReference()) {
-            this.mVBO = object3d.getVBO();
-            this.mVAO = object3d.getVAO();
-            loaded = true;
-        } else
-            this.data = object3d.getData();
-        this.numVerts = object3d.getNumVerts();
-        load(gl);
-        Geometry.getReferenceCache().checkAddCache(objPath, new Integer[] { mVBO, mVAO, numVerts });
-    }
-
-    /**
-     * Loads all the data onto the GPU
-     * 
-     * @param gl the GL4 object of the program
-     */
     public void load(GL4 gl) {
-        if (!loaded) {
-            int[] buffers = new int[1];
-            int[] vertexArrays = new int[1];
-            int floatBytes = Float.BYTES;
-
-            gl.glGenBuffers(1, buffers, 0);
-            gl.glGenVertexArrays(1, vertexArrays, 0);
-
-            mVBO = buffers[0];
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, data.capacity() * floatBytes, data, GL4.GL_STATIC_DRAW);
-
-            mVAO = vertexArrays[0];
-            gl.glBindVertexArray(mVAO);
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
-
-            int stride = Tri.Vert.vertSize * floatBytes;
-
-            gl.glVertexAttribPointer(0, 3, GL4.GL_FLOAT, false, stride, 0); // Points (4)
-            gl.glEnableVertexAttribArray(0);
-
-            gl.glVertexAttribPointer(1, 3, GL4.GL_FLOAT, false, stride, 4 * floatBytes); // Texture UVs (3)
-            gl.glEnableVertexAttribArray(1);
-
-            gl.glVertexAttribPointer(2, 4, GL4.GL_FLOAT, false, stride, 7 * floatBytes); // RGBA tint (4)
-            gl.glEnableVertexAttribArray(2);
-
-            gl.glVertexAttribPointer(3, 3, GL4.GL_FLOAT, false, stride, 11 * floatBytes); // Normals (3)
-            gl.glEnableVertexAttribArray(3);
-
-            gl.glVertexAttribPointer(4, 3, GL4.GL_FLOAT, false, stride, 14 * floatBytes); // Tangents (3)
-            gl.glEnableVertexAttribArray(4);
-
-            loaded = true;
-        }
-    }
-
-    /**
-     * 
-     * @return the 3D transformation of the model
-     */
-    public Mat4 modelMatrix() {
-        Mat4 matRot = Mat4.rotationOnPoint(rotation.getX(), rotation.getY(), rotation.getZ(), rotationPoint);
-        Mat4 matTrans = Mat4.translation(position.getX(), position.getY(), position.getZ());
-        Mat4 matScale = Mat4.scale(scale.getX(), scale.getY(), scale.getZ());
-        Mat4 matWorld = matScale.mul(matRot, matTrans);
-        return matWorld;
+        System.err.println("A class extending ingenium.mesh.Mesh must implement a load() method.");
+        System.exit(0);
     }
 
     /**
@@ -226,7 +69,7 @@ public class Mesh extends Position3D {
      * 
      * @param scale the scale to set
      */
-    public void setScale(Vec3 scale) {
+    public void setScale(positionType scale) {
         this.scale = scale;
     }
 
@@ -234,7 +77,7 @@ public class Mesh extends Position3D {
      * 
      * @return the scale of the mesh
      */
-    public Vec3 getScale() {
+    public positionType getScale() {
         return scale;
     }
 
@@ -337,101 +180,6 @@ public class Mesh extends Position3D {
 
     /**
      * 
-     * @param gl     the GL4 object of the program
-     * @param shader the shader to send data to
-     */
-    public void sendToShader(GL4 gl, Shader shader) {
-        bindVAO(gl);
-        bindVBO(gl);
-        Mat4 model = modelMatrix();
-        shader.setUniform(gl, "model", model);
-        shader.setUniform(gl, "invModel", model.inverse());
-        shader.setUniform(gl, "material.shininess", material.getShininess());
-        shader.setUniform(gl, "heightScale", material.getParallaxScale());
-        shader.setUVec4(gl, "meshTint", tint);
-
-        gl.glActiveTexture(GL4.GL_TEXTURE0);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getDiffuseTexture());
-        gl.glActiveTexture(GL4.GL_TEXTURE1);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getSpecularTexture());
-        gl.glActiveTexture(GL4.GL_TEXTURE2);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getNormalTexture());
-    }
-
-    /**
-     * 
-     * @param gl          the GL4 object of the program
-     * @param shader      the shader to render the mesh with
-     * @param camera      the camera
-     * @param dirLight    the global light
-     * @param pointLights point lights
-     */
-    public void render(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, PointLight pointLights[]) {
-        shader.use(gl);
-        Material.sendToShader(gl, shader);
-        camera.sendToShader(gl, shader);
-        shader.setUniform(gl, "u_time", (float) System.currentTimeMillis() / 1000.f);
-        dirLight.sendToShader(gl, shader);
-
-        for (int i = 0; i < pointLights.length; i++)
-            pointLights[i].sendToShader(gl, shader, i);
-
-        sendToShader(gl, shader);
-
-        gl.glDrawArrays(GL4.GL_TRIANGLES, 0, numVerts);
-    }
-
-    /**
-     * 
-     * @param gl       the GL4 object of the program
-     * @param shader   the shader to render the mesh with
-     * @param camera   the camera
-     * @param dirLight the global light
-     */
-    public void render(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight) {
-        render(gl, shader, camera, dirLight, new PointLight[0]);
-    }
-
-    /**
-     * 
-     * @param gl          the GL4 object of the program
-     * @param shader      the shader to render the mesh with
-     * @param camera      the camera
-     * @param dirLight    the global light
-     * @param meshes      the meshes to render
-     * @param pointLights point lights
-     */
-    public static void renderAll(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, Mesh meshes[],
-            PointLight pointLights[]) {
-        shader.use(gl);
-        Material.sendToShader(gl, shader);
-        camera.sendToShader(gl, shader);
-        dirLight.sendToShader(gl, shader);
-        shader.setUniform(gl, "u_time", (float) (System.currentTimeMillis() / 1000L));
-
-        for (int i = 0; i < pointLights.length; i++)
-            pointLights[i].sendToShader(gl, shader, i);
-
-        for (int i = 0; i < meshes.length; i++) {
-            meshes[i].sendToShader(gl, shader);
-            gl.glDrawArrays(GL4.GL_TRIANGLES, 0, meshes[i].numVerts);
-        }
-    }
-
-    /**
-     * 
-     * @param gl       the GL4 object of the program
-     * @param shader   the shader to render the mesh with
-     * @param camera   the camera
-     * @param dirLight the global light
-     * @param meshes   the meshes to render
-     */
-    public static void renderAll(GL4 gl, Shader shader, Camera camera, DirectionalLight dirLight, Mesh meshes[]) {
-        Mesh.renderAll(gl, shader, camera, dirLight, meshes, new PointLight[] {});
-    }
-
-    /**
-     * 
      * @param gl        the GL4 object of the program
      * @param path      the path to the image
      * @param texSlot   the texture slot to use
@@ -443,7 +191,7 @@ public class Mesh extends Position3D {
      */
     private static int findAndLoadTexture(GL4 gl, String path, int texSlot, int sWrap, int tWrap, int minFilter,
             int magFilter, boolean useTexCache) {
-        if (path.equals(Utils.NO_VALUE))
+        if (path.equals(Ingenium.NO_VALUE))
             return GL4.GL_NONE;
         boolean debug = false;
         long time = System.currentTimeMillis();
@@ -472,6 +220,25 @@ public class Mesh extends Position3D {
     }
 
     /**
+     * Loads the specified images onto the GPU, and their locations into the
+     * material associated with the mesh
+     * 
+     * @param gl           the GL4 object of this program
+     * @param diffusePath  the path to the diffuse texture
+     * @param specularPath the path to the specular texture
+     * @param normalPath   the path to the normal texture
+     */
+    public void setTexture(GL4 gl, String diffusePath, String specularPath, String normalPath) {
+        if (!diffusePath.equals(Ingenium.NO_VALUE))
+            material.setDiffuseTexture(findAndLoadTexture(gl, diffusePath, GL4.GL_TEXTURE0, useTextureReferenceCache));
+        if (!specularPath.equals(Ingenium.NO_VALUE))
+            material.setSpecularTexture(
+                    findAndLoadTexture(gl, specularPath, GL4.GL_TEXTURE1, useTextureReferenceCache));
+        if (!normalPath.equals(Ingenium.NO_VALUE))
+            material.setNormalTexture(findAndLoadTexture(gl, normalPath, GL4.GL_TEXTURE2, useTextureReferenceCache));
+    }
+
+    /**
      * 
      * @param gl      the GL4 object of the program
      * @param path    the path to the image
@@ -482,5 +249,4 @@ public class Mesh extends Position3D {
         return findAndLoadTexture(gl, path, texSlot, GL4.GL_REPEAT, GL4.GL_REPEAT, GL4.GL_LINEAR_MIPMAP_LINEAR,
                 GL4.GL_LINEAR, useTexCache);
     }
-
 }

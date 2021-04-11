@@ -1,5 +1,8 @@
 package ingenium.math;
 
+/**
+ * Repersents a column vector [ x y z w ]
+ */
 public class Vec3 extends Vec {
     protected float z;
 
@@ -123,6 +126,10 @@ public class Vec3 extends Vec {
      */
     public void setZ(double z) {
         this.z = (float) z;
+    }
+
+    public Vec2 toVec2 () {
+        return new Vec2(x, y, w);
     }
 
     /**

@@ -1,14 +1,13 @@
-package ingenium.mesh;
+package ingenium.mesh.Triangle;
 
 import ingenium.math.*;
 
-public class Tri {
-
-    private Tri.Vert v[] = new Tri.Vert[3];
+public class Tri3D extends Tri<Tri3D.Vert> {
 
     public static class Vert {
         public static final int vertSize = 17;
         public static final int floatVertSize = vertSize * 3;
+        public static final int vertByteSize = vertSize * Float.BYTES;
 
         private Vec3 p; // Point (4)
         private Vec2 t; // Texture coords (3)
@@ -83,26 +82,26 @@ public class Tri {
         public Vec3 getRgb() {
             return rgb;
         }
+
+        public Tri2D.Vert to2DVert() {
+            Tri2D.Vert vert = new Tri2D.Vert();
+            vert.setP(p.toVec2());
+            vert.setT(t);
+            vert.setRgb(rgb);
+            return vert;
+        }
     }
 
-    public Tri.Vert[] getV() {
-        return v;
+    public Tri3D() {
+        v = new Tri3D.Vert[3];
     }
 
-    public void setV(Tri.Vert[] v) {
-        this.v = v;
-    }
-
-    public void setVert(int index, Tri.Vert v) throws IndexOutOfBoundsException {
+    public void setVert(int index, Tri3D.Vert v) throws IndexOutOfBoundsException {
         this.v[index] = v;
     }
 
-    public Tri.Vert getVert(int index) throws IndexOutOfBoundsException {
+    public Tri3D.Vert getVert(int index) throws IndexOutOfBoundsException {
         return this.v[index];
-    }
-
-    static int getVertByteSize() {
-        return Vert.vertSize * Float.BYTES;
     }
 
     public Vec3[] calculateTangents() {
@@ -132,6 +131,13 @@ public class Tri {
         ret[1] = bitTan;
 
         return ret;
+    }
+
+    public Tri2D toTri2D() {
+        Tri2D t2d = new Tri2D();
+        for (int i = 0; i < 3; i++)
+            t2d.setVert(i, v[i].to2DVert());
+        return t2d;
     }
 
     public float[] toDataArray() {

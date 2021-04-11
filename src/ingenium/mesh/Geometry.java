@@ -4,30 +4,32 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import com.jogamp.common.nio.Buffers;
-
-import ingenium.Utils;
+import ingenium.utilities.*;
 import ingenium.math.Vec2;
 import ingenium.math.Vec3;
+import ingenium.mesh.Triangle.Tri2D;
+import ingenium.mesh.Triangle.Tri3D;
+import ingenium.utilities.Cache;
 
 public class Geometry {
     private static final Cache<String, ValueCacheElement> valueCache = new Cache<>("geometry cache", false); // 1
     private static final Cache<String, Integer[]> referenceCache = new Cache<>("geometry cache", false); // 2
 
-    public static class Object3D {
+    public static class Object {
         private int VAO;
         private int VBO;
         private boolean reference;
         private FloatBuffer data;
         private int numVerts;
 
-        public Object3D(int VBO, int VAO, int numVerts) {
+        public Object(int VBO, int VAO, int numVerts) {
             this.numVerts = numVerts;
             this.VBO = VBO;
             this.VAO = VAO;
             this.reference = true;
         }
 
-        public Object3D(FloatBuffer data, int numVerts) {
+        public Object(FloatBuffer data, int numVerts) {
             this.data = data;
             this.numVerts = numVerts;
             this.reference = false;
@@ -80,39 +82,20 @@ public class Geometry {
         return valueCache;
     }
 
-    /**
-     * 
-     * @param raw  the path or raw obj data
-     * @param path whether the passed value is a path or raw data
-     */
-    public static Object3D loadFromObjData(String raw, boolean path, boolean useGeometryReferenceCache,
+    private static ArrayList<Tri2D> loadTri2DArrayFromObj(String raw, boolean path, boolean useGeometryReferenceCache,
             boolean useGeometryValueCache) {
-        boolean cacheDebug = false;
-        boolean debugLoading = false;
-        String objPath = "string obj data" + raw.hashCode();
+        ArrayList<Tri3D> tri3ds = loadTri3DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
+        ArrayList<Tri2D> tri2ds = new ArrayList<>();
+        for (Tri3D t : tri3ds)
+            tri2ds.add(t.toTri2D());
+        return tri2ds;
+    }
+
+    private static ArrayList<Tri3D> loadTri3DArrayFromObj(String raw, boolean path, boolean useGeometryReferenceCache,
+            boolean useGeometryValueCache) {
         if (path)
-            objPath = raw;
-        long time = System.currentTimeMillis();
-        if (Geometry.getValueCache().isUsed() && useGeometryValueCache)
-            if (Geometry.getValueCache().containsKey(objPath)) {
-                Geometry.ValueCacheElement elem = Geometry.getValueCache().getCacheValue(objPath);
-                Object3D object3d = new Object3D(elem.getBuffer(), elem.getNumVerts());
-                if (cacheDebug)
-                    System.out.println(
-                            "Value cache hit (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
-                return object3d;
-            }
-        if (Geometry.getReferenceCache().isUsed() && useGeometryReferenceCache)
-            if (Geometry.getReferenceCache().containsKey(objPath)) {
-                if (cacheDebug)
-                    System.out.println(
-                            "Reference cache hit (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
-                Integer[] ref = Geometry.getReferenceCache().getCacheValue(objPath);
-                return new Object3D(ref[0], ref[1], ref[2]);
-            }
-        if (path)
-            raw = Utils.getFileAsString(raw);
-        ArrayList<Tri> tris = new ArrayList<Tri>();
+            raw = FileUtils.getFileAsString(raw);
+        ArrayList<Tri3D> tris = new ArrayList<Tri3D>();
         ArrayList<Vec3> verts = new ArrayList<Vec3>();
         ArrayList<Vec3> normals = new ArrayList<Vec3>();
         ArrayList<Vec2> texs = new ArrayList<Vec2>();
@@ -120,12 +103,8 @@ public class Geometry {
 
         boolean hasNormals = raw.contains("vn");
         boolean hasTexture = raw.contains("vt");
-        if (cacheDebug)
-            System.out.println("Loading .obj with " + lines.length + " lines...");
 
         for (int i = 0; i < lines.length; i++) {
-            if (debugLoading)
-                System.out.println(((float) i / (float) lines.length) + "% loading (" + i + " / " + lines.length + ")");
             String line = lines[i];
             if (line.charAt(0) == 'v') {
                 if (line.charAt(1) == 't') {
@@ -151,9 +130,9 @@ public class Geometry {
                 for (int l = 1; l < seg.length; l++)
                     vals.add(Integer.parseInt(seg[l]));
 
-                Tri push = new Tri();
+                Tri3D push = new Tri3D();
                 for (int k = 0; k < 3; k++) {
-                    Tri.Vert v = new Tri.Vert(verts.get(vals.get(params * k) - 1));
+                    Tri3D.Vert v = new Tri3D.Vert(verts.get(vals.get(params * k) - 1));
                     if (hasTexture)
                         v.setT(texs.get(vals.get((params * k) + 1) - 1));
                     if (hasNormals && !hasTexture)
@@ -166,23 +145,69 @@ public class Geometry {
                 tris.add(push);
             }
         }
-        verts.clear();
-        normals.clear();
-        texs.clear();
-        int numVerts = 0;
-        float[] dataToWrite = new float[tris.size() * Tri.Vert.vertSize * 3];
-        for (int l = 0; l < tris.size(); l++) {
-            if (debugLoading)
-                System.out.println(
-                        ((float) l / (float) tris.size() * 100f) + "% formatting (" + l + " / " + tris.size() + ")");
-            numVerts += 3;
-            System.arraycopy(tris.get(l).toDataArray(), 0, dataToWrite, l * Tri.Vert.floatVertSize,
-                    Tri.Vert.floatVertSize);
-        }
+        return tris;
+    }
+
+    private static Geometry.Object checkGeometryCaches(String name, boolean useGeometryReferenceCache,
+            boolean useGeometryValueCache) {
+        // Checking value cache
+        if (Geometry.getValueCache().isUsed() && useGeometryValueCache)
+            if (Geometry.getValueCache().containsKey(name)) {
+                Geometry.ValueCacheElement elem = Geometry.getValueCache().getCacheValue(name);
+                return new Geometry.Object(elem.getBuffer(), elem.getNumVerts());
+            }
+        // Checking reference cache
+        if (Geometry.getReferenceCache().isUsed() && useGeometryReferenceCache)
+            if (Geometry.getReferenceCache().containsKey(name)) {
+                Integer[] ref = Geometry.getReferenceCache().getCacheValue(name);
+                return new Geometry.Object(ref[0], ref[1], ref[2]);
+            }
+        return null;
+    }
+
+    public static Geometry.Object loadFromObjData(String raw, boolean path, boolean useGeometryReferenceCache,
+            boolean useGeometryValueCache) {
+        String objPath = "string obj data" + raw.hashCode();
+        if (path)
+            objPath = raw;
+        // Check if we've loaded this before
+        Geometry.Object cacheObject = checkGeometryCaches(objPath, useGeometryReferenceCache, useGeometryValueCache);
+        if (cacheObject != null) // We have!
+            return cacheObject; // Return what was found
+        // Parse .obj data
+        ArrayList<Tri3D> tris = loadTri3DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
+        int numVerts = tris.size() * 3;
+        // Move data to a FloatBuffer
+        float[] dataToWrite = new float[tris.size() * Tri3D.Vert.floatVertSize];
+        for (int l = 0; l < tris.size(); l++)
+            System.arraycopy(tris.get(l).toDataArray(), 0, dataToWrite, l * Tri3D.Vert.floatVertSize,
+                    Tri3D.Vert.floatVertSize);
         FloatBuffer data = Buffers.newDirectFloatBuffer(dataToWrite);
+        // Add value cache data
         Geometry.getValueCache().add(objPath, new Geometry.ValueCacheElement(data, numVerts));
-        if (cacheDebug)
-            System.out.println("No cache hits (" + objPath + "): " + (System.currentTimeMillis() - time) + "ms");
-        return new Object3D(data, numVerts);
+        return new Geometry.Object(data, numVerts);
+    }
+
+    public static Geometry.Object loadFromObjData2D(String raw, boolean path, boolean useGeometryReferenceCache,
+            boolean useGeometryValueCache) {
+        String objPath = "string obj data" + raw.hashCode();
+        if (path)
+            objPath = raw;
+        // Check if we've loaded this before
+        Geometry.Object cacheObject = checkGeometryCaches(objPath, useGeometryReferenceCache, useGeometryValueCache);
+        if (cacheObject != null) // We have!
+            return cacheObject; // Return what was found
+        // Parse .obj data
+        ArrayList<Tri2D> tris = loadTri2DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
+        int numVerts = tris.size() * 3;
+        // Move data to a FloatBuffer
+        float[] dataToWrite = new float[tris.size() * Tri2D.Vert.floatVertSize];
+        for (int l = 0; l < tris.size(); l++)
+            System.arraycopy(tris.get(l).toDataArray(), 0, dataToWrite, l * Tri2D.Vert.floatVertSize,
+                    Tri2D.Vert.floatVertSize);
+        FloatBuffer data = Buffers.newDirectFloatBuffer(dataToWrite);
+        // Add value cache data
+        Geometry.getValueCache().add(objPath, new Geometry.ValueCacheElement(data, numVerts));
+        return new Geometry.Object(data, numVerts);
     }
 }

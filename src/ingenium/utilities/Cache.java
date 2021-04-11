@@ -1,4 +1,4 @@
-package ingenium.mesh;
+package ingenium.utilities;
 
 import java.util.HashMap;
 

@@ -1,5 +1,8 @@
 package ingenium.math;
 
+/**
+ * Repersents a column vector [ x y w ]
+ */
 public class Vec2 extends Vec {
 
     /**
@@ -186,9 +189,12 @@ public class Vec2 extends Vec {
      * @return the product
      */
     public static Vec2 mulMat2(Vec2 vec, Mat2 mat) {
+        // [ x y ] [ a b ] = [ (ax + bx) (cy + dy) ]
+        // ------- [ c d ]
+
         Vec2 v = new Vec2(vec);
-        v.x = (v.x * mat.getM()[0][0]) + (v.y * mat.getM()[0][1]);
-        v.y = (v.x * mat.getM()[1][0]) + (v.y * mat.getM()[1][1]);
+        v.x = (v.x * mat.getM()[0][0]) + (v.x * mat.getM()[0][1]);
+        v.y = (v.y * mat.getM()[1][0]) + (v.y * mat.getM()[1][1]);
         return v;
     }
 }

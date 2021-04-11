@@ -1,17 +1,15 @@
 package ingenium.world;
 
-import ingenium.math.Vec3;
-
-public abstract class Position3D {
-    protected Vec3 position;
-    protected Vec3 rotation;
-    protected Vec3 rotationPoint;
+public abstract class Position<positionType, rotationType> {
+    protected positionType position;
+    protected rotationType rotation;
+    protected positionType rotationPoint;
 
     /**
      * 
      * @return the position
      */
-    public Vec3 getPosition() {
+    public positionType getPosition() {
         return position;
     }
 
@@ -19,7 +17,7 @@ public abstract class Position3D {
      * 
      * @param position the position to set
      */
-    public void setPosition(Vec3 position) {
+    public void setPosition(positionType position) {
         this.position = position;
     }
 
@@ -27,7 +25,7 @@ public abstract class Position3D {
      * 
      * @return the rotation point
      */
-    public Vec3 getRotationPoint() {
+    public positionType getRotationPoint() {
         return rotationPoint;
     }
 
@@ -35,7 +33,7 @@ public abstract class Position3D {
      * 
      * @param rotationPoint the rotation point to set
      */
-    public void setRotationPoint(Vec3 rotationPoint) {
+    public void setRotationPoint(positionType rotationPoint) {
         this.rotationPoint = rotationPoint;
     }
 
@@ -43,7 +41,7 @@ public abstract class Position3D {
      * 
      * @return the rotation
      */
-    public Vec3 getRotation() {
+    public rotationType getRotation() {
         return rotation;
     }
 
@@ -51,7 +49,7 @@ public abstract class Position3D {
      * 
      * @param rotation the rotation to set
      */
-    public void setRotation(Vec3 rotation) {
+    public void setRotation(rotationType rotation) {
         this.rotation = rotation;
     }
 }

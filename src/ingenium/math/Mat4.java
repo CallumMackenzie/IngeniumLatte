@@ -1,5 +1,8 @@
 package ingenium.math;
 
+/**
+ * Repersents a 4x4 matrix
+ */
 public class Mat4 {
     private float m[][] = new float[4][4];
 

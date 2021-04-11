@@ -1,13 +1,11 @@
 package ingenium.world;
 
 import ingenium.math.Vec3;
-
 import com.jogamp.opengl.GL4;
-
 import ingenium.math.Mat4;
 import ingenium.math.Rotation;
 
-public class Camera extends Position3D {
+public class Camera3D extends Position<Vec3, Vec3> {
     private float FOV;
     private float clipNear;
     private float clipFar;
@@ -23,7 +21,7 @@ public class Camera extends Position3D {
      * @param clipNear the near clipping distance
      * @param clipFar  the far clipping distance
      */
-    public Camera(float aspect, Vec3 position, Vec3 rotation, float FOV, float clipNear, float clipFar) {
+    public Camera3D(float aspect, Vec3 position, Vec3 rotation, float FOV, float clipNear, float clipFar) {
         this.position = position;
         this.rotation = rotation;
         this.rotationPoint = new Vec3();
@@ -41,7 +39,7 @@ public class Camera extends Position3D {
      * @param rotation the rotation
      * @param FOV      the field of view
      */
-    public Camera(float aspect, Vec3 position, Vec3 rotation, float FOV) {
+    public Camera3D(float aspect, Vec3 position, Vec3 rotation, float FOV) {
         this(aspect, position, rotation, FOV, 0.1f, 500.f);
     }
 
@@ -52,7 +50,7 @@ public class Camera extends Position3D {
      * @param position the position
      * @param rotation the rotation
      */
-    public Camera(float aspect, Vec3 position, Vec3 rotation) {
+    public Camera3D(float aspect, Vec3 position, Vec3 rotation) {
         this(aspect, position, rotation, 70.f);
     }
 
@@ -62,7 +60,7 @@ public class Camera extends Position3D {
      * @param aspect   the aspect ratio of the screen (height / width)
      * @param position the position
      */
-    public Camera(float aspect, Vec3 position) {
+    public Camera3D(float aspect, Vec3 position) {
         this(aspect, position, new Vec3());
     }
 
@@ -71,7 +69,7 @@ public class Camera extends Position3D {
      * 
      * @param aspect the aspect ratio of the screen (height / width)
      */
-    public Camera(float aspect) {
+    public Camera3D(float aspect) {
         this(aspect, new Vec3());
     }
 
