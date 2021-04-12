@@ -1,6 +1,6 @@
 package ingenium.mesh;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL3;
 import ingenium.math.*;
 import ingenium.mesh.Triangle.Tri3D;
 import ingenium.world.*;
@@ -67,13 +67,13 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
 
     /**
      * 
-     * @param gl           the GL4 object of the program
+     * @param gl           the GL3 object of the program
      * @param objPath      the path to the object file
      * @param diffusePath  the path to the diffuse texture
      * @param specularPath the path to the specular texture
      * @param normalPath   the path to the normal texture
      */
-    public void make(GL4 gl, String objPath, String diffusePath, String specularPath, String normalPath) {
+    public void make(GL3 gl, String objPath, String diffusePath, String specularPath, String normalPath) {
         setTexture(gl, diffusePath, specularPath, normalPath);
         Geometry.Object object3d = Geometry.loadFromObjData(objPath, true, useGeometryReferenceCache,
                 useGeometryValueCache);
@@ -91,10 +91,10 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
     /**
      * Loads all the data onto the GPU
      * 
-     * @param gl the GL4 object of the program
+     * @param gl the GL3 object of the program
      */
     @Override
-    public void load(GL4 gl) {
+    public void load(GL3 gl) {
         if (!loaded) {
             int[] buffers = new int[1];
             int[] vertexArrays = new int[1];
@@ -104,28 +104,28 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
             gl.glGenVertexArrays(1, vertexArrays, 0);
 
             mVBO = buffers[0];
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, data.capacity() * floatBytes, data, GL4.GL_STATIC_DRAW);
+            gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, mVBO);
+            gl.glBufferData(GL3.GL_ARRAY_BUFFER, data.capacity() * floatBytes, data, GL3.GL_STATIC_DRAW);
 
             mVAO = vertexArrays[0];
             gl.glBindVertexArray(mVAO);
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
+            gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, mVBO);
 
             int stride = Tri3D.Vert.vertByteSize;
 
-            gl.glVertexAttribPointer(0, 3, GL4.GL_FLOAT, false, stride, 0); // Points (4)
+            gl.glVertexAttribPointer(0, 3, GL3.GL_FLOAT, false, stride, 0); // Points (4)
             gl.glEnableVertexAttribArray(0);
 
-            gl.glVertexAttribPointer(1, 3, GL4.GL_FLOAT, false, stride, 4 * floatBytes); // Texture UVs (3)
+            gl.glVertexAttribPointer(1, 3, GL3.GL_FLOAT, false, stride, 4 * floatBytes); // Texture UVs (3)
             gl.glEnableVertexAttribArray(1);
 
-            gl.glVertexAttribPointer(2, 4, GL4.GL_FLOAT, false, stride, 7 * floatBytes); // RGBA tint (4)
+            gl.glVertexAttribPointer(2, 4, GL3.GL_FLOAT, false, stride, 7 * floatBytes); // RGBA tint (4)
             gl.glEnableVertexAttribArray(2);
 
-            gl.glVertexAttribPointer(3, 3, GL4.GL_FLOAT, false, stride, 11 * floatBytes); // Normals (3)
+            gl.glVertexAttribPointer(3, 3, GL3.GL_FLOAT, false, stride, 11 * floatBytes); // Normals (3)
             gl.glEnableVertexAttribArray(3);
 
-            gl.glVertexAttribPointer(4, 3, GL4.GL_FLOAT, false, stride, 14 * floatBytes); // Tangents (3)
+            gl.glVertexAttribPointer(4, 3, GL3.GL_FLOAT, false, stride, 14 * floatBytes); // Tangents (3)
             gl.glEnableVertexAttribArray(4);
 
             loaded = true;
@@ -146,10 +146,10 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
 
     /**
      * 
-     * @param gl     the GL4 object of the program
+     * @param gl     the GL3 object of the program
      * @param shader the shader to send data to
      */
-    public void sendToShader(GL4 gl, Shader shader) {
+    public void sendToShader(GL3 gl, Shader shader) {
         bindVAO(gl);
         bindVBO(gl);
         Mat4 model = modelMatrix();
@@ -159,23 +159,23 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         shader.setUniform(gl, "heightScale", material.getParallaxScale());
         shader.setUVec4(gl, "meshTint", tint);
 
-        gl.glActiveTexture(GL4.GL_TEXTURE0);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getDiffuseTexture());
-        gl.glActiveTexture(GL4.GL_TEXTURE1);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getSpecularTexture());
-        gl.glActiveTexture(GL4.GL_TEXTURE2);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getNormalTexture());
+        gl.glActiveTexture(GL3.GL_TEXTURE0);
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, material.getDiffuseTexture());
+        gl.glActiveTexture(GL3.GL_TEXTURE1);
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, material.getSpecularTexture());
+        gl.glActiveTexture(GL3.GL_TEXTURE2);
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, material.getNormalTexture());
     }
 
     /**
      * 
-     * @param gl          the GL4 object of the program
+     * @param gl          the GL3 object of the program
      * @param shader      the shader to render the mesh with
      * @param camera      the camera
      * @param dirLight    the global light
      * @param pointLights point lights
      */
-    public void render(GL4 gl, Shader shader, Camera3D camera, DirectionalLight dirLight, PointLight pointLights[]) {
+    public void render(GL3 gl, Shader shader, Camera3D camera, DirectionalLight dirLight, PointLight pointLights[]) {
         shader.use(gl);
         Material.sendToShader(gl, shader);
         camera.sendToShader(gl, shader);
@@ -187,30 +187,30 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
 
         sendToShader(gl, shader);
 
-        gl.glDrawArrays(GL4.GL_TRIANGLES, 0, numVerts);
+        gl.glDrawArrays(GL3.GL_TRIANGLES, 0, numVerts);
     }
 
     /**
      * 
-     * @param gl       the GL4 object of the program
+     * @param gl       the GL3 object of the program
      * @param shader   the shader to render the mesh with
      * @param camera   the camera
      * @param dirLight the global light
      */
-    public void render(GL4 gl, Shader shader, Camera3D camera, DirectionalLight dirLight) {
+    public void render(GL3 gl, Shader shader, Camera3D camera, DirectionalLight dirLight) {
         render(gl, shader, camera, dirLight, new PointLight[0]);
     }
 
     /**
      * 
-     * @param gl          the GL4 object of the program
+     * @param gl          the GL3 object of the program
      * @param shader      the shader to render the mesh with
      * @param camera      the camera
      * @param dirLight    the global light
      * @param meshes      the meshes to render
      * @param pointLights point lights
      */
-    public static void renderAll(GL4 gl, Shader shader, Camera3D camera, DirectionalLight dirLight, Mesh3D meshes[],
+    public static void renderAll(GL3 gl, Shader shader, Camera3D camera, DirectionalLight dirLight, Mesh3D meshes[],
             PointLight pointLights[]) {
         shader.use(gl);
         Material.sendToShader(gl, shader);
@@ -223,19 +223,19 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
 
         for (int i = 0; i < meshes.length; i++) {
             meshes[i].sendToShader(gl, shader);
-            gl.glDrawArrays(GL4.GL_TRIANGLES, 0, meshes[i].numVerts);
+            gl.glDrawArrays(GL3.GL_TRIANGLES, 0, meshes[i].numVerts);
         }
     }
 
     /**
      * 
-     * @param gl       the GL4 object of the program
+     * @param gl       the GL3 object of the program
      * @param shader   the shader to render the mesh with
      * @param camera   the camera
      * @param dirLight the global light
      * @param meshes   the meshes to render
      */
-    public static void renderAll(GL4 gl, Shader shader, Camera3D camera, DirectionalLight dirLight, Mesh3D meshes[]) {
+    public static void renderAll(GL3 gl, Shader shader, Camera3D camera, DirectionalLight dirLight, Mesh3D meshes[]) {
         Mesh3D.renderAll(gl, shader, camera, dirLight, meshes, new PointLight[] {});
     }
 

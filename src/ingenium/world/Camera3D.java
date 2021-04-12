@@ -1,7 +1,7 @@
 package ingenium.world;
 
 import ingenium.math.Vec3;
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL3;
 import ingenium.math.Mat4;
 import ingenium.math.Rotation;
 
@@ -170,10 +170,10 @@ public class Camera3D extends Position<Vec3, Vec3> {
 
     /**
      * 
-     * @param gl     the GL4 object of the program
+     * @param gl     the GL3 object of the program
      * @param shader the shader to send information to
      */
-    public void sendToShader(GL4 gl, Shader shader) {
+    public void sendToShader(GL3 gl, Shader shader) {
         shader.setUniform(gl, "view", cameraMatrix().inverse());
         shader.setUniform(gl, "viewPos", getPosition(), false);
         shader.setUniform(gl, "projection", perspective());

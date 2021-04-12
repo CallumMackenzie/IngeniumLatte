@@ -1,14 +1,14 @@
 package ingenium.mesh;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL3;
 
 import ingenium.world.Shader;
 
 public class Material {
-    private int diffuseTexture = GL4.GL_NONE;
-    private int specularTexture = GL4.GL_NONE;
-    private int normalTexture = GL4.GL_NONE;
-    private int parallaxTexture = GL4.GL_NONE;
+    private int diffuseTexture = GL3.GL_NONE;
+    private int specularTexture = GL3.GL_NONE;
+    private int normalTexture = GL3.GL_NONE;
+    private int parallaxTexture = GL3.GL_NONE;
     private float shininess = 0.5f;
     private float parallaxScale = 1.f;
 
@@ -168,10 +168,10 @@ public class Material {
 
     /**
      * 
-     * @param gl     the GL4 object of the program
+     * @param gl     the GL3 object of the program
      * @param shader the shader to send the information to
      */
-    public static void sendToShader(GL4 gl, Shader shader) {
+    public static void sendToShader(GL3 gl, Shader shader) {
         shader.setUniform(gl, "material.diffuse", 0);
         shader.setUniform(gl, "material.specular", 1);
         shader.setUniform(gl, "material.normal", 2);

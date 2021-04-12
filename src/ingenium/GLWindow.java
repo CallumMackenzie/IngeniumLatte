@@ -1,8 +1,17 @@
 package ingenium;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.common.GlueGenVersion;
+import com.jogamp.common.util.VersionUtil;
+import com.jogamp.nativewindow.NativeWindowVersion;
+import com.jogamp.newt.NewtVersion;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL3ES3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.JoglVersion;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
@@ -10,8 +19,9 @@ import com.jogamp.opengl.util.FPSAnimator;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
 
-public class GLWindow {
+public class GLWindow <GL_VERSION> {
 
     private String name;
     private float width;
@@ -32,26 +42,32 @@ public class GLWindow {
         frame = new Frame(this.name);
         this.aspect = height / width;
 
+        System.err.println(VersionUtil.getPlatformInfo());
+        System.err.println(GlueGenVersion.getInstance());
+        System.err.println(NativeWindowVersion.getInstance());
+        System.err.println(JoglVersion.getInstance());
+        System.err.println(NewtVersion.getInstance());
+
         canvas.addGLEventListener(new GLEventListener() {
 
             @Override
             public void reshape(GLAutoDrawable glautodrawable, int x, int y, int width, int height) {
-                resize(glautodrawable.getGL().getGL4(), width, height);
+                resize(glautodrawable.getGL().getGL3(), width, height);
             }
 
             @Override
             public void init(GLAutoDrawable glautodrawable) {
-                createGL(glautodrawable.getGL().getGL4());
+                createGL(glautodrawable.getGL().getGL3());
             }
 
             @Override
             public void dispose(GLAutoDrawable glautodrawable) {
-                close(glautodrawable.getGL().getGL4());
+                close(glautodrawable.getGL().getGL3());
             }
 
             @Override
             public void display(GLAutoDrawable glautodrawable) {
-                displayGL(glautodrawable.getGL().getGL4(), glautodrawable.getSurfaceWidth(),
+                displayGL(glautodrawable.getGL().getGL3(), glautodrawable.getSurfaceWidth(),
                         glautodrawable.getSurfaceHeight());
             }
         });
@@ -75,7 +91,7 @@ public class GLWindow {
         animator.start();
     }
 
-    public void setClearColour(GL4 gl, int hex, float alpha) {
+    public void setClearColour(GL gl, int hex, float alpha) {
         float r = (float) ((hex & 0xFF0000) >> 16) / 255.f;
         float g = (float) ((hex & 0x00FF00) >> 8) / 255.f;
         float b = (float) ((hex & 0x0000FF)) / 255.f;
@@ -83,24 +99,24 @@ public class GLWindow {
         gl.glClearDepth(1.f);
     }
 
-    public void setClearColour(GL4 gl, int hex) {
+    public void setClearColour(GL gl, int hex) {
         setClearColour(gl, hex, 1.f);
     }
 
-    public void clear(GL4 gl) {
-        gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
+    public void clear(GL gl) {
+        gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
     }
 
-    public void resize(GL4 gl, int width, int height) {
+    public void resize(GL gl, int width, int height) {
         gl.glViewport(0, 0, width, height);
     }
 
-    private void displayGL(GL4 gl, int surfaceWidth, int surfaceHeight) {
+    private void displayGL(GL3 gl, int surfaceWidth, int surfaceHeight) {
         time.updateRenderDeltaTime();
         render(gl);
     }
 
-    private void createGL(GL4 gl) {
+    private void createGL(GL3 gl) {
         create(gl);
         time.updateRenderDeltaTime();
     }
@@ -108,27 +124,27 @@ public class GLWindow {
     /**
      * Called on program initialization
      * 
-     * @param gl the GL4 object of the program
+     * @param gl the GL3 object of the program
      */
-    protected void create(GL4 gl) {
+    protected void create(GL3 gl) {
 
     }
 
     /**
      * Called just before program termination
      * 
-     * @param gl the GL4 object of the program
+     * @param gl the GL3 object of the program
      */
-    protected void close(GL4 gl) {
+    protected void close(GL3 gl) {
 
     }
 
     /**
      * Called every frame
      * 
-     * @param gl the GL4 object of the program
+     * @param gl the GL3 object of the program
      */
-    protected void render(GL4 gl) {
+    protected void render(GL3 gl) {
 
     }
 

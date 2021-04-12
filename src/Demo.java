@@ -1,6 +1,6 @@
 import ingenium.Ingenium;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL3;
 import ingenium.math.*;
 import ingenium.mesh.*;
 import ingenium.utilities.FileUtils;
@@ -29,14 +29,14 @@ public class Demo extends Ingenium {
     }
 
     @Override
-    protected void onCreate(GL4 gl) {
+    protected void onCreate(GL3 gl) {
         init2D(gl);
         init3D(gl);
         setClearColour(gl, 0x404040, 1);
-        shader2D = new Shader(gl, FileUtils.getFileAsString("./shaders/2D/vert2d.vert"),
-                FileUtils.getFileAsString("./shaders/2D/default.frag"));
-        shader3D = new Shader(gl, FileUtils.getFileAsString("./shaders/3D/vert3d.vert"),
-                FileUtils.getFileAsString("./shaders/3D/blinnphong.frag"));
+        shader2D = new Shader(gl, FileUtils.getFileAsString("./shaders/2D/vert2dES.vert"),
+                FileUtils.getFileAsString("./shaders/2D/defaultES.frag"));
+        shader3D = new Shader(gl, FileUtils.getFileAsString("./shaders/3D/es/vert3d.vert"),
+                FileUtils.getFileAsString("./shaders/3D/es/blinnphong.frag"));
 
         String objectPaths[] = new String[] { "./resource/cubent.obj", "./resource/suzanne.obj",
                 "./resource/uvspherent.obj", "./resource/uvsmoothnt.obj", "./resource/torusnt.obj",
@@ -76,7 +76,7 @@ public class Demo extends Ingenium {
     double frame = 0;
 
     @Override
-    protected void onRender(GL4 gl) {
+    protected void onRender(GL3 gl) {
         camera3D.stdControl(input, time.getRenderDeltaTime(), 4, 6);
         frame += 1 * time.getRenderDeltaTime();
         for (int i = 1; i < m3D.length; i++) {
@@ -104,7 +104,7 @@ public class Demo extends Ingenium {
     }
 
     @Override
-    protected void onClose(GL4 gl) {
+    protected void onClose(GL3 gl) {
         System.out.println("Geometry value cache hits: " + Geometry.getValueCache().getCacheHits());
         System.out.println("Geometry reference cache hits: " + Geometry.getReferenceCache().getCacheHits());
         System.out.println("Texture reference cache hits: " + Mesh3D.getTextureReferenceCache().getCacheHits());

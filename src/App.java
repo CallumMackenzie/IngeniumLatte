@@ -1,4 +1,4 @@
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL3;
 
 import ingenium.*;
 import ingenium.math.*;
@@ -33,7 +33,7 @@ public class App extends Ingenium {
     }
 
     @Override
-    protected void onCreate(GL4 gl) {
+    protected void onCreate(GL3 gl) {
         init3D(gl);
         setClearColour(gl, 0x404040, 1);
         shader3D = new Shader(gl, FileUtils.getFileAsString("./shaders/3D/vert3d.vert"),
@@ -71,7 +71,7 @@ public class App extends Ingenium {
     double frame = 0;
 
     @Override
-    protected void onRender(GL4 gl) {
+    protected void onRender(GL3 gl) {
         System.out.println("FPS: " + Time.deltaTimeToFPS(time.getRenderDeltaTime()));
         camera.stdControl(input, time.getRenderDeltaTime(), 4, 6);
         frame += 1 * time.getRenderDeltaTime();
@@ -95,7 +95,7 @@ public class App extends Ingenium {
     }
 
     @Override
-    protected void onClose(GL4 gl) {
+    protected void onClose(GL3 gl) {
         System.out.println("Geometry value cache hits: " + Geometry.getValueCache().getCacheHits());
         System.out.println("Geometry reference cache hits: " + Geometry.getReferenceCache().getCacheHits());
         System.out.println("Texture reference cache hits: " + Mesh3D.getTextureReferenceCache().getCacheHits());

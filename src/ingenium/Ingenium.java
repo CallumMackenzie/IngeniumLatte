@@ -2,10 +2,11 @@ package ingenium;
 
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL3;
 
 public class Ingenium extends GLWindow {
     public static final String NO_VALUE = "NO_VALUE";
+    public static final int NO_INT_VALUE = -1;
     protected Input input = new Input();
 
     /**
@@ -23,30 +24,30 @@ public class Ingenium extends GLWindow {
     }
 
     @Override
-    protected void render(GL4 gl) {
+    protected void render(GL3 gl) {
         frame.requestFocus();
         onRender(gl);
     }
 
     @Override
-    protected void create(GL4 gl) {
+    protected void create(GL3 gl) {
         onCreate(gl);
     }
 
     @Override
-    protected void close(GL4 gl) {
+    protected void close(GL3 gl) {
         onClose(gl);
     }
 
-    protected void onRender(GL4 gl) {
+    protected void onRender(GL3 gl) {
 
     }
 
-    protected void onCreate(GL4 gl) {
+    protected void onCreate(GL3 gl) {
 
     }
 
-    protected void onClose(GL4 gl) {
+    protected void onClose(GL3 gl) {
 
     }
 
@@ -57,32 +58,32 @@ public class Ingenium extends GLWindow {
     /**
      * Sets the proper states for 3D rendering
      * 
-     * @param gl the GL4 object of the program
+     * @param gl the GL3 object of the program
      */
-    public void init3D(GL4 gl) {
-        gl.glBlendFunc(GL4.GL_SRC_ALPHA, GL4.GL_ONE_MINUS_SRC_ALPHA);
-        gl.glEnable(GL4.GL_BLEND);
-        gl.glEnable(GL4.GL_DEPTH_TEST);
+    public void init3D(GL3 gl) {
+        gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glEnable(GL3.GL_BLEND);
+        gl.glEnable(GL3.GL_DEPTH_TEST);
         gl.glDepthMask(true);
-        gl.glDepthFunc(GL4.GL_LEQUAL);
+        gl.glDepthFunc(GL3.GL_LEQUAL);
         gl.glDepthRange(0.0, 1.0);
-        gl.glEnable(GL4.GL_CULL_FACE);
-        gl.glCullFace(GL4.GL_BACK);
+        gl.glEnable(GL3.GL_CULL_FACE);
+        gl.glCullFace(GL3.GL_BACK);
     }
 
     /**
      * Sets the proper states for 2D rendering
      * 
-     * @param gl the GL4 object of the program
+     * @param gl the GL3 object of the program
      */
-    public void init2D(GL4 gl) {
-        gl.glBlendFunc(GL4.GL_SRC_ALPHA, GL4.GL_ONE_MINUS_SRC_ALPHA);
-        gl.glEnable(GL4.GL_BLEND);
-        gl.glEnable(GL4.GL_DEPTH_TEST);
+    public void init2D(GL3 gl) {
+        gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glEnable(GL3.GL_BLEND);
+        gl.glEnable(GL3.GL_DEPTH_TEST);
         gl.glDepthMask(true);
-        gl.glDepthFunc(GL4.GL_LEQUAL);
+        gl.glDepthFunc(GL3.GL_LEQUAL);
         gl.glDepthRange(0.0, 1.0);
-        gl.glEnable(GL4.GL_CULL_FACE);
-        gl.glCullFace(GL4.GL_BACK);
+        gl.glEnable(GL3.GL_CULL_FACE);
+        gl.glCullFace(GL3.GL_BACK);
     }
 }

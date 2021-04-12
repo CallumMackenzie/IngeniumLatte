@@ -1,6 +1,6 @@
 package ingenium.world.light;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL3;
 
 import ingenium.math.Vec3;
 import ingenium.world.Shader;
@@ -39,7 +39,7 @@ public class PointLight extends Light {
         this(new Vec3());
     }
 
-    public void sendToShader(GL4 gl, Shader shader, int index) {
+    public void sendToShader(GL3 gl, Shader shader, int index) {
         shader.setUniform(gl, "pointLights[" + index + "].position", getPosition(), false);
         shader.setUniform(gl, "pointLights[" + index + "].ambient", getAmbient(), false);
         shader.setUniform(gl, "pointLights[" + index + "].diffuse", getDiffuse().mulFloat(getIntensity()), false);

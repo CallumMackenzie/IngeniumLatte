@@ -7,7 +7,7 @@ import ingenium.math.Mat2;
 import ingenium.math.Vec2;
 import ingenium.world.Camera2D;
 import ingenium.world.Shader;
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL3;
 
 public class Mesh2D extends Mesh<Vec2, Float> {
     private float zIndex = 0;
@@ -69,7 +69,7 @@ public class Mesh2D extends Mesh<Vec2, Float> {
         this(new Vec2());
     }
 
-    public void make(GL4 gl, String path, String diffusePath) {
+    public void make(GL3 gl, String path, String diffusePath) {
         setTexture(gl, diffusePath, Ingenium.NO_VALUE, Ingenium.NO_VALUE);
         Geometry.Object object3d = Geometry.loadFromObjData2D(path, true, useGeometryReferenceCache,
                 useGeometryValueCache);
@@ -83,7 +83,7 @@ public class Mesh2D extends Mesh<Vec2, Float> {
         load(gl);
     }
 
-    public void make(GL4 gl, String diffusePath) {
+    public void make(GL3 gl, String diffusePath) {
         setTexture(gl, diffusePath, Ingenium.NO_VALUE, Ingenium.NO_VALUE);
         Geometry.Object object3d = Geometry.make2DQuad();
         if (object3d.isReference()) {
@@ -99,10 +99,10 @@ public class Mesh2D extends Mesh<Vec2, Float> {
     /**
      * Loads all the data onto the GPU
      * 
-     * @param gl the GL4 object of the program
+     * @param gl the GL3 object of the program
      */
     @Override
-    public void load(GL4 gl) {
+    public void load(GL3 gl) {
         if (!loaded) {
             int[] buffers = new int[1];
             int[] vertexArrays = new int[1];
@@ -112,22 +112,22 @@ public class Mesh2D extends Mesh<Vec2, Float> {
             gl.glGenVertexArrays(1, vertexArrays, 0);
 
             mVBO = buffers[0];
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, data.capacity() * floatBytes, data, GL4.GL_STATIC_DRAW);
+            gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, mVBO);
+            gl.glBufferData(GL3.GL_ARRAY_BUFFER, data.capacity() * floatBytes, data, GL3.GL_STATIC_DRAW);
 
             mVAO = vertexArrays[0];
             gl.glBindVertexArray(mVAO);
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
+            gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, mVBO);
 
             int stride = Tri2D.Vert.vertByteSize;
 
-            gl.glVertexAttribPointer(0, 2, GL4.GL_FLOAT, false, stride, 0); // Points (2)
+            gl.glVertexAttribPointer(0, 2, GL3.GL_FLOAT, false, stride, 0); // Points (2)
             gl.glEnableVertexAttribArray(0);
 
-            gl.glVertexAttribPointer(1, 2, GL4.GL_FLOAT, false, stride, 2 * floatBytes); // Texture UVs (2)
+            gl.glVertexAttribPointer(1, 2, GL3.GL_FLOAT, false, stride, 2 * floatBytes); // Texture UVs (2)
             gl.glEnableVertexAttribArray(1);
 
-            gl.glVertexAttribPointer(2, 4, GL4.GL_FLOAT, false, stride, 4 * floatBytes); // RGBA tint (4)
+            gl.glVertexAttribPointer(2, 4, GL3.GL_FLOAT, false, stride, 4 * floatBytes); // RGBA tint (4)
             gl.glEnableVertexAttribArray(2);
 
             loaded = true;
@@ -138,7 +138,7 @@ public class Mesh2D extends Mesh<Vec2, Float> {
         return Mat2.rotation(this.rotation);
     }
 
-    public void sendToShader(GL4 gl, Shader shader) {
+    public void sendToShader(GL3 gl, Shader shader) {
         shader.setUVec4(gl, "model.tint", this.tint);
         shader.setUVec2(gl, "model.translation", this.position);
         shader.setUMat2(gl, "model.rotation", modelMatrix());
@@ -146,21 +146,21 @@ public class Mesh2D extends Mesh<Vec2, Float> {
         shader.setUVec2(gl, "model.scale", this.scale);
         shader.setUniform(gl, "model.zIndex", zIndex);
 
-        gl.glActiveTexture(GL4.GL_TEXTURE0);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getDiffuseTexture());
-        gl.glActiveTexture(GL4.GL_TEXTURE1);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getSpecularTexture());
-        gl.glActiveTexture(GL4.GL_TEXTURE2);
-        gl.glBindTexture(GL4.GL_TEXTURE_2D, material.getNormalTexture());
+        gl.glActiveTexture(GL3.GL_TEXTURE0);
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, material.getDiffuseTexture());
+        gl.glActiveTexture(GL3.GL_TEXTURE1);
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, material.getSpecularTexture());
+        gl.glActiveTexture(GL3.GL_TEXTURE2);
+        gl.glBindTexture(GL3.GL_TEXTURE_2D, material.getNormalTexture());
     }
 
     /**
      * Binds the VBO
      * 
-     * @param gl the GL4 object of the program
+     * @param gl the GL3 object of the program
      */
-    public void bindVBO(GL4 gl) {
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, mVBO);
+    public void bindVBO(GL3 gl) {
+        gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, mVBO);
     }
 
     /**
@@ -174,9 +174,9 @@ public class Mesh2D extends Mesh<Vec2, Float> {
     /**
      * Binds the VAO
      * 
-     * @param gl the GL4 object of the program
+     * @param gl the GL3 object of the program
      */
-    public void bindVAO(GL4 gl) {
+    public void bindVAO(GL3 gl) {
         gl.glBindVertexArray(mVAO);
     }
 
@@ -246,12 +246,12 @@ public class Mesh2D extends Mesh<Vec2, Float> {
 
     /**
      * 
-     * @param gl     the GL4 object of the program
+     * @param gl     the GL3 object of the program
      * @param shader the shader to use
      * @param camera the 2D camera to use
      * @param meshes the meshes to render
      */
-    public static void renderAll(GL4 gl, Shader shader, Camera2D camera, Mesh2D meshes[]) {
+    public static void renderAll(GL3 gl, Shader shader, Camera2D camera, Mesh2D meshes[]) {
         shader.use(gl);
         Material.sendToShader(gl, shader);
         camera.sendToShader(gl, shader);
@@ -261,7 +261,7 @@ public class Mesh2D extends Mesh<Vec2, Float> {
             meshes[i].bindVAO(gl);
             shader.setUVec2(gl, "translation", meshes[i].position.add(camera.getPosition()));
             meshes[i].sendToShader(gl, shader);
-            gl.glDrawArrays(GL4.GL_TRIANGLES, 0, meshes[i].numVerts);
+            gl.glDrawArrays(GL3.GL_TRIANGLES, 0, meshes[i].numVerts);
         }
     }
 }

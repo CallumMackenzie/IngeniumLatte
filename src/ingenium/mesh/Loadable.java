@@ -1,7 +1,7 @@
 package ingenium.mesh;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL3;
 
 public interface Loadable {
-    public void load(GL4 gl);
+    public void load(GL3 gl);
 }
