@@ -1,14 +1,17 @@
 package ingenium.world;
 
 import java.nio.FloatBuffer;
+import java.util.HashMap;
 
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 
 import ingenium.math.Mat2;
 import ingenium.math.Mat4;
 import ingenium.math.Vec2;
 import ingenium.math.Vec3;
+import ingenium.utilities.FileUtils;
 
 public class Shader {
     private int program = GL3.GL_NONE;
@@ -19,7 +22,7 @@ public class Shader {
      * @param vertSource the source code for the vertex shader
      * @param fragSource the source code for the fragment shader
      */
-    public Shader(GL3 gl, String vertSource, String fragSource) {
+    public void compile(GL3 gl, String vertSource, String fragSource) {
         int vShader = compileShader(gl, GL3.GL_VERTEX_SHADER, vertSource);
         int fShader = compileShader(gl, GL3.GL_FRAGMENT_SHADER, fragSource);
         program = gl.glCreateProgram();
@@ -30,6 +33,19 @@ public class Shader {
 
         gl.glDeleteShader(vShader);
         gl.glDeleteShader(fShader);
+    }
+
+    public void compileWithParameters(GL3 gl, String vertSource, String fragSource, HashMap<String, String> gParams,
+            HashMap<String, String> vParams, HashMap<String, String> fParams) {
+        for (String key : gParams.keySet()) {
+            vertSource = vertSource.replace(key, gParams.get(key));
+            fragSource = fragSource.replace(key, gParams.get(key));
+        }
+        for (String key : vParams.keySet())
+            vertSource = vertSource.replace(key, vParams.get(key));
+        for (String key : fParams.keySet())
+            fragSource = fragSource.replace(key, fParams.get(key));
+        compile(gl, vertSource, fragSource);
     }
 
     /**
@@ -196,5 +212,44 @@ public class Shader {
             System.err.println("Error compiling shader: " + new String(log));
             System.exit(1);
         }
+    }
+
+    public static Shader makeDefault2DShader(GL3 gl, boolean es) {
+        Shader shader = new Shader();
+        HashMap<String, String> gParams = new HashMap<>();
+        HashMap<String, String> vParams = new HashMap<>();
+        HashMap<String, String> fParams = new HashMap<>();
+        if (es) {
+            gParams.put("$version$", "#version 330 es");
+            vParams.put("$precision$", "precision highp float;");
+            fParams.put("$precision$", "precision mediump float;");
+        } else {
+            gParams.put("$version$", "#version 330 core");
+            gParams.put("$precision$", "");
+        }
+
+        shader.compileWithParameters(gl, FileUtils.getFileAsString("./shaders/2D/vert2d.vert"),
+                FileUtils.getFileAsString("./shaders/2D/default.frag"), gParams, vParams, fParams);
+        return shader;
+    }
+
+    public static Shader makeDefault3DShader(GL3 gl, boolean es, int numLights) {
+        Shader shader = new Shader();
+        HashMap<String, String> gParams = new HashMap<>();
+        HashMap<String, String> vParams = new HashMap<>();
+        HashMap<String, String> fParams = new HashMap<>();
+        if (es) {
+            gParams.put("$version$", "#version 330 es");
+            vParams.put("$precision$", "precision highp float;");
+            fParams.put("$precision$", "precision mediump float;");
+        } else {
+            gParams.put("$version$", "#version 330 core");
+            gParams.put("$precision$", "");
+        }
+        fParams.put("$nlights$", Integer.toString(numLights));
+
+        shader.compileWithParameters(gl, FileUtils.getFileAsString("./shaders/3D/vert3d.vert"),
+                FileUtils.getFileAsString("./shaders/3D/blinnphong.frag"), gParams, vParams, fParams);
+        return shader;
     }
 }

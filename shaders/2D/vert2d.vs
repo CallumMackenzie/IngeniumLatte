@@ -1,4 +1,5 @@
-#version 330 core
+$version$
+$precision$
 
 struct Camera2D {
     mat2 rotation;

@@ -1,6 +1,5 @@
-#version 300 es
-
-precision mediump float;
+$version$
+$precision$
 
 struct Material {
     sampler2D diffuse;

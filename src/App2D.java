@@ -20,8 +20,8 @@ public class App2D extends Ingenium {
     protected void onCreate(GL3 gl) {
         init2D(gl);
         setClearColour(gl, 0x404040, 1);
-        shader2D = new Shader(gl, FileUtils.getFileAsString("./shaders/2D/vert2d.vert"),
-                FileUtils.getFileAsString("./shaders/2D/default.frag"));
+        shader2D = new Shader();
+        shader2D.compile(gl, FileUtils.getFileAsString("./shaders/2D/vert2d.vert"), FileUtils.getFileAsString("./shaders/2D/default.frag"));
 
         String textures[][] = new String[][] {
                 { "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg" },

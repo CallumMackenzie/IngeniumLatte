@@ -1,6 +1,7 @@
-#version 330 core
+$version$
+$precision$
 
-#define NR_POINT_LIGHTS 1
+#define NR_POINT_LIGHTS $nlights$
 
 struct Material {
     sampler2D diffuse;
