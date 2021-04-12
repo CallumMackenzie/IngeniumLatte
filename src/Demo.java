@@ -33,10 +33,10 @@ public class Demo extends Ingenium {
         init2D(gl);
         init3D(gl);
         setClearColour(gl, 0x404040, 1);
-        shader2D = new Shader(gl, FileUtils.getFileAsString("./shaders/2D/vert2dES.vert"),
-                FileUtils.getFileAsString("./shaders/2D/defaultES.frag"));
-        shader3D = new Shader(gl, FileUtils.getFileAsString("./shaders/3D/es/vert3d.vert"),
-                FileUtils.getFileAsString("./shaders/3D/es/blinnphong.frag"));
+        shader2D = new Shader(gl, FileUtils.getFileAsString("./shaders/2D/vert2d.vert"),
+                FileUtils.getFileAsString("./shaders/2D/default.frag"));
+        shader3D = new Shader(gl, FileUtils.getFileAsString("./shaders/3D/core/vert3d.vert"),
+                FileUtils.getFileAsString("./shaders/3D/core/blinnphong.frag"));
 
         String objectPaths[] = new String[] { "./resource/cubent.obj", "./resource/suzanne.obj",
                 "./resource/uvspherent.obj", "./resource/uvsmoothnt.obj", "./resource/torusnt.obj",
