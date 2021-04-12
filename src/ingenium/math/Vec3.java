@@ -128,7 +128,7 @@ public class Vec3 extends Vec {
         this.z = (float) z;
     }
 
-    public Vec2 toVec2 () {
+    public Vec2 toVec2() {
         return new Vec2(x, y, w);
     }
 
@@ -295,10 +295,32 @@ public class Vec3 extends Vec {
     }
 
     /**
+     * 
+     * @param v the vector to compare
+     * @return whether the x, y, and z components are equal
+     */
+    public boolean equalsXYZ(Vec3 v) {
+        return (v.x == this.x && v.y == this.y && v.z == this.z);
+    }
+
+    /**
+     * 
+     * @param v the vector to compare
+     * @return whether the x, y, z, and w components are equal
+     */
+    public boolean equalsXYZW(Vec3 v) {
+        return (v.x == this.x && v.y == this.y && v.z == this.z && v.w == this.w);
+    }
+
+    /**
      * @return the length of the Vec3
      */
     public float len() {
         return (float) Math.sqrt(Vec3.dot(this, this));
+    }
+
+    public int hashCode() {
+        return ("Vec3(" + x + "," + y + "," + z + "," + w + ")").hashCode();
     }
 
     @Override

@@ -76,9 +76,9 @@ vec3 CalcDirLight(DirLight light, vec3 cnormal, vec3 viewDir, vec2 coordUV)
     float diff = max(dot(cnormal, lightDir), 0.0);
     vec3 reflectDir = reflect(-lightDir, cnormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, coordUV.xy).rgba + tint.rgba);
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture((material.diffuse), coordUV.xy).rgba + tint.rgba);
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, coordUV.xy).rgba + tint.rgba);
+    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, coordUV.xy).rgba * tint.rgba);
+    vec3 diffuse  = light.diffuse  * diff * vec3(texture((material.diffuse), coordUV.xy).rgba * tint.rgba);
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, coordUV.xy).rgba * tint.rgba);
     return (ambient + diffuse + specular);
 } 
 vec3 CalcPointLight(PointLight light, vec3 cnormal, vec3 cfragPos, vec3 viewDir, vec2 coordUV)
@@ -89,9 +89,9 @@ vec3 CalcPointLight(PointLight light, vec3 cnormal, vec3 cfragPos, vec3 viewDir,
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     float distance    = length(light.position - cfragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, coordUV.xy).rgba + tint.rgba);
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, coordUV.xy).rgba + tint.rgba);
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, coordUV.xy).rgba + tint.rgba);
+    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, coordUV.xy).rgba * tint.rgba);
+    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, coordUV.xy).rgba * tint.rgba);
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, coordUV.xy).rgba * tint.rgba);
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;

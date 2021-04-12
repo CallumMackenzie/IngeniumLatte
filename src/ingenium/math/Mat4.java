@@ -6,6 +6,14 @@ package ingenium.math;
 public class Mat4 {
     private float m[][] = new float[4][4];
 
+    public Mat4 () {
+        return;
+    }
+
+    public Mat4 (float m[][]) {
+        this.m = m;
+    }
+
     /**
      * 
      * @return the flattened Mat4
@@ -28,7 +36,7 @@ public class Mat4 {
      * @return the Mat4 product
      */
     public Mat4 mul(Mat4... mats) {
-        Mat4 m1 = this;
+        Mat4 m1 = new Mat4(this.m);
         for (Mat4 m2 : mats) {
             Mat4 matrix = new Mat4();
             for (int c = 0; c < 4; c++)

@@ -6,6 +6,14 @@ package ingenium.math;
 public class Mat2 {
     private float m[][] = new float[2][2];
 
+    public Mat2() {
+        return;
+    }
+
+    public Mat2(float m[][]) {
+        this.m = m;
+    }
+
     /**
      * 
      * @return the flattened matrix
@@ -44,6 +52,18 @@ public class Mat2 {
      */
     public Mat2 inverse() {
         return Mat2.inverse(this);
+    }
+
+    public Mat2 mul(Mat2... mats) {
+        Mat2 m1 = new Mat2(this.m);
+        for (Mat2 m2 : mats) {
+            Mat2 matrix = new Mat2();
+            for (int c = 0; c < 2; c++)
+                for (int r = 0; r < 2; r++)
+                    matrix.m[r][c] = m1.m[r][0] * m2.m[0][c] + m1.m[r][1] * m2.m[1][c];
+            m1 = matrix;
+        }
+        return m1;
     }
 
     @Override

@@ -6,12 +6,21 @@ import ingenium.math.Vec3;
 public class Tri2D extends Tri<Tri2D.Vert> {
     public static class Vert {
         public static final int vertSize = 8;
-        public static final int floatVertSize = vertSize * 3;
         public static final int vertByteSize = vertSize * Float.BYTES;
 
         private Vec2 p; // Point (2)
         private Vec2 t; // Texture coords (2)
         private Vec3 rgb; // RGB tint (4)
+
+        public Vert() {
+            return;
+        }
+
+        public Vert(Vec2 p, Vec2 t) {
+            this.p = p;
+            this.t = t;
+            this.rgb = new Vec3();
+        }
 
         public Vec2 getP() {
             return p;
@@ -40,6 +49,10 @@ public class Tri2D extends Tri<Tri2D.Vert> {
 
     public Tri2D() {
         v = new Tri2D.Vert[3];
+    }
+
+    public Tri2D(Vert verts[]) {
+        v = verts;
     }
 
     public void setVert(int index, Tri2D.Vert v) throws IndexOutOfBoundsException {

@@ -168,6 +168,22 @@ public class Vec2 extends Vec {
         return new Vec2(x / l, y / l, w);
     }
 
+    public Vec2 mulFloat(float f) {
+        return new Vec2(x * f, y * f, w);
+    }
+
+    public Vec2 divFloat(float f) {
+        return new Vec2(x / f, y / f, w);
+    }
+
+    public Vec2 addFloat(float f) {
+        return new Vec2(x + f, y + f, w);
+    }
+
+    public Vec2 subFloat(float f) {
+        return new Vec2(x - f, y - f, w);
+    }
+
     /**
      * 
      * @param mat the matrix to multiply by
@@ -175,6 +191,28 @@ public class Vec2 extends Vec {
      */
     public Vec2 mulMat2(Mat2 mat) {
         return mulMat2(this, mat);
+    }
+
+    /**
+     * 
+     * @param v the vector to compare
+     * @return whether the x and y components are equal
+     */
+    public boolean equalsXY(Vec2 v) {
+        return (v.x == this.x && v.y == this.y);
+    }
+
+    /**
+     * 
+     * @param v the vector to compare
+     * @return whether the x, y, and w components are equal
+     */
+    public boolean equalsXYW(Vec2 v) {
+        return (v.x == this.x && v.y == this.y && v.w == this.w);
+    }
+
+    public int hashCode() {
+        return ("Vec2(" + x + "," + y + "," + w + ")").hashCode();
     }
 
     @Override
@@ -196,5 +234,9 @@ public class Vec2 extends Vec {
         v.x = (v.x * mat.getM()[0][0]) + (v.x * mat.getM()[0][1]);
         v.y = (v.y * mat.getM()[1][0]) + (v.y * mat.getM()[1][1]);
         return v;
+    }
+
+    public static float dot(Vec2 v1, Vec2 v2) {
+        return v1.x * v2.x + v1.y * v2.y;
     }
 }

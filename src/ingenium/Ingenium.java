@@ -5,7 +5,7 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GL4;
 
 public class Ingenium extends GLWindow {
-    public static String NO_VALUE = "NO_VALUE";
+    public static final String NO_VALUE = "NO_VALUE";
     protected Input input = new Input();
 
     /**
@@ -66,6 +66,8 @@ public class Ingenium extends GLWindow {
         gl.glDepthMask(true);
         gl.glDepthFunc(GL4.GL_LEQUAL);
         gl.glDepthRange(0.0, 1.0);
+        gl.glEnable(GL4.GL_CULL_FACE);
+        gl.glCullFace(GL4.GL_BACK);
     }
 
     /**
@@ -74,7 +76,13 @@ public class Ingenium extends GLWindow {
      * @param gl the GL4 object of the program
      */
     public void init2D(GL4 gl) {
-        gl.glEnable(GL4.GL_BLEND);
         gl.glBlendFunc(GL4.GL_SRC_ALPHA, GL4.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glEnable(GL4.GL_BLEND);
+        gl.glEnable(GL4.GL_DEPTH_TEST);
+        gl.glDepthMask(true);
+        gl.glDepthFunc(GL4.GL_LEQUAL);
+        gl.glDepthRange(0.0, 1.0);
+        gl.glEnable(GL4.GL_CULL_FACE);
+        gl.glCullFace(GL4.GL_BACK);
     }
 }

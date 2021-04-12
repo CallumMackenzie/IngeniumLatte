@@ -8,7 +8,7 @@ import ingenium.world.*;
 
 public class App2D extends Ingenium {
     Shader shader2D;
-    Mesh2D m[] = new Mesh2D[0];
+    Mesh2D m[] = new Mesh2D[3];
     Camera2D camera2d = new Camera2D(9f / 16f);
 
     public App2D() {
@@ -33,6 +33,25 @@ public class App2D extends Ingenium {
                 { "./resource/scrmetal/b.jpg", "./resource/scrmetal/s.jpg", "./resource/scrmetal/n.jpg" },
                 { "./resource/gate/b.jpg", "./resource/gate/s.jpg", "./resource/gate/n.jpg" } };
 
+        m[0] = new Mesh2D();
+        m[0].setScale(new Vec2(1, 0.5));
+        // m[0].setRotationPoint(new Vec2(1, 0));
+        m[0].setPosition(new Vec2(1, -1));
+        m[0].setRotation(2f);
+        m[0].make(gl, textures[3][0]);
+
+        m[1] = new Mesh2D();
+        m[1].setScale(new Vec2(0.5, 0.5));
+        m[1].setRotationPoint(new Vec2(0, 0));
+        m[1].setPosition(new Vec2());
+        m[1].setRotation(0f);
+        m[1].make(gl, textures[0][0]);
+
+        m[2] = new Mesh2D();
+        m[2].setScale(new Vec2(5, 5));
+        m[2].setRotation(0f);
+        m[2].setZIndex(1);
+        m[2].make(gl, textures[2][0]);
         shader2D.use(gl);
     }
 
@@ -41,6 +60,12 @@ public class App2D extends Ingenium {
     @Override
     protected void onRender(GL4 gl) {
         // System.out.println("FPS: " + Time.deltaTimeToFPS(time.getRenderDeltaTime()));
+        frame += 1 * time.getRenderDeltaTime();
+        camera2d.stdControl(input, time.getDeltaTime(), 1.5f, 2.5f);
+        float sinSpeed = 0.5f;
+        m[0].setRotation(m[0].getRotation() + 2f * time.getDeltaTime());
+        m[1].setTint(new Vec3(Functions.sinPulse(frame, sinSpeed), Functions.sinPulse(frame + 1, sinSpeed),
+                Functions.sinPulse(frame + 2, sinSpeed)));
         clear(gl);
         Mesh2D.renderAll(gl, shader2D, camera2d, m);
     }

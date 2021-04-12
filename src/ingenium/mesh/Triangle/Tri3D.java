@@ -6,7 +6,6 @@ public class Tri3D extends Tri<Tri3D.Vert> {
 
     public static class Vert {
         public static final int vertSize = 17;
-        public static final int floatVertSize = vertSize * 3;
         public static final int vertByteSize = vertSize * Float.BYTES;
 
         private Vec3 p; // Point (4)

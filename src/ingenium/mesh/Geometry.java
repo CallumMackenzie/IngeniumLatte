@@ -2,6 +2,8 @@ package ingenium.mesh;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import com.jogamp.common.nio.Buffers;
 import ingenium.utilities.*;
@@ -12,6 +14,7 @@ import ingenium.mesh.Triangle.Tri3D;
 import ingenium.utilities.Cache;
 
 public class Geometry {
+    public static final String QUAD_PATH = "QUAD";
     private static final Cache<String, ValueCacheElement> valueCache = new Cache<>("geometry cache", false); // 1
     private static final Cache<String, Integer[]> referenceCache = new Cache<>("geometry cache", false); // 2
 
@@ -88,6 +91,14 @@ public class Geometry {
         ArrayList<Tri2D> tri2ds = new ArrayList<>();
         for (Tri3D t : tri3ds)
             tri2ds.add(t.toTri2D());
+        tri3ds = null;
+        HashMap<String, Tri2D> tris = new HashMap<>();
+        for (Tri2D t : tri2ds)
+            if (!(t.getVert(0).getP().equalsXY(t.getVert(1).getP()) // v0 == v1
+                    || t.getVert(0).getP().equalsXY(t.getVert(2).getP()) // v0 == v2
+                    || t.getVert(1).getP().equalsXY(t.getVert(2).getP()))) // v1 == v2
+                tris.put(Integer.toString(t.hashCode()), t);
+        tri2ds = new ArrayList<>(tris.values());
         return tri2ds;
     }
 
@@ -165,6 +176,17 @@ public class Geometry {
         return null;
     }
 
+    public static Geometry.Object make2DQuad() {
+        Tri2D.Vert topLeft = new Tri2D.Vert(new Vec2(-1, 1), new Vec2(0, 1));
+        Tri2D.Vert topRight = new Tri2D.Vert(new Vec2(1, 1), new Vec2(1, 1));
+        Tri2D.Vert bottomLeft = new Tri2D.Vert(new Vec2(-1, -1), new Vec2(0, 0));
+        Tri2D.Vert bottomRight = new Tri2D.Vert(new Vec2(1, -1), new Vec2(1, 0));
+        ArrayList<Tri2D> tris = new ArrayList<>(
+                Arrays.asList(new Tri2D[] { new Tri2D(new Tri2D.Vert[] { topLeft, bottomLeft, topRight }),
+                                            new Tri2D(new Tri2D.Vert[] { bottomLeft, bottomRight, topRight }) }));
+        return geometryArrayListToObject(tris);
+    }
+
     public static Geometry.Object loadFromObjData(String raw, boolean path, boolean useGeometryReferenceCache,
             boolean useGeometryValueCache) {
         String objPath = "string obj data" + raw.hashCode();
@@ -176,16 +198,9 @@ public class Geometry {
             return cacheObject; // Return what was found
         // Parse .obj data
         ArrayList<Tri3D> tris = loadTri3DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
-        int numVerts = tris.size() * 3;
-        // Move data to a FloatBuffer
-        float[] dataToWrite = new float[tris.size() * Tri3D.Vert.floatVertSize];
-        for (int l = 0; l < tris.size(); l++)
-            System.arraycopy(tris.get(l).toDataArray(), 0, dataToWrite, l * Tri3D.Vert.floatVertSize,
-                    Tri3D.Vert.floatVertSize);
-        FloatBuffer data = Buffers.newDirectFloatBuffer(dataToWrite);
-        // Add value cache data
-        Geometry.getValueCache().add(objPath, new Geometry.ValueCacheElement(data, numVerts));
-        return new Geometry.Object(data, numVerts);
+        Geometry.Object gObject = geometryArrayListToObject(tris);
+        Geometry.getValueCache().add(objPath, new Geometry.ValueCacheElement(gObject.data, gObject.numVerts));
+        return gObject;
     }
 
     public static Geometry.Object loadFromObjData2D(String raw, boolean path, boolean useGeometryReferenceCache,
@@ -199,15 +214,29 @@ public class Geometry {
             return cacheObject; // Return what was found
         // Parse .obj data
         ArrayList<Tri2D> tris = loadTri2DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
-        int numVerts = tris.size() * 3;
-        // Move data to a FloatBuffer
-        float[] dataToWrite = new float[tris.size() * Tri2D.Vert.floatVertSize];
-        for (int l = 0; l < tris.size(); l++)
-            System.arraycopy(tris.get(l).toDataArray(), 0, dataToWrite, l * Tri2D.Vert.floatVertSize,
-                    Tri2D.Vert.floatVertSize);
-        FloatBuffer data = Buffers.newDirectFloatBuffer(dataToWrite);
-        // Add value cache data
-        Geometry.getValueCache().add(objPath, new Geometry.ValueCacheElement(data, numVerts));
-        return new Geometry.Object(data, numVerts);
+        Geometry.Object gObject = geometryArrayListToObject(tris);
+        Geometry.getValueCache().add(objPath, new Geometry.ValueCacheElement(gObject.data, gObject.numVerts));
+        return gObject;
+    }
+
+    private static <T> Geometry.Object geometryArrayListToObject(ArrayList<T> list) {
+        if (list.size() < 0)
+            return new Geometry.Object(null, 0);
+        if (list.get(0) instanceof Tri2D) {
+            int numVerts = list.size() * 3;
+            float[] dataToWrite = new float[list.size() * Tri2D.Vert.vertSize * 3];
+            for (int l = 0; l < list.size(); l++)
+                System.arraycopy(((Tri2D) list.get(l)).toDataArray(), 0, dataToWrite, l * Tri2D.Vert.vertSize * 3,
+                        Tri2D.Vert.vertSize * 3);
+            return new Geometry.Object(Buffers.newDirectFloatBuffer(dataToWrite), numVerts);
+        } else if (list.get(0) instanceof Tri3D) {
+            int numVerts = list.size() * 3;
+            float[] dataToWrite = new float[list.size() * Tri3D.Vert.vertSize * 3];
+            for (int l = 0; l < list.size(); l++)
+                System.arraycopy(((Tri3D) list.get(l)).toDataArray(), 0, dataToWrite, l * Tri3D.Vert.vertSize * 3,
+                        Tri3D.Vert.vertSize * 3);
+            return new Geometry.Object(Buffers.newDirectFloatBuffer(dataToWrite), numVerts);
+        }
+        return new Geometry.Object(null, 0);
     }
 }

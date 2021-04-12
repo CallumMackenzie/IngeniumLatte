@@ -14,7 +14,7 @@ import ingenium.world.Position;
 public class Mesh<positionType, rotationType> extends Position<positionType, rotationType> implements Loadable {
     protected static final Cache<String, Integer> textureReferenceCache = new Cache<>("geometry cache", false);
 
-    protected Vec3 tint = new Vec3();
+    protected Vec3 tint = new Vec3(1, 1, 1);
     protected positionType scale;
     protected Material material;
     protected FloatBuffer data = null;
@@ -25,6 +25,34 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
     protected boolean useTextureReferenceCache = true;
     protected boolean useGeometryReferenceCache = true;
     protected boolean useGeometryValueCache = true;
+
+    /**
+     * 
+     * @param position      the position
+     * @param rotation      the rotation
+     * @param scale         the scale
+     * @param rotationPoint the relative point rotation is done around
+     * @param material      the material
+     */
+    public Mesh(positionType position, rotationType rotation, positionType scale, positionType rotationPoint,
+            Material material) {
+        this.rotation = rotation;
+        this.rotationPoint = rotationPoint;
+        this.position = position;
+        this.scale = scale;
+        this.material = material;
+    }
+
+    /**
+     * 
+     * @param position      the position
+     * @param rotation      the rotation
+     * @param scale         the scale
+     * @param rotationPoint the relative point rotation is done around
+     */
+    public Mesh(positionType position, rotationType rotation, positionType scale, positionType rotationPoint) {
+        this(position, rotation, scale, rotationPoint, new Material());
+    }
 
     public void load(GL4 gl) {
         System.err.println("A class extending ingenium.mesh.Mesh must implement a load() method.");

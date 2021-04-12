@@ -17,11 +17,7 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
      * @param material      the material
      */
     public Mesh3D(Vec3 position, Vec3 rotation, Vec3 scale, Vec3 rotationPoint, Material material) {
-        this.rotation = rotation;
-        this.rotationPoint = rotationPoint;
-        this.position = position;
-        this.scale = scale;
-        this.material = material;
+        super(position, rotation, scale, rotationPoint, material);
     }
 
     /**
