@@ -228,8 +228,8 @@ public class Shader {
             gParams.put("$precision$", "");
         }
 
-        shader.compileWithParameters(gl, FileUtils.getFileAsString("./shaders/2D/vert2d.vert"),
-                FileUtils.getFileAsString("./shaders/2D/default.frag"), gParams, vParams, fParams);
+        shader.compileWithParameters(gl, FileUtils.getFileAsString("./shaders/2D/vert2d.vs"),
+                FileUtils.getFileAsString("./shaders/2D/default.fs"), gParams, vParams, fParams);
         return shader;
     }
 
@@ -248,8 +248,8 @@ public class Shader {
         }
         fParams.put("$nlights$", Integer.toString(numLights));
 
-        shader.compileWithParameters(gl, FileUtils.getFileAsString("./shaders/3D/vert3d.vert"),
-                FileUtils.getFileAsString("./shaders/3D/blinnphong.frag"), gParams, vParams, fParams);
+        shader.compileWithParameters(gl, FileUtils.getFileAsString("./shaders/3D/vert3d.vs"),
+                FileUtils.getFileAsString("./shaders/3D/blinnphong.fs"), gParams, vParams, fParams);
         return shader;
     }
 }

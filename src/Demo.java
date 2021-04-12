@@ -33,8 +33,8 @@ public class Demo extends Ingenium {
         init2D(gl);
         init3D(gl);
         setClearColour(gl, 0x404040, 1);
-        shader2D = Shader.makeDefault2DShader(gl, true);
-        shader3D = Shader.makeDefault3DShader(gl, true, 1);
+        shader2D = Shader.makeDefault2DShader(gl, false);
+        shader3D = Shader.makeDefault3DShader(gl, false, 1);
 
         String objectPaths[] = new String[] { "./resource/cubent.obj", "./resource/suzanne.obj",
                 "./resource/uvspherent.obj", "./resource/uvsmoothnt.obj", "./resource/torusnt.obj",
