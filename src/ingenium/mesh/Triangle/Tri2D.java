@@ -19,7 +19,7 @@ public class Tri2D extends Tri<Tri2D.Vert> {
         public Vert(Vec2 p, Vec2 t) {
             this.p = p;
             this.t = t;
-            this.rgb = new Vec3();
+            this.rgb = new Vec3(1, 1, 1);
         }
 
         public Vec2 getP() {

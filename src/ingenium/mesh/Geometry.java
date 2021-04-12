@@ -183,7 +183,7 @@ public class Geometry {
         Tri2D.Vert bottomRight = new Tri2D.Vert(new Vec2(1, -1), new Vec2(1, 0));
         ArrayList<Tri2D> tris = new ArrayList<>(
                 Arrays.asList(new Tri2D[] { new Tri2D(new Tri2D.Vert[] { topLeft, bottomLeft, topRight }),
-                                            new Tri2D(new Tri2D.Vert[] { bottomLeft, bottomRight, topRight }) }));
+                        new Tri2D(new Tri2D.Vert[] { bottomLeft, bottomRight, topRight }) }));
         return geometryArrayListToObject(tris);
     }
 
@@ -192,11 +192,9 @@ public class Geometry {
         String objPath = "string obj data" + raw.hashCode();
         if (path)
             objPath = raw;
-        // Check if we've loaded this before
         Geometry.Object cacheObject = checkGeometryCaches(objPath, useGeometryReferenceCache, useGeometryValueCache);
-        if (cacheObject != null) // We have!
-            return cacheObject; // Return what was found
-        // Parse .obj data
+        if (cacheObject != null)
+            return cacheObject;
         ArrayList<Tri3D> tris = loadTri3DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
         Geometry.Object gObject = geometryArrayListToObject(tris);
         Geometry.getValueCache().add(objPath, new Geometry.ValueCacheElement(gObject.data, gObject.numVerts));
@@ -208,11 +206,9 @@ public class Geometry {
         String objPath = "string obj data" + raw.hashCode();
         if (path)
             objPath = raw;
-        // Check if we've loaded this before
         Geometry.Object cacheObject = checkGeometryCaches(objPath, useGeometryReferenceCache, useGeometryValueCache);
-        if (cacheObject != null) // We have!
-            return cacheObject; // Return what was found
-        // Parse .obj data
+        if (cacheObject != null)
+            return cacheObject;
         ArrayList<Tri2D> tris = loadTri2DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
         Geometry.Object gObject = geometryArrayListToObject(tris);
         Geometry.getValueCache().add(objPath, new Geometry.ValueCacheElement(gObject.data, gObject.numVerts));

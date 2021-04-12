@@ -31,7 +31,7 @@ public class Tri3D extends Tri<Tri3D.Vert> {
         }
 
         public Vert(Vec3 p, Vec2 t) {
-            this(p, t, new Vec3());
+            this(p, t, new Vec3(1, 1, 1));
         }
 
         public Vert(Vec3 p) {

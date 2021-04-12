@@ -16,8 +16,8 @@ public class Vec3 extends Vec {
     public Vec3(float x, float y, float z, float w) {
         this.x = x;
         this.y = y;
-        this.w = w;
         this.z = z;
+        this.w = w;
     }
 
     /**

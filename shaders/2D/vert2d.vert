@@ -28,8 +28,8 @@ out vec4 tint;
 
 void main () {
     UV = vertexUV;
-    tint = vertexRGB + model.tint;
+    tint = vertexRGB * model.tint;
     vec2 postRotationTranslation = model.translation + camera.rotationPoint + camera.translation;
-    vec2 transformed =  camera.rotation * (model.rotation * (model.scale * vertexPos + model.rotationPoint) + postRotationTranslation);
+    vec2 transformed =  camera.rotation * (model.rotation * ((model.scale * vertexPos) + model.rotationPoint) + postRotationTranslation);
     gl_Position = vec4(transformed.x * camera.aspect, transformed.y, model.zIndex, 1.0);
 }

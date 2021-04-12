@@ -26,7 +26,7 @@ void main () {
     transformed.x = - transformed.x;
     gl_Position = transformed;
     UV = vec3(vertexUV.x, vertexUV.y, 1);
-    tint = vertexRGB + meshTint;
+    tint = vertexRGB * meshTint;
     normal =  mat3(transpose(invModel)) * vertexNormal.xyz;
     fragPos = vec3(model * vertexPosition);
     Tangent0 = (model * vec4(vertexTangent, 0.0)).xyz;   

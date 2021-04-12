@@ -1,7 +1,6 @@
 import ingenium.Ingenium;
 
 import com.jogamp.opengl.GL4;
-import ingenium.*;
 import ingenium.math.*;
 import ingenium.mesh.*;
 import ingenium.utilities.FileUtils;
@@ -15,7 +14,7 @@ public class Demo extends Ingenium {
 
     Mesh3D m3D[] = new Mesh3D[100];
     Shader shader3D;
-    Camera3D camera = new Camera3D(9.f / 16.f);
+    Camera3D camera3D = new Camera3D(9.f / 16.f);
     DirectionalLight dLight = new DirectionalLight();
     PointLight p[] = new PointLight[] { new PointLight(new Vec3(0, 1, 2.5)) };
 
@@ -55,7 +54,7 @@ public class Demo extends Ingenium {
 
         m3D[0] = new Mesh3D();
         m3D[0].make(gl, "./resource/planent.obj", "./resource/paper/r.jpg", Ingenium.NO_VALUE,
-                "./resource/woodp/n.jpg");
+                "./resource/paper/n.jpg");
         m3D[0].setPosition(new Vec3(m3D.length >> 1, -7, 0));
         m3D[0].setScale(new Vec3(m3D.length >> 1, 1, 10));
         m3D[0].setTint(new Vec3(0.6, 0.6, 0.6));
@@ -65,12 +64,12 @@ public class Demo extends Ingenium {
             String randomTex[] = textures[(int) (Math.random() * (float) textures.length)];
             m3D[i].make(gl, objectPaths[(int) (Math.random() * (float) objectPaths.length)], randomTex[0], randomTex[1],
                     randomTex[2]);
-            m3D[i].getMaterial().setShininess(1);
+            m3D[i].getMaterial().setShininess(1.3);
         }
 
         m2D[0] = new Mesh2D();
-        m2D[0].setScale(new Vec2(1.5, 0.25));
-        m2D[0].setPosition(new Vec2(0, -1));
+        m2D[0].setScale(new Vec2(1.5, 0.1));
+        m2D[0].setPosition(new Vec2(0, -0.75));
         m2D[0].make(gl, textures[3][0]);
     }
 
@@ -78,7 +77,7 @@ public class Demo extends Ingenium {
 
     @Override
     protected void onRender(GL4 gl) {
-        camera.stdControl(input, time.getRenderDeltaTime(), 4, 6);
+        camera3D.stdControl(input, time.getRenderDeltaTime(), 4, 6);
         frame += 1 * time.getRenderDeltaTime();
         for (int i = 1; i < m3D.length; i++) {
             double sinVal = Math.sin((float) frame + ((float) i + 1f)) * 5;
@@ -98,9 +97,9 @@ public class Demo extends Ingenium {
 
         // camera2d.stdControl(input, time.getDeltaTime(), 1.5f, 2.5f);
         m2D[0].setTint(new Vec3(Functions.sinPulse(frame, sinSpeed), Functions.sinPulse(frame + 1, sinSpeed),
-                Functions.sinPulse(frame + 2, sinSpeed)));
+                Functions.sinPulse(frame + 2, sinSpeed), 0.6));
         clear(gl);
-        Mesh3D.renderAll(gl, shader3D, camera, dLight, m3D, p);
+        Mesh3D.renderAll(gl, shader3D, camera3D, dLight, m3D, p);
         Mesh2D.renderAll(gl, shader2D, camera2d, m2D);
     }
 

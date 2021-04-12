@@ -15,5 +15,5 @@ in vec2 UV;
 in vec4 tint;
 
 void main () {
-    color = texture((material.diffuse), UV).rgba * tint;
+    color = tint.rgba * texture((material.diffuse), UV).rgba;
 }
