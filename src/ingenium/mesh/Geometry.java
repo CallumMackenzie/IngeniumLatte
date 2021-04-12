@@ -4,11 +4,11 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-
 import com.jogamp.common.nio.Buffers;
 import ingenium.utilities.*;
 import ingenium.math.Vec2;
 import ingenium.math.Vec3;
+import ingenium.mesh.Triangle.Tri;
 import ingenium.mesh.Triangle.Tri2D;
 import ingenium.mesh.Triangle.Tri3D;
 import ingenium.utilities.Cache;
@@ -17,6 +17,22 @@ public class Geometry {
     public static final String QUAD_PATH = "QUAD";
     private static final Cache<String, ValueCacheElement> valueCache = new Cache<>("geometry cache", false); // 1
     private static final Cache<String, Integer[]> referenceCache = new Cache<>("geometry cache", false); // 2
+
+    public static abstract class CustomLoader<TRI_TYPE> {
+        protected boolean checkValueCache = true;
+        protected boolean checkReferenceCache = true;
+        protected boolean useDefaultLoad = true;
+
+        public ArrayList<TRI_TYPE> onPostLoad(ArrayList<TRI_TYPE> preloaded) {
+            // TODO: custom object loading class
+            return null;
+        };
+
+        public ArrayList<TRI_TYPE> onTryLoad(String raw, boolean path, boolean useGeometryReferenceCache,
+                boolean useGeometryValueCache) {
+            return null;
+        }
+    }
 
     public static class Object {
         private int VAO;
@@ -85,7 +101,21 @@ public class Geometry {
         return valueCache;
     }
 
-    private static ArrayList<Tri2D> loadTri2DArrayFromObj(String raw, boolean path, boolean useGeometryReferenceCache,
+    public static <T> Geometry.Object executeCustomLoader(CustomLoader<T> loader, String raw, boolean path,
+            boolean useRefCache, boolean useValCache) {
+        // TODO: custom object loading
+        if (loader.useDefaultLoad) {
+            loadFromObjData(raw, path, useRefCache, useValCache);
+        }
+        return null;
+    }
+
+    public static <T> ArrayList<T> loadTriArrayFromObj(String raw, boolean path, boolean useRefCache,
+            boolean useValCache) {
+        return null;
+    }
+
+    public static ArrayList<Tri2D> loadTri2DArrayFromObj(String raw, boolean path, boolean useGeometryReferenceCache,
             boolean useGeometryValueCache) {
         ArrayList<Tri3D> tri3ds = loadTri3DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
         ArrayList<Tri2D> tri2ds = new ArrayList<>();
@@ -102,7 +132,7 @@ public class Geometry {
         return tri2ds;
     }
 
-    private static ArrayList<Tri3D> loadTri3DArrayFromObj(String raw, boolean path, boolean useGeometryReferenceCache,
+    public static ArrayList<Tri3D> loadTri3DArrayFromObj(String raw, boolean path, boolean useGeometryReferenceCache,
             boolean useGeometryValueCache) {
         if (path)
             raw = FileUtils.getFileAsString(raw);
@@ -215,7 +245,7 @@ public class Geometry {
         return gObject;
     }
 
-    private static <T> Geometry.Object geometryArrayListToObject(ArrayList<T> list) {
+    public static <T> Geometry.Object geometryArrayListToObject(ArrayList<T> list) {
         if (list.size() < 0)
             return new Geometry.Object(null, 0);
         if (list.get(0) instanceof Tri2D) {
