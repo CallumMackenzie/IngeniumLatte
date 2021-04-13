@@ -1,4 +1,4 @@
-import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL2;
 
 import ingenium.*;
 import ingenium.math.*;
@@ -17,7 +17,7 @@ public class App2D extends Ingenium {
     }
 
     @Override
-    protected void onCreate(GL3 gl) {
+    protected void onCreate(GL2 gl) {
         init2D(gl);
         setClearColour(gl, 0x404040, 1);
         shader2D = new Shader();
@@ -58,7 +58,7 @@ public class App2D extends Ingenium {
     double frame = 0;
 
     @Override
-    protected void onRender(GL3 gl) {
+    protected void onRender(GL2 gl) {
         // System.out.println("FPS: " + Time.deltaTimeToFPS(time.getRenderDeltaTime()));
         frame += 1 * time.getRenderDeltaTime();
         camera2d.stdControl(input, time.getDeltaTime(), 1.5f, 2.5f);
@@ -71,7 +71,7 @@ public class App2D extends Ingenium {
     }
 
     @Override
-    protected void onClose(GL3 gl) {
+    protected void onClose(GL2 gl) {
         System.out.println("Geometry value cache hits: " + Geometry.getValueCache().getCacheHits());
         System.out.println("Geometry reference cache hits: " + Geometry.getReferenceCache().getCacheHits());
         System.out.println("Texture reference cache hits: " + Mesh3D.getTextureReferenceCache().getCacheHits());

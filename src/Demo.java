@@ -1,6 +1,6 @@
 import ingenium.Ingenium;
 
-import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL2;
 import ingenium.math.*;
 import ingenium.mesh.*;
 import ingenium.utilities.FileUtils;
@@ -19,7 +19,7 @@ public class Demo extends Ingenium {
     PointLight p[] = new PointLight[] { new PointLight(new Vec3(0, 1, 2.5)) };
 
     public Demo() {
-        super("Ingenium Demo App", 1600.f, 900.f);
+        super("Ingenium Demo App", 720.f, 480.f);
         time.setTargetRenderFPS(75);
         dLight.setIntensity(0.5f);
         p[0].setIntensity(10);
@@ -29,12 +29,12 @@ public class Demo extends Ingenium {
     }
 
     @Override
-    protected void onCreate(GL3 gl) {
+    protected void onCreate(GL2 gl) {
         init2D(gl);
         init3D(gl);
         setClearColour(gl, 0x404040, 1);
-        shader2D = Shader.makeDefault2DShader(gl, false);
-        shader3D = Shader.makeDefault3DShader(gl, false, 1);
+        shader2D = Shader.makeDefault2DShader(gl, true);
+        shader3D = Shader.makeDefault3DShader(gl, true, 1);
 
         String objectPaths[] = new String[] { "./resource/cubent.obj", "./resource/suzanne.obj",
                 "./resource/uvspherent.obj", "./resource/uvsmoothnt.obj", "./resource/torusnt.obj",
@@ -74,7 +74,7 @@ public class Demo extends Ingenium {
     double frame = 0;
 
     @Override
-    protected void onRender(GL3 gl) {
+    protected void onRender(GL2 gl) {
         camera3D.stdControl(input, time.getRenderDeltaTime(), 4, 6);
         frame += 1 * time.getRenderDeltaTime();
         for (int i = 1; i < m3D.length; i++) {
@@ -102,7 +102,7 @@ public class Demo extends Ingenium {
     }
 
     @Override
-    protected void onClose(GL3 gl) {
+    protected void onClose(GL2 gl) {
         System.out.println("Geometry value cache hits: " + Geometry.getValueCache().getCacheHits());
         System.out.println("Geometry reference cache hits: " + Geometry.getReferenceCache().getCacheHits());
         System.out.println("Texture reference cache hits: " + Mesh3D.getTextureReferenceCache().getCacheHits());

@@ -1,6 +1,6 @@
 package ingenium.world.light;
 
-import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL2;
 
 import ingenium.math.Vec3;
 import ingenium.world.Shader;
@@ -33,7 +33,7 @@ public class DirectionalLight extends Light {
         this(new Vec3(0.f, -1.f, 0.f));
     }
 
-    public void sendToShader(GL3 gl, Shader shader) {
+    public void sendToShader(GL2 gl, Shader shader) {
         shader.setUniform(gl, "dirLight.direction", getDirection(), false);
         shader.setUniform(gl, "dirLight.ambient", getAmbient(), false);
         shader.setUniform(gl, "dirLight.specular", getSpecular().mulFloat(getIntensity()), false);

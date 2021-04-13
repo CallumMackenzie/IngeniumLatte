@@ -3,7 +3,7 @@ package ingenium.mesh;
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import ingenium.Ingenium;
@@ -19,8 +19,8 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
     protected Material material;
     protected FloatBuffer data = null;
     protected boolean loaded = false;
-    protected int mVBO = GL3.GL_NONE;
-    protected int mVAO = GL3.GL_NONE;
+    protected int mVBO = GL2.GL_NONE;
+    protected int mVAO = GL2.GL_NONE;
     protected int numVerts = 0;
     protected boolean useTextureReferenceCache = true;
     protected boolean useGeometryReferenceCache = true;
@@ -54,7 +54,7 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
         this(position, rotation, scale, rotationPoint, new Material());
     }
 
-    public void load(GL3 gl) {
+    public void load(GL2 gl) {
         System.err.println("A class extending ingenium.mesh.Mesh must implement a load() method.");
         System.exit(0);
     }
@@ -62,18 +62,18 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
     /**
      * Binds the VBO
      * 
-     * @param gl the GL3 object of the program
+     * @param gl the GL2 object of the program
      */
-    public void bindVBO(GL3 gl) {
-        gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, mVBO);
+    public void bindVBO(GL2 gl) {
+        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, mVBO);
     }
 
     /**
      * Binds the VAO
      * 
-     * @param gl the GL3 object of the program
+     * @param gl the GL2 object of the program
      */
-    public void bindVAO(GL3 gl) {
+    public void bindVAO(GL2 gl) {
         gl.glBindVertexArray(mVAO);
     }
 
@@ -208,7 +208,7 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
 
     /**
      * 
-     * @param gl        the GL3 object of the program
+     * @param gl        the GL2 object of the program
      * @param path      the path to the image
      * @param texSlot   the texture slot to use
      * @param sWrap     texture wrap s mode
@@ -217,14 +217,14 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
      * @param magFilter mag filter mode
      * @return a new texture
      */
-    private static int findAndLoadTexture(GL3 gl, String path, int texSlot, int sWrap, int tWrap, int minFilter,
+    private static int findAndLoadTexture(GL2 gl, String path, int texSlot, int sWrap, int tWrap, int minFilter,
             int magFilter, boolean useTexCache) {
         if (path.equals(Ingenium.NO_VALUE))
-            return GL3.GL_NONE;
+            return GL2.GL_NONE;
         boolean debug = false;
         long time = System.currentTimeMillis();
         if (textureReferenceCache.isUsed() && textureReferenceCache.containsKey(path)
-                && textureReferenceCache.getCacheValue(path) != GL3.GL_NONE && useTexCache) {
+                && textureReferenceCache.getCacheValue(path) != GL2.GL_NONE && useTexCache) {
             if (debug)
                 System.out.println(
                         "Texture reference cache hit (" + path + "): " + (System.currentTimeMillis() - time) + "ms");
@@ -233,17 +233,17 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
         try {
             gl.glActiveTexture(texSlot);
             Texture t = TextureIO.newTexture(new File(path), true);
-            t.setTexParameteri(gl, GL3.GL_TEXTURE_WRAP_S, sWrap);
-            t.setTexParameteri(gl, GL3.GL_TEXTURE_WRAP_T, tWrap);
-            t.setTexParameteri(gl, GL3.GL_TEXTURE_MIN_FILTER, minFilter);
-            t.setTexParameteri(gl, GL3.GL_TEXTURE_MAG_FILTER, magFilter);
+            t.setTexParameteri(gl, GL2.GL_TEXTURE_WRAP_S, sWrap);
+            t.setTexParameteri(gl, GL2.GL_TEXTURE_WRAP_T, tWrap);
+            t.setTexParameteri(gl, GL2.GL_TEXTURE_MIN_FILTER, minFilter);
+            t.setTexParameteri(gl, GL2.GL_TEXTURE_MAG_FILTER, magFilter);
             textureReferenceCache.add(path, t.getTextureObject());
             if (debug)
                 System.out.println("No cache hits (" + path + "): " + (System.currentTimeMillis() - time) + "ms");
             return t.getTextureObject();
         } catch (IOException e) {
             System.err.println("Could not find image: " + path);
-            return GL3.GL_NONE;
+            return GL2.GL_NONE;
         }
     }
 
@@ -251,30 +251,30 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
      * Loads the specified images onto the GPU, and their locations into the
      * material associated with the mesh
      * 
-     * @param gl           the GL3 object of this program
+     * @param gl           the GL2 object of this program
      * @param diffusePath  the path to the diffuse texture
      * @param specularPath the path to the specular texture
      * @param normalPath   the path to the normal texture
      */
-    public void setTexture(GL3 gl, String diffusePath, String specularPath, String normalPath) {
+    public void setTexture(GL2 gl, String diffusePath, String specularPath, String normalPath) {
         if (!diffusePath.equals(Ingenium.NO_VALUE))
-            material.setDiffuseTexture(findAndLoadTexture(gl, diffusePath, GL3.GL_TEXTURE0, useTextureReferenceCache));
+            material.setDiffuseTexture(findAndLoadTexture(gl, diffusePath, GL2.GL_TEXTURE0, useTextureReferenceCache));
         if (!specularPath.equals(Ingenium.NO_VALUE))
             material.setSpecularTexture(
-                    findAndLoadTexture(gl, specularPath, GL3.GL_TEXTURE1, useTextureReferenceCache));
+                    findAndLoadTexture(gl, specularPath, GL2.GL_TEXTURE1, useTextureReferenceCache));
         if (!normalPath.equals(Ingenium.NO_VALUE))
-            material.setNormalTexture(findAndLoadTexture(gl, normalPath, GL3.GL_TEXTURE2, useTextureReferenceCache));
+            material.setNormalTexture(findAndLoadTexture(gl, normalPath, GL2.GL_TEXTURE2, useTextureReferenceCache));
     }
 
     /**
      * 
-     * @param gl      the GL3 object of the program
+     * @param gl      the GL2 object of the program
      * @param path    the path to the image
      * @param texSlot the texture slot to use
      * @return a new texture
      */
-    private static int findAndLoadTexture(GL3 gl, String path, int texSlot, boolean useTexCache) {
-        return findAndLoadTexture(gl, path, texSlot, GL3.GL_REPEAT, GL3.GL_REPEAT, GL3.GL_LINEAR_MIPMAP_LINEAR,
-                GL3.GL_LINEAR, useTexCache);
+    private static int findAndLoadTexture(GL2 gl, String path, int texSlot, boolean useTexCache) {
+        return findAndLoadTexture(gl, path, texSlot, GL2.GL_REPEAT, GL2.GL_REPEAT, GL2.GL_LINEAR_MIPMAP_LINEAR,
+                GL2.GL_LINEAR, useTexCache);
     }
 }

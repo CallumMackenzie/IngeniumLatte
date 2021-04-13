@@ -1,6 +1,6 @@
 package ingenium.world;
 
-import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL2;
 
 import ingenium.math.Mat2;
 import ingenium.math.Vec2;
@@ -27,7 +27,7 @@ public class Camera2D extends Position<Vec2, Float> {
         return Mat2.rotation(this.rotation);
     }
 
-    public void sendToShader(GL3 gl, Shader shader) {
+    public void sendToShader(GL2 gl, Shader shader) {
         shader.setUMat2(gl, "camera.rotation", cameraMatrix());
         shader.setUVec2(gl, "camera.translation", position);
         shader.setUniform(gl, "camera.aspect", aspect);

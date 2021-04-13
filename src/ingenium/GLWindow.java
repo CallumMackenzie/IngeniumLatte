@@ -5,10 +5,10 @@ import com.jogamp.common.util.VersionUtil;
 import com.jogamp.nativewindow.NativeWindowVersion;
 import com.jogamp.newt.NewtVersion;
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GL3ES3;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.JoglVersion;
@@ -21,7 +21,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
 
-public class GLWindow <GL_VERSION> {
+public class GLWindow {
 
     private String name;
     private float width;
@@ -52,22 +52,22 @@ public class GLWindow <GL_VERSION> {
 
             @Override
             public void reshape(GLAutoDrawable glautodrawable, int x, int y, int width, int height) {
-                resize(glautodrawable.getGL().getGL3(), width, height);
+                resize(glautodrawable.getGL().getGL2(), width, height);
             }
 
             @Override
             public void init(GLAutoDrawable glautodrawable) {
-                createGL(glautodrawable.getGL().getGL3());
+                createGL(glautodrawable.getGL().getGL2());
             }
 
             @Override
             public void dispose(GLAutoDrawable glautodrawable) {
-                close(glautodrawable.getGL().getGL3());
+                close(glautodrawable.getGL().getGL2());
             }
 
             @Override
             public void display(GLAutoDrawable glautodrawable) {
-                displayGL(glautodrawable.getGL().getGL3(), glautodrawable.getSurfaceWidth(),
+                displayGL(glautodrawable.getGL().getGL2(), glautodrawable.getSurfaceWidth(),
                         glautodrawable.getSurfaceHeight());
             }
         });
@@ -104,19 +104,19 @@ public class GLWindow <GL_VERSION> {
     }
 
     public void clear(GL gl) {
-        gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
+        gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
     }
 
     public void resize(GL gl, int width, int height) {
         gl.glViewport(0, 0, width, height);
     }
 
-    private void displayGL(GL3 gl, int surfaceWidth, int surfaceHeight) {
+    private void displayGL(GL2 gl, int surfaceWidth, int surfaceHeight) {
         time.updateRenderDeltaTime();
         render(gl);
     }
 
-    private void createGL(GL3 gl) {
+    private void createGL(GL2 gl) {
         create(gl);
         time.updateRenderDeltaTime();
     }
@@ -124,27 +124,27 @@ public class GLWindow <GL_VERSION> {
     /**
      * Called on program initialization
      * 
-     * @param gl the GL3 object of the program
+     * @param gl the GL2 object of the program
      */
-    protected void create(GL3 gl) {
+    protected void create(GL2 gl) {
 
     }
 
     /**
      * Called just before program termination
      * 
-     * @param gl the GL3 object of the program
+     * @param gl the GL2 object of the program
      */
-    protected void close(GL3 gl) {
+    protected void close(GL2 gl) {
 
     }
 
     /**
      * Called every frame
      * 
-     * @param gl the GL3 object of the program
+     * @param gl the GL2 object of the program
      */
-    protected void render(GL3 gl) {
+    protected void render(GL2 gl) {
 
     }
 
