@@ -3,7 +3,6 @@ import com.jogamp.opengl.GL2;
 import ingenium.*;
 import ingenium.math.*;
 import ingenium.mesh.*;
-import ingenium.utilities.FileUtils;
 import ingenium.world.*;
 import ingenium.world.light.*;
 
@@ -19,8 +18,8 @@ public class App extends Ingenium {
         Geometry.getValueCache().use(true);
         Mesh3D.getTextureReferenceCache().use(true);
         // new App().start();
-        // new App2D().start();
-        new Demo().start();
+        new App2D().start();
+        // new Demo().start();
     }
 
     public App() {
@@ -36,8 +35,7 @@ public class App extends Ingenium {
     protected void onCreate(GL2 gl) {
         init3D(gl);
         setClearColour(gl, 0x404040, 1);
-        shader3D = new Shader(gl, FileUtils.getFileAsString("./shaders/3D/vert3d.vert"),
-                FileUtils.getFileAsString("./shaders/3D/blinnphong.frag"));
+        shader3D = Shader.makeDefault3DShader(gl, true, 1);
 
         String textures[][] = new String[][] {
                 { "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg" },

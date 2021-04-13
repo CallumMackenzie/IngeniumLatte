@@ -3,7 +3,6 @@ import com.jogamp.opengl.GL2;
 import ingenium.*;
 import ingenium.math.*;
 import ingenium.mesh.*;
-import ingenium.utilities.FileUtils;
 import ingenium.world.*;
 
 public class App2D extends Ingenium {
@@ -12,16 +11,15 @@ public class App2D extends Ingenium {
     Camera2D camera2d = new Camera2D(9f / 16f);
 
     public App2D() {
-        super("Ingneium Latte", 1600.f, 900.f);
+        super("Ingneium Latte", 720.f, 480.f);
         time.setTargetRenderFPS(75);
     }
 
     @Override
     protected void onCreate(GL2 gl) {
-        init2D(gl);
+        // init2D(gl);
         setClearColour(gl, 0x404040, 1);
-        shader2D = new Shader();
-        shader2D.compile(gl, FileUtils.getFileAsString("./shaders/2D/vert2d.vert"), FileUtils.getFileAsString("./shaders/2D/default.frag"));
+        shader2D = Shader.makeDefault2DShader(gl, true);
 
         String textures[][] = new String[][] {
                 { "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg" },
@@ -33,12 +31,11 @@ public class App2D extends Ingenium {
                 { "./resource/scrmetal/b.jpg", "./resource/scrmetal/s.jpg", "./resource/scrmetal/n.jpg" },
                 { "./resource/gate/b.jpg", "./resource/gate/s.jpg", "./resource/gate/n.jpg" } };
 
-        m[0] = new Mesh2D();
-        m[0].setScale(new Vec2(1, 0.5));
-        // m[0].setRotationPoint(new Vec2(1, 0));
-        m[0].setPosition(new Vec2(1, -1));
-        m[0].setRotation(2f);
-        m[0].make(gl, textures[3][0]);
+        m[2] = new Mesh2D();
+        m[2].setScale(new Vec2(1, 0.5));
+        m[2].setPosition(new Vec2(1, -1));
+        m[2].setRotation(2f);
+        m[2].make(gl, textures[3][0]);
 
         m[1] = new Mesh2D();
         m[1].setScale(new Vec2(0.5, 0.5));
@@ -47,11 +44,11 @@ public class App2D extends Ingenium {
         m[1].setRotation(0f);
         m[1].make(gl, textures[0][0]);
 
-        m[2] = new Mesh2D();
-        m[2].setScale(new Vec2(5, 5));
-        m[2].setRotation(0f);
-        m[2].setZIndex(1);
-        m[2].make(gl, textures[2][0]);
+        m[0] = new Mesh2D();
+        m[0].setScale(new Vec2(5, 5));
+        m[0].setRotation(0f);
+        m[0].setZIndex(1);
+        m[0].make(gl, textures[2][0]);
         shader2D.use(gl);
     }
 

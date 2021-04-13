@@ -8,7 +8,6 @@ import com.jogamp.common.nio.Buffers;
 import ingenium.utilities.*;
 import ingenium.math.Vec2;
 import ingenium.math.Vec3;
-import ingenium.mesh.Triangle.Tri;
 import ingenium.mesh.Triangle.Tri2D;
 import ingenium.mesh.Triangle.Tri3D;
 import ingenium.utilities.Cache;

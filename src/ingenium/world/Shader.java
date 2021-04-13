@@ -2,11 +2,8 @@ package ingenium.world;
 
 import java.nio.FloatBuffer;
 import java.util.HashMap;
-
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-
 import ingenium.math.Mat2;
 import ingenium.math.Mat4;
 import ingenium.math.Vec2;

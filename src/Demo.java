@@ -3,7 +3,6 @@ import ingenium.Ingenium;
 import com.jogamp.opengl.GL2;
 import ingenium.math.*;
 import ingenium.mesh.*;
-import ingenium.utilities.FileUtils;
 import ingenium.world.*;
 import ingenium.world.light.*;
 
