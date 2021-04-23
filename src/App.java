@@ -17,7 +17,7 @@ public class App extends Ingenium {
     Mesh3D m3D[] = new Mesh3D[100];
 
     Camera2D camera2d = new Camera2D(9f / 16f);
-    Camera3D camera3D = new Camera3D(9.f / 16.f);
+    Camera3D camera3D = new Camera3D(9f / 16f);
 
     DirectionalLight dLight = new DirectionalLight();
     PointLight p[] = new PointLight[] { new PointLight(new Vec3(0, 1, 2.5)) };
@@ -34,7 +34,7 @@ public class App extends Ingenium {
     public App() {
         super("Ingenium Demo App", 720.f, 480.f);
         time.setTargetRenderFPS(75);
-        dLight.setIntensity(0.5f);
+        dLight.setIntensity(0.8f);
         p[0].setIntensity(10);
         p[0].setAmbient(new Vec3());
         p[0].getPosition().setZ(-1.5);
@@ -49,6 +49,7 @@ public class App extends Ingenium {
         shader3D.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/3D/asn.fs", new HashMap<>() {
             {
                 put("maxPointLights", "1");
+                put("normalMap", "1");
             }
         });
         shader2D.compileWithParametersFromPath(gl, "./shaders/2D/vert2d.vs", "./shaders/2D/default.fs");
@@ -56,8 +57,7 @@ public class App extends Ingenium {
         rBuffer = RenderBuffer.createRenderTexture(gl, 720, 480);
 
         String objectPaths[] = new String[] { "./resource/cubent.obj", "./resource/suzanne.obj",
-                "./resource/uvspherent.obj", "./resource/uvsmoothnt.obj", "./resource/torusnt.obj",
-                "./resource/planent.obj" };
+                "./resource/uvsmoothnt.obj", "./resource/torusnt.obj" };
 
         String textures[][] = new String[][] {
                 { "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg" },

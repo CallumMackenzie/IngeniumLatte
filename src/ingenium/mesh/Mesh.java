@@ -3,10 +3,13 @@ package ingenium.mesh;
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import ingenium.Ingenium;
+import ingenium.math.Vec2;
 import ingenium.math.Vec3;
 import ingenium.utilities.Cache;
 import ingenium.world.Position;
@@ -247,6 +250,25 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
         }
     }
 
+    public static int createColorTexture (GL2 gl, int hex, float alpha) {
+        float r = (float) ((hex & 0xFF0000) >> 16) / 255.f;
+        float g = (float) ((hex & 0x00FF00) >> 8) / 255.f;
+        float b = (float) ((hex & 0x0000FF)) / 255.f;
+        return createColorTexture(gl, r, g, b, alpha);
+    }
+
+    public static int createColorTexture (GL2 gl, float r, float g, float b, float alpha) {
+        int texs[] = new int[1];
+        gl.glGenTextures(1, texs, 0);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, texs[0]);
+        gl.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGBA, 1, 1, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, Buffers.newDirectFloatBuffer(new float[]{r, g, b, alpha}));
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        return texs[0];
+    }
+
     /**
      * Loads the specified images onto the GPU, and their locations into the
      * material associated with the mesh
@@ -264,6 +286,8 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
                     findAndLoadTexture(gl, specularPath, GL2.GL_TEXTURE1, useTextureReferenceCache));
         if (!normalPath.equals(Ingenium.NO_VALUE))
             material.setNormalTexture(findAndLoadTexture(gl, normalPath, GL2.GL_TEXTURE2, useTextureReferenceCache));
+        else
+            material.setNormalTexture(createColorTexture(gl, 0f, 0f, 1f, 1f));
     }
 
     /**
