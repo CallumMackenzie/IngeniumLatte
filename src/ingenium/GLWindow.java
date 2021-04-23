@@ -104,6 +104,8 @@ public class GLWindow {
 
     public void resize(GL gl, int width, int height) {
         gl.glViewport(0, 0, width, height);
+        this.width = width;
+        this.height = height;
     }
 
     private void displayGL(GL2 gl, int surfaceWidth, int surfaceHeight) {

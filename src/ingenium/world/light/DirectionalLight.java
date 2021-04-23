@@ -34,10 +34,10 @@ public class DirectionalLight extends Light {
     }
 
     public void sendToShader(GL2 gl, Shader shader) {
-        shader.setUniform(gl, "dirLight.direction", getDirection(), false);
-        shader.setUniform(gl, "dirLight.ambient", getAmbient(), false);
-        shader.setUniform(gl, "dirLight.specular", getSpecular().mulFloat(getIntensity()), false);
-        shader.setUniform(gl, "dirLight.diffuse", getDiffuse().mulFloat(getIntensity()), false);
+        shader.setUniform(gl, Shader.Uniforms.directionalLight_direction, getDirection(), false);
+        shader.setUniform(gl, Shader.Uniforms.directionalLight_ambient, getAmbient(), false);
+        shader.setUniform(gl, Shader.Uniforms.directionalLight_specular, getSpecular().mulFloat(getIntensity()), false);
+        shader.setUniform(gl, Shader.Uniforms.directionalLight_diffuse, getDiffuse().mulFloat(getIntensity()), false);
     }
 
     public Vec3 getDirection() {

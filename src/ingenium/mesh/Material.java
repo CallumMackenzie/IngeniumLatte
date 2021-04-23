@@ -166,15 +166,26 @@ public class Material {
         return shininess;
     }
 
+    public void sendDataToShader(GL2 gl, Shader shader) {
+        shader.setUniform(gl, Shader.Uniforms.material_shininess, getShininess());
+        shader.setUniform(gl, Shader.Uniforms.material_heightScale, getParallaxScale());
+        gl.glActiveTexture(GL2.GL_TEXTURE0);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, getDiffuseTexture());
+        gl.glActiveTexture(GL2.GL_TEXTURE1);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, getSpecularTexture());
+        gl.glActiveTexture(GL2.GL_TEXTURE2);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, getNormalTexture());
+    }
+
     /**
      * 
      * @param gl     the GL2 object of the program
      * @param shader the shader to send the information to
      */
     public static void sendToShader(GL2 gl, Shader shader) {
-        shader.setUniform(gl, "material.diffuse", 0);
-        shader.setUniform(gl, "material.specular", 1);
-        shader.setUniform(gl, "material.normal", 2);
-        shader.setUniform(gl, "material.parallax", 3);
+        shader.setUniform(gl, Shader.Uniforms.material_diffuse, 0);
+        shader.setUniform(gl, Shader.Uniforms.material_specular, 1);
+        shader.setUniform(gl, Shader.Uniforms.material_normal, 2);
+        shader.setUniform(gl, Shader.Uniforms.material_parallax, 3);
     }
 }

@@ -174,9 +174,9 @@ public class Camera3D extends Position<Vec3, Vec3> {
      * @param shader the shader to send information to
      */
     public void sendToShader(GL2 gl, Shader shader) {
-        shader.setUniform(gl, "view", cameraMatrix().inverse());
-        shader.setUniform(gl, "viewPos", getPosition(), false);
-        shader.setUniform(gl, "projection", perspective());
+        shader.setUniform(gl, Shader.Uniforms.camera3D_view, cameraMatrix().inverse());
+        shader.setUniform(gl, Shader.Uniforms.camera3D_viewPos, getPosition(), false);
+        shader.setUniform(gl, Shader.Uniforms.camera3D_projection, perspective());
     }
 
     /**

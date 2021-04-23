@@ -1,5 +1,7 @@
-$version$
-$precision$
+#version $version(300 es)$
+#ifdef GL_ES
+precision $precision(highp)$ float;
+#endif
 
 struct Camera2D {
     mat2 rotation;

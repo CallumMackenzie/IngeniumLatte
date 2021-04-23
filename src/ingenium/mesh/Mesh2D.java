@@ -139,19 +139,14 @@ public class Mesh2D extends Mesh<Vec2, Float> {
     }
 
     public void sendToShader(GL2 gl, Shader shader) {
-        shader.setUVec4(gl, "model.tint", this.tint);
-        shader.setUVec2(gl, "model.translation", this.position);
-        shader.setUMat2(gl, "model.rotation", modelMatrix());
-        shader.setUVec2(gl, "model.rotationPoint", this.rotationPoint);
-        shader.setUVec2(gl, "model.scale", this.scale);
-        shader.setUniform(gl, "model.zIndex", zIndex);
+        shader.setUVec4(gl, Shader.Uniforms.mesh2D_tint, this.tint);
+        shader.setUVec2(gl, Shader.Uniforms.mesh2D_translation, this.position);
+        shader.setUMat2(gl, Shader.Uniforms.mesh2D_rotation, modelMatrix());
+        shader.setUVec2(gl, Shader.Uniforms.mesh2D_rotationPoint, this.rotationPoint);
+        shader.setUVec2(gl, Shader.Uniforms.mesh2D_scale, this.scale);
+        shader.setUniform(gl, Shader.Uniforms.mesh2D_zIndex, zIndex);
 
-        gl.glActiveTexture(GL2.GL_TEXTURE0);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, material.getDiffuseTexture());
-        gl.glActiveTexture(GL2.GL_TEXTURE1);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, material.getSpecularTexture());
-        gl.glActiveTexture(GL2.GL_TEXTURE2);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, material.getNormalTexture());
+        this.material.sendDataToShader(gl, shader);
     }
 
     /**
@@ -255,11 +250,10 @@ public class Mesh2D extends Mesh<Vec2, Float> {
         shader.use(gl);
         Material.sendToShader(gl, shader);
         camera.sendToShader(gl, shader);
-        shader.setUniform(gl, "u_time", (float) (System.currentTimeMillis() / 1000L));
+        shader.setUniform(gl, Shader.Uniforms.ingenium_time, (float) (System.currentTimeMillis() / 1000L));
 
         for (int i = 0; i < meshes.length; i++) {
             meshes[i].bindVAO(gl);
-            shader.setUVec2(gl, "translation", meshes[i].position.add(camera.getPosition()));
             meshes[i].sendToShader(gl, shader);
             gl.glDrawArrays(GL2.GL_TRIANGLES, 0, meshes[i].numVerts);
         }

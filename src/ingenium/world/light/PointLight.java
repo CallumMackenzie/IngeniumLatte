@@ -40,13 +40,27 @@ public class PointLight extends Light {
     }
 
     public void sendToShader(GL2 gl, Shader shader, int index) {
-        shader.setUniform(gl, "pointLights[" + index + "].position", getPosition(), false);
-        shader.setUniform(gl, "pointLights[" + index + "].ambient", getAmbient(), false);
-        shader.setUniform(gl, "pointLights[" + index + "].diffuse", getDiffuse().mulFloat(getIntensity()), false);
-        shader.setUniform(gl, "pointLights[" + index + "].specular", getSpecular().mulFloat(getIntensity()), false);
-        shader.setUniform(gl, "pointLights[" + index + "].constant", getConstant());
-        shader.setUniform(gl, "pointLights[" + index + "].linear)", getLinear());
-        shader.setUniform(gl, "pointLights[" + index + "].quadratic", getQuadratic());
+        shader.setUniform(gl,
+                Shader.Uniforms.pointLight_structName + "[" + index + "]." + Shader.Uniforms.pointLight_position,
+                getPosition(), false);
+        shader.setUniform(gl,
+                Shader.Uniforms.pointLight_structName + "[" + index + "]." + Shader.Uniforms.pointLight_ambient,
+                getAmbient(), false);
+        shader.setUniform(gl,
+                Shader.Uniforms.pointLight_structName + "[" + index + "]." + Shader.Uniforms.pointLight_diffuse,
+                getDiffuse().mulFloat(getIntensity()), false);
+        shader.setUniform(gl,
+                Shader.Uniforms.pointLight_structName + "[" + index + "]." + Shader.Uniforms.pointLight_specular,
+                getSpecular().mulFloat(getIntensity()), false);
+        shader.setUniform(gl,
+                Shader.Uniforms.pointLight_structName + "[" + index + "]." + Shader.Uniforms.pointLight_constant,
+                getConstant());
+        shader.setUniform(gl,
+                Shader.Uniforms.pointLight_structName + "[" + index + "]." + Shader.Uniforms.pointLight_linear,
+                getLinear());
+        shader.setUniform(gl,
+                Shader.Uniforms.pointLight_structName + "[" + index + "]." + Shader.Uniforms.pointLight_quadratic,
+                getQuadratic());
     }
 
     public Vec3 getPosition() {

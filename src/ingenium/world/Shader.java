@@ -1,5 +1,7 @@
 package ingenium.world;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import com.jogamp.common.nio.Buffers;
@@ -11,6 +13,48 @@ import ingenium.math.Vec3;
 import ingenium.utilities.FileUtils;
 
 public class Shader {
+    private static final Pattern SHADER_VAR_REGEX = Pattern.compile("\\$.+\\(.*\\)\\$");
+
+    public static class Uniforms {
+        public static final String material_diffuse = "material.diffuse";
+        public static final String material_specular = "material.specular";
+        public static final String material_normal = "material.normal";
+        public static final String material_parallax = "material.parallax";
+        public static final String material_heightScale = "material.heightScale";
+        public static final String material_shininess = "material.shininess";
+        public static final String material_scaleUVLoc = "mesh.scaleUV";
+        public static final String pointLight_structName = "pointLights";
+        public static final String pointLight_position = "position";
+        public static final String pointLight_ambient = "ambient";
+        public static final String pointLight_diffuse = "diffuse";
+        public static final String pointLight_specular = "specular";
+        public static final String pointLight_constant = "constant";
+        public static final String pointLight_linear = "linear";
+        public static final String pointLight_quadratic = "quadratic";
+        public static final String directionalLight_direction = "dirLight.direction";
+        public static final String directionalLight_ambient = "dirLight.ambient";
+        public static final String directionalLight_specular = "dirLight.specular";
+        public static final String directionalLight_diffuse = "dirLight.diffuse";
+        public static final String mesh3D_modelMatrix = "mesh.transform";
+        public static final String mesh3D_invModelMatrix = "mesh.inverseTransform";
+        public static final String mesh3D_tint = "mesh.tint";
+        public static final String ingenium_time = "u_time";
+        public static final String camera3D_view = "camera.view";
+        public static final String camera3D_projection = "camera.projection";
+        public static final String camera3D_viewPos = "viewPos";
+        public static final String shader_numLights = "numlights";
+        public static final String camera2D_translation = "camera.translation";
+        public static final String camera2D_rotation = "camera.rotation";
+        public static final String camera2D_rotationPoint = "camera.rotationPoint";
+        public static final String camera2D_aspect = "camera.aspect";
+        public static final String mesh2D_tint = "model.tint";
+        public static final String mesh2D_translation = "model.translation";
+        public static final String mesh2D_rotation = "model.rotation";
+        public static final String mesh2D_rotationPoint = "model.rotationPoint";
+        public static final String mesh2D_scale = "model.scale";
+        public static final String mesh2D_zIndex = "model.zIndex";
+    }
+
     private int program = GL2.GL_NONE;
     private static String defaultVersion = "330";
     private static String defaultESVersion = "320";
@@ -36,15 +80,55 @@ public class Shader {
 
     public void compileWithParameters(GL2 gl, String vertSource, String fragSource, HashMap<String, String> gParams,
             HashMap<String, String> vParams, HashMap<String, String> fParams) {
-        for (String key : gParams.keySet()) {
-            vertSource = vertSource.replace(key, gParams.get(key));
-            fragSource = fragSource.replace(key, gParams.get(key));
+        Matcher varMatcher = SHADER_VAR_REGEX.matcher(vertSource);
+        while (varMatcher.find()) {
+            String rawVar = varMatcher.group().replace("$", "");
+            String varName = rawVar.substring(0, rawVar.indexOf("(")) + rawVar.substring(rawVar.lastIndexOf(")") + 1);
+            String defValue = rawVar.substring(rawVar.indexOf("(") + 1, rawVar.lastIndexOf(")"));
+            if (vParams.containsKey(varName)) {
+                vertSource = vertSource.replace(rawVar, vParams.get(varName));
+            } else if (gParams.containsKey(varName)) {
+                vertSource = vertSource.replace(rawVar, gParams.get(varName));
+            } else {
+                vertSource = vertSource.replace(rawVar, defValue);
+            }
         }
-        for (String key : vParams.keySet())
-            vertSource = vertSource.replace(key, vParams.get(key));
-        for (String key : fParams.keySet())
-            fragSource = fragSource.replace(key, fParams.get(key));
+        varMatcher = SHADER_VAR_REGEX.matcher(fragSource);
+        while (varMatcher.find()) {
+            String rawVar = varMatcher.group().replace("$", "");
+            String varName = rawVar.substring(0, rawVar.indexOf("(")) + rawVar.substring(rawVar.lastIndexOf(")") + 1);
+            String defValue = rawVar.substring(rawVar.indexOf("(") + 1, rawVar.lastIndexOf(")"));
+            if (fParams.containsKey(varName)) {
+                fragSource = fragSource.replace(rawVar, fParams.get(varName));
+            } else if (gParams.containsKey(varName)) {
+                fragSource = fragSource.replace(rawVar, gParams.get(varName));
+            } else {
+                fragSource = fragSource.replace(rawVar, defValue);
+            }
+        }
+        vertSource = vertSource.replace("$", "");
+        fragSource = fragSource.replace("$", "");
         compile(gl, vertSource, fragSource);
+    }
+
+    public void compileWithParametersFromPath(GL2 gl, String vertPath, String fragPath, HashMap<String, String> gParams,
+            HashMap<String, String> vParams, HashMap<String, String> fParams) {
+        compileWithParameters(gl, FileUtils.getFileAsString(vertPath), FileUtils.getFileAsString(fragPath), gParams,
+                vParams, fParams);
+    }
+
+    public void compileWithParametersFromPath(GL2 gl, String vertPath, String fragPath, HashMap<String, String> gParams,
+            HashMap<String, String> vParams) {
+        compileWithParametersFromPath(gl, vertPath, fragPath, gParams, vParams, new HashMap<>());
+    }
+
+    public void compileWithParametersFromPath(GL2 gl, String vertPath, String fragPath,
+            HashMap<String, String> gParams) {
+        compileWithParametersFromPath(gl, vertPath, fragPath, gParams, new HashMap<>());
+    }
+
+    public void compileWithParametersFromPath(GL2 gl, String vertPath, String fragPath) {
+        compileWithParametersFromPath(gl, vertPath, fragPath, new HashMap<>(), new HashMap<>());
     }
 
     /**
@@ -211,45 +295,6 @@ public class Shader {
             System.err.println("Error compiling shader: " + new String(log));
             System.exit(1);
         }
-    }
-
-    public static Shader makeDefault2DShader(GL2 gl, boolean es) {
-        Shader shader = new Shader();
-        HashMap<String, String> gParams = new HashMap<>();
-        HashMap<String, String> vParams = new HashMap<>();
-        HashMap<String, String> fParams = new HashMap<>();
-        if (es) {
-            gParams.put("$version$", "#version " + defaultESVersion + " es");
-            vParams.put("$precision$", "precision highp float;");
-            fParams.put("$precision$", "precision mediump float;");
-        } else {
-            gParams.put("$version$", "#version " + defaultVersion + " core");
-            gParams.put("$precision$", "");
-        }
-
-        shader.compileWithParameters(gl, FileUtils.getFileAsString("./shaders/2D/vert2d.vs"),
-                FileUtils.getFileAsString("./shaders/2D/default.fs"), gParams, vParams, fParams);
-        return shader;
-    }
-
-    public static Shader makeDefault3DShader(GL2 gl, boolean es, int numLights) {
-        Shader shader = new Shader();
-        HashMap<String, String> gParams = new HashMap<>();
-        HashMap<String, String> vParams = new HashMap<>();
-        HashMap<String, String> fParams = new HashMap<>();
-        if (es) {
-            gParams.put("$version$", "#version " + defaultESVersion + " es");
-            vParams.put("$precision$", "precision highp float;");
-            fParams.put("$precision$", "precision mediump float;");
-        } else {
-            gParams.put("$version$", "#version " + defaultVersion + " core");
-            gParams.put("$precision$", "");
-        }
-        fParams.put("$nlights$", Integer.toString(numLights));
-
-        shader.compileWithParameters(gl, FileUtils.getFileAsString("./shaders/3D/vert3d.vs"),
-                FileUtils.getFileAsString("./shaders/3D/blinnphong.fs"), gParams, vParams, fParams);
-        return shader;
     }
 
     public static String getDefaultESVersion() {

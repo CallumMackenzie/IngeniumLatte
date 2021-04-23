@@ -153,18 +153,11 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         bindVAO(gl);
         bindVBO(gl);
         Mat4 model = modelMatrix();
-        shader.setUniform(gl, "model", model);
-        shader.setUniform(gl, "invModel", model.inverse());
-        shader.setUniform(gl, "material.shininess", material.getShininess());
-        shader.setUniform(gl, "heightScale", material.getParallaxScale());
-        shader.setUVec4(gl, "meshTint", tint);
+        shader.setUniform(gl, Shader.Uniforms.mesh3D_modelMatrix, model);
+        shader.setUniform(gl, Shader.Uniforms.mesh3D_invModelMatrix, model.inverse());
+        shader.setUVec4(gl, Shader.Uniforms.mesh3D_tint, tint);
 
-        gl.glActiveTexture(GL2.GL_TEXTURE0);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, material.getDiffuseTexture());
-        gl.glActiveTexture(GL2.GL_TEXTURE1);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, material.getSpecularTexture());
-        gl.glActiveTexture(GL2.GL_TEXTURE2);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, material.getNormalTexture());
+        this.material.sendDataToShader(gl, shader);
     }
 
     /**
@@ -179,7 +172,7 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         shader.use(gl);
         Material.sendToShader(gl, shader);
         camera.sendToShader(gl, shader);
-        shader.setUniform(gl, "u_time", (float) System.currentTimeMillis() / 1000.f);
+        shader.setUniform(gl, Shader.Uniforms.ingenium_time, (float) System.currentTimeMillis() / 1000.f);
         dirLight.sendToShader(gl, shader);
 
         for (int i = 0; i < pointLights.length; i++)
@@ -216,7 +209,7 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         Material.sendToShader(gl, shader);
         camera.sendToShader(gl, shader);
         dirLight.sendToShader(gl, shader);
-        shader.setUniform(gl, "u_time", (float) (System.currentTimeMillis() / 1000L));
+        shader.setUniform(gl, Shader.Uniforms.ingenium_time, (float) (System.currentTimeMillis() / 1000L));
 
         for (int i = 0; i < pointLights.length; i++)
             pointLights[i].sendToShader(gl, shader, i);
