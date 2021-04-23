@@ -6,10 +6,14 @@ precision $precision(mediump)$ float;
 
 layout (location = 0) out vec4 color;
 
-uniform sampler2D screenTexture;
+struct Material {
+    sampler2D diffuse;
+};
+
+uniform Material material;
 in vec2 UV;
 
-const float offset = 1.0 / 100.0;  
+const float offset = 1.0 / 300.0;  
 
 void main() {
     vec2 offsets[9] = vec2[](
@@ -39,11 +43,11 @@ void main() {
     vec3 sampleTex[9];
     for(int i = 0; i < 9; i++)
     {
-        sampleTex[i] = vec3(texture(screenTexture, UV.st + offsets[i]));
+        sampleTex[i] = vec3(texture(material.diffuse, UV.st + offsets[i]));
     }
     vec3 col = vec3(0.0);
     for(int i = 0; i < 9; i++)
         col += sampleTex[i] * sharpenKernel[i];
     color = vec4(col, 1.0);
-    color = texture(screenTexture, UV.st);
+    // color = texture(material.diffuse, UV.st);
 }

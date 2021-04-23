@@ -209,6 +209,7 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         Material.sendToShader(gl, shader);
         camera.sendToShader(gl, shader);
         dirLight.sendToShader(gl, shader);
+        shader.setUniform(gl, Shader.Uniforms.shader_numLights, pointLights.length);
         shader.setUniform(gl, Shader.Uniforms.ingenium_time, (float) (System.currentTimeMillis() / 1000L));
 
         for (int i = 0; i < pointLights.length; i++)

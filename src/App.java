@@ -1,8 +1,6 @@
 import ingenium.Ingenium;
 
 import java.util.HashMap;
-
-import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GL2;
 import ingenium.math.*;
 import ingenium.mesh.*;
@@ -48,10 +46,12 @@ public class App extends Ingenium {
         init2D(gl);
         init3D(gl);
         setClearColour(gl, 0x404040, 1);
-        shader3D.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/3D/asn.fs");
+        shader3D.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/3D/asn.fs", new HashMap<>() {{
+            put("maxPointLights", "1");
+        }});
         shader2D.compileWithParametersFromPath(gl, "./shaders/2D/vert2d.vs", "./shaders/2D/default.fs");
         post.compileWithParametersFromPath(gl, "./shaders/post/fbo.vs", "./shaders/post/fbo.fs");
-        rBuffer = RenderBuffer.createRenderTexture(gl, 400, 400);
+        rBuffer = RenderBuffer.createRenderTexture(gl, 720, 480);
 
         String objectPaths[] = new String[] { "./resource/cubent.obj", "./resource/suzanne.obj",
                 "./resource/uvspherent.obj", "./resource/uvsmoothnt.obj", "./resource/torusnt.obj",

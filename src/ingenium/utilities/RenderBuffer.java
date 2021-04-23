@@ -1,6 +1,5 @@
 package ingenium.utilities;
 
-import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GL2;
 
 public class RenderBuffer extends FrameBuffer {
