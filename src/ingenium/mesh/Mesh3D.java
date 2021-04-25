@@ -75,8 +75,9 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
      * @param specularPath the path to the specular texture
      * @param normalPath   the path to the normal texture
      */
-    public void make(GL2 gl, String objPath, String diffusePath, String specularPath, String normalPath) {
-        setTexture(gl, diffusePath, specularPath, normalPath);
+    public void make(GL2 gl, String objPath, String diffusePath, String specularPath, String normalPath, 
+        String parallaxPath) {
+        setTexture(gl, diffusePath, specularPath, normalPath, parallaxPath);
         Geometry.Object object3d = Geometry.loadFromObjData(objPath, true, useGeometryReferenceCache,
                 useGeometryValueCache);
         if (object3d.isReference()) {
@@ -88,6 +89,18 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         this.numVerts = object3d.getNumVerts();
         load(gl);
         Geometry.getReferenceCache().checkAddCache(objPath, new Integer[] { mVBO, mVAO, numVerts });
+    }
+
+    public void make (GL2 gl, String objPath, String diffusePath, String specularPath, String normalPath) {
+        make(gl, objPath, diffusePath, specularPath, normalPath, Ingenium.NO_VALUE);
+    }
+
+    public void make (GL2 gl, String objPath, String diffusePath, String specularPath) {
+        make(gl, objPath, diffusePath, specularPath, Ingenium.NO_VALUE);
+    }
+
+    public void make (GL2 gl, String objPath, String diffusePath) {
+        make(gl, objPath, diffusePath, Ingenium.NO_VALUE);
     }
 
     /**

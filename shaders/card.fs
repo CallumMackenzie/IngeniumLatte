@@ -58,26 +58,26 @@ in vec3 fragPos;
 in mat3 TBN;
 #endif
 
-bool inRange (float value, float start, float offset) {
-    return value >= start - offset && value <= start + offset;
-}
-
-bool colorInRange (vec4 base, vec4 compare, float offset) {
-    return 
-    inRange(base.x, compare.x, offset) && 
-    inRange(base.y, compare.y, offset) && 
-    inRange(base.z, compare.z, offset) &&
-    inRange(base.w, compare.w, offset);
-}
-
 vec4 getDiffuse (vec2 texCoords) {
     vec4 diffuse = texture(material.diffuse, texCoords).rgba;
-    if (texture(material.specular, texCoords).r >= 0.75 ) {
+    if (texture(material.parallax, texCoords).r >= 0.9 ) {
         return texture(material.normal, texCoords).rgba;
-    } else if (texture(material.specular, texCoords).r >= 0.5) {
+    } else if (texture(material.parallax, texCoords).r >= 0.5) {
+        discard;
         return vec4(0.0, 0.0, 0.0, 0.0);
     }
     return diffuse;
+};
+
+vec4 getSpecular (vec2 texCoords) {
+    vec4 spec = texture(material.specular, texCoords).rgba;
+    if (texture(material.parallax, texCoords).r >= 0.9 ) {
+        return spec;
+    } else if (texture(material.parallax, texCoords).r >= 0.5) {
+        discard;
+        return vec4(0.0, 0.0, 0.0, 0.0);
+    }
+    return spec;
 };
 
 #if NORMAL_MAP
@@ -100,7 +100,7 @@ vec4 CalcDirLight(DirLight light, vec3 cnormal, vec3 viewDir, vec2 coordUV)
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec4 ambient  = vec4(light.ambient, 1.0)  * (getDiffuse(coordUV) * tint.rgba);
     vec4 diffuse  = vec4(light.diffuse  * diff, 1.0) * (getDiffuse(coordUV) * tint.rgba);
-    vec4 specular = vec4(light.specular * spec, 1.0) * (texture(material.specular, coordUV).rgba * tint.rgba);
+    vec4 specular = vec4(light.specular * spec, 1.0) * (getSpecular(coordUV) * tint.rgba);
     return vec4(ambient.rgb + diffuse.rgb + specular.rgb, (ambient.a + diffuse.a + specular.a) * 0.333);
 } 
 
@@ -120,7 +120,7 @@ vec4 CalcPointLight(PointLight light, vec3 cnormal, vec3 cfragPos, vec3 viewDir,
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     vec4 ambient  = vec4(light.ambient, 1.0)  * (getDiffuse(coordUV) * tint.rgba);
     vec4 diffuse  = vec4(light.diffuse * diff, 1.0) * (getDiffuse(coordUV) * tint.rgba);
-    vec4 specular = vec4(light.specular * spec, 1.0) * texture(material.specular, coordUV).rgba * tint.rgba;
+    vec4 specular = vec4(light.specular * spec, 1.0) * getSpecular(coordUV) * tint.rgba;
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;

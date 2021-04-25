@@ -70,7 +70,7 @@ public class Mesh2D extends Mesh<Vec2, Float> {
     }
 
     public void make(GL2 gl, String path, String diffusePath) {
-        setTexture(gl, diffusePath, Ingenium.NO_VALUE, Ingenium.NO_VALUE);
+        setTexture(gl, diffusePath, Ingenium.NO_VALUE, Ingenium.NO_VALUE, Ingenium.NO_VALUE);
         Geometry.Object object3d = Geometry.loadFromObjData2D(path, true, useGeometryReferenceCache,
                 useGeometryValueCache);
         if (object3d.isReference()) {
@@ -84,7 +84,7 @@ public class Mesh2D extends Mesh<Vec2, Float> {
     }
 
     public void make(GL2 gl, String diffusePath) {
-        setTexture(gl, diffusePath, Ingenium.NO_VALUE, Ingenium.NO_VALUE);
+        setTexture(gl, diffusePath, Ingenium.NO_VALUE, Ingenium.NO_VALUE, Ingenium.NO_VALUE);
         Geometry.Object object3d = Geometry.make2DQuad();
         if (object3d.isReference()) {
             this.mVBO = object3d.getVBO();

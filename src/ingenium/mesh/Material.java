@@ -194,6 +194,8 @@ public class Material {
         gl.glBindTexture(GL2.GL_TEXTURE_2D, getSpecularTexture());
         gl.glActiveTexture(GL2.GL_TEXTURE2);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, getNormalTexture());
+        gl.glActiveTexture(GL2.GL_TEXTURE3);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, getParallaxTexture());
     }
 
     /**

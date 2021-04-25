@@ -9,7 +9,7 @@ import ingenium.world.*;
 import ingenium.world.light.*;
 
 public class App extends Ingenium {
-    Player player = new Player(1);
+    Player player = new Player(3);
     RenderBuffer postBuffer;
     Mesh2D renderSurface;
 
@@ -65,7 +65,7 @@ public class App extends Ingenium {
         renderSurface.make(gl, Ingenium.NO_VALUE);
         renderSurface.getMaterial().setDiffuseTexture(postBuffer.getTextures()[0]);
 
-        player.setRandomCards(Card.allCards);
+        player.setRandomCards(gl);
         dLight.setDirection(new Vec3(-0.4, -1, -0.4));
     }
 
@@ -76,7 +76,7 @@ public class App extends Ingenium {
 
         clear(gl);
         for (Card c : player.getCards()) {
-            RenderBuffer.renderToRenderTexture(gl, c.getRbo()[0]);
+            RenderBuffer.renderToRenderTexture(gl, c.getRbo());
             Mesh3D.renderAll(gl, shader3D, c.getCamera(), dLight, c.getMeshes(), p);
         }
         RenderBuffer.renderToRenderTexture(gl, postBuffer);

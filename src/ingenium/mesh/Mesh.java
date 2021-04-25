@@ -278,7 +278,8 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
      * @param specularPath the path to the specular texture
      * @param normalPath   the path to the normal texture
      */
-    public void setTexture(GL2 gl, String diffusePath, String specularPath, String normalPath) {
+    public void setTexture(GL2 gl, String diffusePath, String specularPath, String normalPath, String 
+        parallaxPath) {
         if (!diffusePath.equals(Ingenium.NO_VALUE))
             material.setDiffuseTexture(findAndLoadTexture(gl, diffusePath, GL2.GL_TEXTURE0, useTextureReferenceCache));
         if (!specularPath.equals(Ingenium.NO_VALUE))
@@ -288,6 +289,8 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
             material.setNormalTexture(findAndLoadTexture(gl, normalPath, GL2.GL_TEXTURE2, useTextureReferenceCache));
         else
             material.setNormalTexture(createColorTexture(gl, 0f, 0f, 1f, 1f));
+        if (!parallaxPath.equals(Ingenium.NO_VALUE))
+            material.setParallaxTexture(findAndLoadTexture(gl, parallaxPath, GL2.GL_TEXTURE3, useTextureReferenceCache));
     }
 
     /**
