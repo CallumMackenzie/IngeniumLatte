@@ -239,6 +239,16 @@ public class Mesh2D extends Mesh<Vec2, Float> {
         return material;
     }
 
+    public void render(GL2 gl, Shader shader, Camera2D camera) {
+        shader.use(gl);
+        Material.sendToShader(gl, shader);
+        camera.sendToShader(gl, shader);
+        shader.setUniform(gl, Shader.Uniforms.ingenium_time, (float) (System.currentTimeMillis() / 1000L));
+        this.bindVAO(gl);
+        this.sendToShader(gl, shader);
+        gl.glDrawArrays(GL2.GL_TRIANGLES, 0, this.numVerts);
+    }
+
     /**
      * 
      * @param gl     the GL2 object of the program

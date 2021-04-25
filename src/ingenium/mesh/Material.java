@@ -2,6 +2,7 @@ package ingenium.mesh;
 
 import com.jogamp.opengl.GL2;
 
+import ingenium.math.Vec2;
 import ingenium.world.Shader;
 
 public class Material {
@@ -9,6 +10,7 @@ public class Material {
     private int specularTexture = GL2.GL_NONE;
     private int normalTexture = GL2.GL_NONE;
     private int parallaxTexture = GL2.GL_NONE;
+    private Vec2 scaleUV = new Vec2(1, 1);
     private float shininess = 0.5f;
     private float parallaxScale = 1.f;
 
@@ -166,9 +168,17 @@ public class Material {
         return shininess;
     }
 
+    public Vec2 getScaleUV() {
+        return scaleUV;
+    }
+    public void setScaleUV(Vec2 scaleUV) {
+        this.scaleUV = scaleUV;
+    }
+
     public void sendDataToShader(GL2 gl, Shader shader) {
         shader.setUniform(gl, Shader.Uniforms.material_shininess, getShininess());
         shader.setUniform(gl, Shader.Uniforms.material_heightScale, getParallaxScale());
+        shader.setUVec2(gl, Shader.Uniforms.material_scaleUVLoc, getScaleUV());
         gl.glActiveTexture(GL2.GL_TEXTURE0);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, getDiffuseTexture());
         gl.glActiveTexture(GL2.GL_TEXTURE1);

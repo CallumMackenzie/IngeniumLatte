@@ -1,6 +1,8 @@
 package ingenium.mesh;
 
 import com.jogamp.opengl.GL2;
+
+import ingenium.Ingenium;
 import ingenium.math.*;
 import ingenium.mesh.Triangle.Tri3D;
 import ingenium.world.*;
@@ -231,6 +233,19 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
      */
     public static void renderAll(GL2 gl, Shader shader, Camera3D camera, DirectionalLight dirLight, Mesh3D meshes[]) {
         Mesh3D.renderAll(gl, shader, camera, dirLight, meshes, new PointLight[] {});
+    }
+
+    public static Mesh3D createAndMake(GL2 gl, String objPath, String diffusePath, String specularPath,
+            String normalPath) {
+        Mesh3D m = new Mesh3D();
+        m.make(gl, objPath, diffusePath, specularPath, normalPath);
+        return m;
+    }
+
+    public static Mesh3D createAndMake(GL2 gl, String objPath, String diffusePath) {
+        Mesh3D m = new Mesh3D();
+        m.make(gl, objPath, diffusePath, Ingenium.NO_VALUE, Ingenium.NO_VALUE);
+        return m;
     }
 
 }
