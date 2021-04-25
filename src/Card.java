@@ -22,7 +22,7 @@ public class Card extends Mesh3D {
         }
     }
 
-    public static final int cardResolution[] = { 500, 500 };
+    public static final int cardResolution[] = { 700, 700 };
     public static CardData allCards[];
 
     private RenderBuffer rbo;

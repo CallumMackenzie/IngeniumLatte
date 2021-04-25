@@ -18,7 +18,7 @@ public class Ingenium extends GLWindow {
     public Ingenium(String name, float width, float height) {
         super(name, width, height, new GLCapabilities(GLProfile.getDefault()));
 
-        frame.addKeyListener(input);
+        input.attach(frame);
         frame.setFocusable(true);
         frame.setFocusTraversalKeysEnabled(false);
     }

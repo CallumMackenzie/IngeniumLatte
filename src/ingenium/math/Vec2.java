@@ -165,23 +165,23 @@ public class Vec2 extends Vec {
         float l = len();
         if (l == 0)
             l = 1.f;
-        return new Vec2(x / l, y / l, w);
+        return new Vec2(this.x / l, this.y / l, this.w);
     }
 
     public Vec2 mulFloat(float f) {
-        return new Vec2(x * f, y * f, w);
+        return new Vec2(this.x * f, this.y * f, this.w);
     }
 
     public Vec2 divFloat(float f) {
-        return new Vec2(x / f, y / f, w);
+        return new Vec2(this.x / f, this.y / f, this.w);
     }
 
     public Vec2 addFloat(float f) {
-        return new Vec2(x + f, y + f, w);
+        return new Vec2(this.x + f, this.y + f, this.w);
     }
 
     public Vec2 subFloat(float f) {
-        return new Vec2(x - f, y - f, w);
+        return new Vec2(this.x - f, this.y - f, this.w);
     }
 
     /**

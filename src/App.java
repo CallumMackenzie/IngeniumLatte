@@ -34,6 +34,9 @@ public class App extends Ingenium {
     public App() {
         super("Card Game", 1600f, 900f);
         time.setTargetRenderFPS(80);
+        // frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+        // frame.setUndecorated(true);
+        showFrame();
     }
 
     @Override
@@ -64,6 +67,7 @@ public class App extends Ingenium {
         renderSurface = new Mesh2D();
         renderSurface.make(gl, Ingenium.NO_VALUE);
         renderSurface.getMaterial().setDiffuseTexture(postBuffer.getTextures()[0]);
+        renderSurface.setScale(new Vec2(16f / 9f, 1));
 
         player.setRandomCards(gl);
         dLight.setDirection(new Vec3(-0.4, -1, -0.4));
@@ -73,6 +77,7 @@ public class App extends Ingenium {
     protected void onRender(GL2 gl) {
         camera3D.stdControl(input, time.getRenderDeltaTime(), 4, 6);
         player.update(time);
+        renderSurface.setPosition(input.getCameraMousePos(camera2d, this));
 
         clear(gl);
         for (Card c : player.getCards()) {

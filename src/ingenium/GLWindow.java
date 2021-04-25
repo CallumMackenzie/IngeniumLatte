@@ -1,17 +1,15 @@
 package ingenium;
 
-import com.jogamp.common.GlueGenVersion;
-import com.jogamp.common.util.VersionUtil;
-import com.jogamp.nativewindow.NativeWindowVersion;
-import com.jogamp.newt.NewtVersion;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.JoglVersion;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+
+import ingenium.math.Vec2;
+
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -37,11 +35,11 @@ public class GLWindow {
         frame = new Frame(this.name);
         this.aspect = height / width;
 
-        System.err.println(VersionUtil.getPlatformInfo());
-        System.err.println(GlueGenVersion.getInstance());
-        System.err.println(NativeWindowVersion.getInstance());
-        System.err.println(JoglVersion.getInstance());
-        System.err.println(NewtVersion.getInstance());
+        // System.err.println(VersionUtil.getPlatformInfo());
+        // System.err.println(GlueGenVersion.getInstance());
+        // System.err.println(NativeWindowVersion.getInstance());
+        // System.err.println(JoglVersion.getInstance());
+        // System.err.println(NewtVersion.getInstance());
 
         canvas.addGLEventListener(new GLEventListener() {
 
@@ -77,7 +75,6 @@ public class GLWindow {
         });
 
         frame.setSize((int) width, (int) height);
-        frame.setVisible(true);
     }
 
     public void start() {
@@ -183,5 +180,21 @@ public class GLWindow {
      */
     public GLCanvas getCanvas() {
         return canvas;
+    }
+
+    public Vec2 getDimensions() {
+        return new Vec2(this.width, this.height);
+    }
+
+    public Vec2 getFrameDimensions() {
+        return new Vec2(this.frame.getWidth(), this.frame.getHeight());
+    }
+
+    public Vec2 getFramePos() {
+        return new Vec2(this.frame.getX(), this.frame.getY());
+    }
+
+    public void showFrame () {
+        frame.setVisible(true);
     }
 }
