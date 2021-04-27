@@ -9,7 +9,6 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import ingenium.Ingenium;
-import ingenium.math.Vec2;
 import ingenium.math.Vec3;
 import ingenium.utilities.Cache;
 import ingenium.world.Position;
@@ -78,6 +77,14 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
      */
     public void bindVAO(GL2 gl) {
         gl.glBindVertexArray(mVAO);
+    }
+
+    public void setData(FloatBuffer data) {
+        this.data = data;
+    }
+
+    public void setNumVerts(int numVerts) {
+        this.numVerts = numVerts;
     }
 
     /**
@@ -220,7 +227,7 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
      * @param magFilter mag filter mode
      * @return a new texture
      */
-    private static int findAndLoadTexture(GL2 gl, String path, int texSlot, int sWrap, int tWrap, int minFilter,
+    public static int findAndLoadTexture(GL2 gl, String path, int texSlot, int sWrap, int tWrap, int minFilter,
             int magFilter, boolean useTexCache) {
         if (path.equals(Ingenium.NO_VALUE))
             return GL2.GL_NONE;
@@ -250,18 +257,31 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
         }
     }
 
-    public static int createColorTexture (GL2 gl, int hex, float alpha) {
+    /**
+     * 
+     * @param gl      the GL2 object of the program
+     * @param path    the path to the image
+     * @param texSlot the texture slot to use
+     * @return a new texture
+     */
+    public static int findAndLoadTexture(GL2 gl, String path, int texSlot, boolean useTexCache) {
+        return findAndLoadTexture(gl, path, texSlot, GL2.GL_REPEAT, GL2.GL_REPEAT, GL2.GL_LINEAR_MIPMAP_LINEAR,
+                GL2.GL_LINEAR, useTexCache);
+    }
+
+    public static int createColorTexture(GL2 gl, int hex, float alpha) {
         float r = (float) ((hex & 0xFF0000) >> 16) / 255.f;
         float g = (float) ((hex & 0x00FF00) >> 8) / 255.f;
         float b = (float) ((hex & 0x0000FF)) / 255.f;
         return createColorTexture(gl, r, g, b, alpha);
     }
 
-    public static int createColorTexture (GL2 gl, float r, float g, float b, float alpha) {
+    public static int createColorTexture(GL2 gl, float r, float g, float b, float alpha) {
         int texs[] = new int[1];
         gl.glGenTextures(1, texs, 0);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, texs[0]);
-        gl.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGBA, 1, 1, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, Buffers.newDirectFloatBuffer(new float[]{r, g, b, alpha}));
+        gl.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGBA, 1, 1, 0, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE,
+                Buffers.newDirectFloatBuffer(new float[] { r, g, b, alpha }));
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
@@ -278,8 +298,7 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
      * @param specularPath the path to the specular texture
      * @param normalPath   the path to the normal texture
      */
-    public void setTexture(GL2 gl, String diffusePath, String specularPath, String normalPath, String 
-        parallaxPath) {
+    public void setTexture(GL2 gl, String diffusePath, String specularPath, String normalPath, String parallaxPath) {
         if (!diffusePath.equals(Ingenium.NO_VALUE))
             material.setDiffuseTexture(findAndLoadTexture(gl, diffusePath, GL2.GL_TEXTURE0, useTextureReferenceCache));
         if (!specularPath.equals(Ingenium.NO_VALUE))
@@ -290,18 +309,7 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
         else
             material.setNormalTexture(createColorTexture(gl, 0f, 0f, 1f, 1f));
         if (!parallaxPath.equals(Ingenium.NO_VALUE))
-            material.setParallaxTexture(findAndLoadTexture(gl, parallaxPath, GL2.GL_TEXTURE3, useTextureReferenceCache));
-    }
-
-    /**
-     * 
-     * @param gl      the GL2 object of the program
-     * @param path    the path to the image
-     * @param texSlot the texture slot to use
-     * @return a new texture
-     */
-    private static int findAndLoadTexture(GL2 gl, String path, int texSlot, boolean useTexCache) {
-        return findAndLoadTexture(gl, path, texSlot, GL2.GL_REPEAT, GL2.GL_REPEAT, GL2.GL_LINEAR_MIPMAP_LINEAR,
-                GL2.GL_LINEAR, useTexCache);
+            material.setParallaxTexture(
+                    findAndLoadTexture(gl, parallaxPath, GL2.GL_TEXTURE3, useTextureReferenceCache));
     }
 }

@@ -81,8 +81,9 @@ public class Input implements java.awt.event.KeyListener, java.awt.event.MouseLi
     }
 
     public Vec2 getCameraMousePos(Camera2D camera, GLWindow window) {
-        Vec2 pos = getRawMousePos().sub(window.getFramePos()).mul(new Vec2(2f * camera.getAspect(), -2)).div(window.getFrameDimensions());
-        System.out.println(pos);
+        Vec2 pos = getRawMousePos().sub(window.getFramePos()).div(window.getFrameDimensions());
+        pos = pos.mul(new Vec2(1f / camera.getAspect() * 2, -1 * 2)).mulMat2(camera.cameraMatrix()).add(camera.getPosition());
+        // System.out.println(pos);
         return pos;//.mulMat2(camera.cameraMatrix()).add(camera.getPosition());
     }
 

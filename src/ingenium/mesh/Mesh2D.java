@@ -10,6 +10,7 @@ import ingenium.world.Shader;
 import com.jogamp.opengl.GL2;
 
 public class Mesh2D extends Mesh<Vec2, Float> {
+
     private float zIndex = 0;
 
     /**

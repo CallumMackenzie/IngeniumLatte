@@ -1,5 +1,15 @@
 package ingenium.mesh;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +23,7 @@ import ingenium.mesh.Triangle.Tri3D;
 import ingenium.utilities.Cache;
 
 public class Geometry {
+    public static final int preloadedObjectChunkSize = 1024;
     public static final String QUAD_PATH = "QUAD";
     private static final Cache<String, ValueCacheElement> valueCache = new Cache<>("geometry cache", false); // 1
     private static final Cache<String, Integer[]> referenceCache = new Cache<>("geometry cache", false); // 2
@@ -116,7 +127,7 @@ public class Geometry {
 
     public static ArrayList<Tri2D> loadTri2DArrayFromObj(String raw, boolean path, boolean useGeometryReferenceCache,
             boolean useGeometryValueCache) {
-        ArrayList<Tri3D> tri3ds = loadTri3DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
+        ArrayList<Tri3D> tri3ds = loadTri3DArrayFromObj(raw, path);
         ArrayList<Tri2D> tri2ds = new ArrayList<>();
         for (Tri3D t : tri3ds)
             tri2ds.add(t.toTri2D());
@@ -131,8 +142,7 @@ public class Geometry {
         return tri2ds;
     }
 
-    public static ArrayList<Tri3D> loadTri3DArrayFromObj(String raw, boolean path, boolean useGeometryReferenceCache,
-            boolean useGeometryValueCache) {
+    public static ArrayList<Tri3D> loadTri3DArrayFromObj(String raw, boolean path) {
         if (path)
             raw = FileUtils.getFileAsString(raw);
         ArrayList<Tri3D> tris = new ArrayList<Tri3D>();
@@ -224,7 +234,7 @@ public class Geometry {
         Geometry.Object cacheObject = checkGeometryCaches(objPath, useGeometryReferenceCache, useGeometryValueCache);
         if (cacheObject != null)
             return cacheObject;
-        ArrayList<Tri3D> tris = loadTri3DArrayFromObj(raw, path, useGeometryReferenceCache, useGeometryValueCache);
+        ArrayList<Tri3D> tris = loadTri3DArrayFromObj(raw, path);
         Geometry.Object gObject = geometryArrayListToObject(tris);
         Geometry.getValueCache().add(objPath, new Geometry.ValueCacheElement(gObject.data, gObject.numVerts));
         return gObject;
@@ -263,5 +273,75 @@ public class Geometry {
             return new Geometry.Object(Buffers.newDirectFloatBuffer(dataToWrite), numVerts);
         }
         return new Geometry.Object(null, 0);
+    }
+
+    public static void createPreloadedModel(String path, String outputFile) {
+        Geometry.Object obj = loadFromObjData(path, true, false, false);
+        try {
+            File myObj = new File(outputFile);
+            if (!myObj.createNewFile())
+                System.out.println("File already exists, overwriting.");
+        } catch (IOException e) {
+            System.err.println("An error occured creating a file: " + outputFile);
+            e.printStackTrace();
+        }
+        try {
+            OutputStream outputStream = new FileOutputStream(outputFile);
+            byte header[] = ByteBuffer.allocate(Integer.BYTES).putInt(obj.numVerts).array();
+            byte byteData[] = new byte[obj.getData().capacity() * Float.BYTES + header.length];
+            System.arraycopy(header, 0, byteData, 0, header.length);
+            for (int i = 0; i < obj.getData().capacity(); i++) {
+                byte floatBytes[] = ByteBuffer.allocate(Float.BYTES).putFloat(obj.getData().get(i)).array();
+                System.arraycopy(floatBytes, 0, byteData, (i * Float.BYTES) + header.length, Float.BYTES);
+            }
+            outputStream.write(byteData);
+            outputStream.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred writing a file: " + outputFile);
+            e.printStackTrace();
+        }
+    }
+
+    public static Geometry.Object loadFromPreloadedModel(String path, boolean valueCache, boolean referenceCache) {
+        Geometry.Object cacheObject = checkGeometryCaches(path, referenceCache, valueCache);
+        if (cacheObject != null)
+            return cacheObject;
+        byte buffer[] = new byte[preloadedObjectChunkSize];
+        float data[] = new float[0];
+        int numVerts = -1, chunksRead = 0, bytesRead = 0;
+        FileInputStream in;
+        try {
+            in = new FileInputStream(path);
+        } catch (FileNotFoundException e) {
+            System.err.println("Could not find preloaded model file: " + path + ".");
+            e.printStackTrace();
+            return new Geometry.Object(Buffers.newDirectFloatBuffer(new float[0]), 0);
+        }
+        try {
+            while ((bytesRead = in.read(buffer, 0, preloadedObjectChunkSize)) != -1) {
+                ByteBuffer tmp = ByteBuffer.wrap(buffer);
+                int floatsInBuffer = (bytesRead >> 2);
+                if (chunksRead == 0) {
+                    numVerts = tmp.getInt(0);
+                    data = new float[numVerts * Tri3D.Vert.vertSize + 1];
+                    for (int i = 1; i < floatsInBuffer; i++)
+                        data[i - 1] = tmp.getFloat(i * Float.BYTES);
+                } else {
+                    for (int i = 0; i < floatsInBuffer; i++)
+                        data[(i - 1) + (chunksRead * (preloadedObjectChunkSize >> 2))] = tmp.getFloat(i * Float.BYTES);
+                }
+                chunksRead++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (numVerts == -1) {
+            System.err.println("Loading of preloaded model failed: " + path + ".");
+            return new Geometry.Object(Buffers.newDirectFloatBuffer(new float[0]), 0);
+        }
+        FloatBuffer fBuffer = Buffers.newDirectFloatBuffer(data);
+        Geometry.Object gObject = new Geometry.Object(fBuffer, numVerts);
+        Geometry.getValueCache().add(path, new Geometry.ValueCacheElement(gObject.data, gObject.numVerts));
+        return gObject;
     }
 }

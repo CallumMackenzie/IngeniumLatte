@@ -10,6 +10,7 @@ public class Material {
     private int specularTexture = GL2.GL_NONE;
     private int normalTexture = GL2.GL_NONE;
     private int parallaxTexture = GL2.GL_NONE;
+    private int optionTextures[] = new int[0];
     private Vec2 scaleUV = new Vec2(1, 1);
     private float shininess = 0.5f;
     private float parallaxScale = 1.f;
@@ -180,8 +181,17 @@ public class Material {
     public Vec2 getScaleUV() {
         return scaleUV;
     }
+
     public void setScaleUV(Vec2 scaleUV) {
         this.scaleUV = scaleUV;
+    }
+
+    public int[] getOptionTextures() {
+        return optionTextures;
+    }
+
+    public void setOptionTextures(int[] optionTextures) {
+        this.optionTextures = optionTextures;
     }
 
     public void sendDataToShader(GL2 gl, Shader shader) {
@@ -196,6 +206,11 @@ public class Material {
         gl.glBindTexture(GL2.GL_TEXTURE_2D, getNormalTexture());
         gl.glActiveTexture(GL2.GL_TEXTURE3);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, getParallaxTexture());
+        for (int i = 1; i < optionTextures.length + 1 && i + GL2.GL_TEXTURE3 < GL2.GL_TEXTURE31; i++) {
+            shader.setUniform(gl, Shader.Uniforms.material_option + (i - 1), 3 + i);
+            gl.glActiveTexture(GL2.GL_TEXTURE3 + i);
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, getOptionTextures()[i - 1]);
+        }
     }
 
     /**
@@ -208,5 +223,6 @@ public class Material {
         shader.setUniform(gl, Shader.Uniforms.material_specular, 1);
         shader.setUniform(gl, Shader.Uniforms.material_normal, 2);
         shader.setUniform(gl, Shader.Uniforms.material_parallax, 3);
+        shader.setUniform(gl, Shader.Uniforms.material_option, 4);
     }
 }

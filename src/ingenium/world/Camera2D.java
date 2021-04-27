@@ -7,6 +7,7 @@ import ingenium.math.Vec2;
 
 public class Camera2D extends Position<Vec2, Float> {
     private float aspect;
+    private float scale = 2f;
 
     public Camera2D(float aspect, Vec2 position, float rotation) {
         this.position = position;
@@ -62,5 +63,9 @@ public class Camera2D extends Position<Vec2, Float> {
             speed *= 4;
         position = position.add(move.normalized().mulFloat(deltaTime * speed));
         rotation = rotation + rotate * deltaTime;
+    }
+
+    public float getScale() {
+        return scale;
     }
 }

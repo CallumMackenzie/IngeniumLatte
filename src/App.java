@@ -22,7 +22,9 @@ public class App extends Ingenium {
     Camera3D camera3D = new Camera3D(9f / 16f);
 
     DirectionalLight dLight = new DirectionalLight();
-    PointLight p[] = new PointLight[0];
+    PointLight p[] = new PointLight[] {
+            new PointLight(new Vec3(0, 2, 0), new Vec3(0.05, 0.1, 0.08), new Vec3(0.1, 0.9, 0.2), new Vec3(0.2, 0.7, 0.4))
+    };
 
     public static void main(String[] args) throws Exception {
         Geometry.getReferenceCache().use(true);
@@ -54,9 +56,11 @@ public class App extends Ingenium {
         });
         cardShader.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/card.fs", new HashMap<>() {
             {
-                put("normalMap", "0");
+                put("normalMap", "1");
+                put("parallaxMap", "0");
+                put("parallaxClipEdge", "1");
                 put("maxPointLights", "0");
-                put("lightModel", "NONE");
+                put("lightModel", "BLINN");
             }
         });
         shader2D.compileWithParametersFromPath(gl, "./shaders/2D/vert2d.vs", "./shaders/2D/default.fs");
@@ -71,13 +75,13 @@ public class App extends Ingenium {
 
         player.setRandomCards(gl);
         dLight.setDirection(new Vec3(-0.4, -1, -0.4));
+        dLight.setIntensity(0.9f);
     }
 
     @Override
     protected void onRender(GL2 gl) {
         camera3D.stdControl(input, time.getRenderDeltaTime(), 4, 6);
         player.update(time);
-        renderSurface.setPosition(input.getCameraMousePos(camera2d, this));
 
         clear(gl);
         for (Card c : player.getCards()) {

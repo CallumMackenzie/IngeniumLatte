@@ -7,14 +7,13 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
-
 import ingenium.math.Vec2;
-
-import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JFrame;
 
 public class GLWindow {
+    
 
     private String name;
     private float width;
@@ -23,7 +22,7 @@ public class GLWindow {
     private GLCanvas canvas;
     private GLCapabilities glcapabilities;
     private FPSAnimator animator;
-    protected Frame frame;
+    protected JFrame frame;
     protected Time time = new Time();
 
     public GLWindow(String name, float width, float height, GLCapabilities glcapabilities) {
@@ -31,9 +30,9 @@ public class GLWindow {
         this.name = name;
         this.width = width;
         this.height = height;
-        this.canvas = new GLCanvas(this.glcapabilities);
-        frame = new Frame(this.name);
         this.aspect = height / width;
+        this.canvas = new GLCanvas(this.glcapabilities);
+        frame = new JFrame(this.name);
 
         // System.err.println(VersionUtil.getPlatformInfo());
         // System.err.println(GlueGenVersion.getInstance());

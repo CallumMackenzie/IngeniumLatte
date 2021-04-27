@@ -75,8 +75,8 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
      * @param specularPath the path to the specular texture
      * @param normalPath   the path to the normal texture
      */
-    public void make(GL2 gl, String objPath, String diffusePath, String specularPath, String normalPath, 
-        String parallaxPath) {
+    public void make(GL2 gl, String objPath, String diffusePath, String specularPath, String normalPath,
+            String parallaxPath) {
         setTexture(gl, diffusePath, specularPath, normalPath, parallaxPath);
         Geometry.Object object3d = Geometry.loadFromObjData(objPath, true, useGeometryReferenceCache,
                 useGeometryValueCache);
@@ -91,15 +91,31 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         Geometry.getReferenceCache().checkAddCache(objPath, new Integer[] { mVBO, mVAO, numVerts });
     }
 
-    public void make (GL2 gl, String objPath, String diffusePath, String specularPath, String normalPath) {
+    public void makePreloaded(GL2 gl, String preloadedPath, String diffusePath, String specularPath, String normalPath,
+            String parallaxPath) {
+        setTexture(gl, diffusePath, specularPath, normalPath, parallaxPath);
+        Geometry.Object object3d = Geometry.loadFromPreloadedModel(preloadedPath, useGeometryValueCache,
+                useGeometryReferenceCache);
+        if (object3d.isReference()) {
+            this.mVBO = object3d.getVBO();
+            this.mVAO = object3d.getVAO();
+            loaded = true;
+        } else
+            this.data = object3d.getData();
+        this.numVerts = object3d.getNumVerts();
+        load(gl);
+        Geometry.getReferenceCache().checkAddCache(preloadedPath, new Integer[] { mVBO, mVAO, numVerts });
+    }
+
+    public void make(GL2 gl, String objPath, String diffusePath, String specularPath, String normalPath) {
         make(gl, objPath, diffusePath, specularPath, normalPath, Ingenium.NO_VALUE);
     }
 
-    public void make (GL2 gl, String objPath, String diffusePath, String specularPath) {
+    public void make(GL2 gl, String objPath, String diffusePath, String specularPath) {
         make(gl, objPath, diffusePath, specularPath, Ingenium.NO_VALUE);
     }
 
-    public void make (GL2 gl, String objPath, String diffusePath) {
+    public void make(GL2 gl, String objPath, String diffusePath) {
         make(gl, objPath, diffusePath, Ingenium.NO_VALUE);
     }
 
@@ -255,10 +271,27 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         return m;
     }
 
+    public static Mesh3D createAndMake(GL2 gl, String objPath, String diffusePath, String specularPath) {
+        return createAndMake(gl, objPath, diffusePath, specularPath, Ingenium.NO_VALUE);
+    }
+
     public static Mesh3D createAndMake(GL2 gl, String objPath, String diffusePath) {
+        return createAndMake(gl, objPath, diffusePath, Ingenium.NO_VALUE);
+    }
+
+    public static Mesh3D createAndMakePreloaded(GL2 gl, String preloadedPath, String diffusePath, String specularPath,
+            String normalPath) {
         Mesh3D m = new Mesh3D();
-        m.make(gl, objPath, diffusePath, Ingenium.NO_VALUE, Ingenium.NO_VALUE);
+        m.makePreloaded(gl, preloadedPath, diffusePath, specularPath, normalPath, Ingenium.NO_VALUE);
         return m;
+    }
+
+    public static Mesh3D createAndMakePreloaded(GL2 gl, String preloadedPath, String diffusePath, String specularPath) {
+        return createAndMakePreloaded(gl, preloadedPath, diffusePath, specularPath, Ingenium.NO_VALUE);
+    }
+
+    public static Mesh3D createAndMakePreloaded(GL2 gl, String preloadedPath, String diffusePath) {
+        return createAndMakePreloaded(gl, preloadedPath, diffusePath, Ingenium.NO_VALUE);
     }
 
 }

@@ -86,4 +86,8 @@ public class Ingenium extends GLWindow {
         gl.glEnable(GL2.GL_CULL_FACE);
         gl.glCullFace(GL2.GL_BACK);
     }
+
+    public Input getInput() {
+        return input;
+    }
 }

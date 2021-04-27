@@ -18,6 +18,8 @@ struct Material {
     sampler2D specular;
     sampler2D normal;
     sampler2D parallax;
+    sampler2D option0;
+    sampler2D option1;
     float heightScale;
     float shininess;
 };
@@ -60,24 +62,19 @@ in mat3 TBN;
 
 vec4 getDiffuse (vec2 texCoords) {
     vec4 diffuse = texture(material.diffuse, texCoords).rgba;
-    if (texture(material.parallax, texCoords).r >= 0.9 ) {
-        return texture(material.normal, texCoords).rgba;
-    } else if (texture(material.parallax, texCoords).r >= 0.5) {
+    if (texture(material.option1, texCoords).r >= 0.9 ) {
+        return texture(material.option0, texCoords).rgba;
+    } else if (texture(material.option1, texCoords).r >= 0.5) {
         discard;
-        return vec4(0.0, 0.0, 0.0, 0.0);
     }
     return diffuse;
 };
 
 vec4 getSpecular (vec2 texCoords) {
-    vec4 spec = texture(material.specular, texCoords).rgba;
-    if (texture(material.parallax, texCoords).r >= 0.9 ) {
-        return spec;
-    } else if (texture(material.parallax, texCoords).r >= 0.5) {
+    if (texture(material.option1, texCoords).r >= 0.5 && texture(material.option1, texCoords).r < 0.9) {
         discard;
-        return vec4(0.0, 0.0, 0.0, 0.0);
     }
-    return spec;
+    return texture(material.specular, texCoords).rgba;
 };
 
 #if NORMAL_MAP

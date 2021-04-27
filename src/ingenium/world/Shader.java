@@ -20,6 +20,7 @@ public class Shader {
         public static final String material_specular = "material.specular";
         public static final String material_normal = "material.normal";
         public static final String material_parallax = "material.parallax";
+        public static final String material_option = "material.option";
         public static final String material_heightScale = "material.heightScale";
         public static final String material_shininess = "material.shininess";
         public static final String material_scaleUVLoc = "mesh.scaleUV";

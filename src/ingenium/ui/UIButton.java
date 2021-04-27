@@ -15,9 +15,11 @@ public class UIButton extends Mesh2D {
         this.scale = dimensions;
     }
 
-    // public boolean isClicked (ingenium.Input input) {
-    //     Vec2 mPos = input.getRawMousePos();
-    //     return (mPos.getX())
+    // public boolean isClicked (Camera2D camera, Ingenium IL) {
+    //     Vec2 mPos = IL.getInput().getCameraMousePos(camera, IL);
+    //     if (mPos.getX() < this.scale.getX() * 2) {
+    //         
+    //     }
     // }
 
     public static UIButton createAndMake (GL2 gl, Vec2 pos, Vec2 dimensions, String texturePath) {
