@@ -8,7 +8,9 @@ precision $precision(mediump)$ float;
 #define NORMAL_MAP $normalMap(1)$
 #define PARALLAX_MAP $parallaxMap(0)$
 #define PARALLAX_CLIP_EDGE $parallaxClipEdge(0)$
-#define PARALLAX_INVERT $parallaxInvert(1)$
+#define MIN_PARALLAX_LAYERS $minParallaxLayers(8.0)$
+#define MAX_PARALLAX_LAYERS $maxParallaxLayers(32.0)$
+#define PARALLAX_INVERT $parallaxInvert(0)$
 #define MAX_POINT_LIGHTS $maxPointLights(0)$
 
 layout (location = 0) out vec4 color;
@@ -92,7 +94,7 @@ vec4 CalcPointLight(PointLight light, vec3 cnormal, vec3 cfragPos, vec3 viewDir,
     #endif // defined(PHONG)
     #if defined(BLINN)
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+    float spec = pow(max(dot(cnormal, halfwayDir), 0.0), material.shininess);
     #endif // defined(BLINN)
     float distance    = length(light.position - cfragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
@@ -109,13 +111,11 @@ vec4 CalcPointLight(PointLight light, vec3 cnormal, vec3 cfragPos, vec3 viewDir,
 #if PARALLAX_MAP
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
-    const float minLayers = 8.0;
-    const float maxLayers = 32.0;
-    float numLayers = mix(maxLayers, minLayers, abs(dot(normal, viewDir)));  
+    float numLayers = mix(MAX_PARALLAX_LAYERS, MIN_PARALLAX_LAYERS, abs(dot(normalize(normal), viewDir)));  
     float layerDepth = 1.0 / numLayers;
     float currentLayerDepth = 0.0;
-    vec2 P = viewDir.xy / viewDir.z * material.heightScale; 
-    // vec2 P = viewDir.xy * material.heightScale;
+    // vec2 P = viewDir.xy / viewDir.z * material.heightScale; 
+    vec2 P = viewDir.xy * material.heightScale;
     vec2 deltaTexCoords = P / numLayers;
   
     vec2  currentTexCoords     = texCoords;
@@ -123,7 +123,7 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
     float currentDepthMapValue = 1.0 - texture(material.parallax, currentTexCoords).r;
     #else
     float currentDepthMapValue = texture(material.parallax, currentTexCoords).r;
-    #endif
+    #endif // PARALLAX_INVERT
       
     while(currentLayerDepth < currentDepthMapValue)
     {
@@ -132,7 +132,7 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
         currentDepthMapValue = 1.0 - texture(material.parallax, currentTexCoords).r; 
     #else
         currentDepthMapValue = texture(material.parallax, currentTexCoords).r; 
-    #endif 
+    #endif // PARALLAX_INVERT
         currentLayerDepth += layerDepth;  
     }
     
@@ -161,14 +161,14 @@ void main ()
     #if PARALLAX_CLIP_EDGE
     if(cUV.x > 1.0 || cUV.y > 1.0 || cUV.x < 0.0 || cUV.y < 0.0)
         discard;
-    #endif
-#endif
+    #endif // PARALLAX_CLIP_EDGE
+#endif // PARALLAX_MAP
 
 #if NORMAL_MAP
     vec3 norm = CalcBumpedNormal(cUV);
 #else
     vec3 norm = normalize(normal);
-#endif
+#endif // NORMAL_MAP
 #if PARALLAX_MAP
     vec4 result = CalcDirLight(dirLight, norm, tangentViewDir, cUV);
 #else
@@ -176,8 +176,8 @@ void main ()
     vec4 result = CalcDirLight(dirLight, norm, viewDir, cUV);
     #else
     vec4 result = texture(material.diffuse, cUV).rgba * tint.rgba;
-    #endif
-#endif
+    #endif // !defined(NONE)
+#endif // PARALLAX_MAP
 #if !defined(NONE)
     #if MAX_POINT_LIGHTS > 0
     for(int i = 0; i < numlights; i++) {
@@ -185,10 +185,10 @@ void main ()
         result += CalcPointLight(pointLights[i], norm, fragPos, tangentViewDir, cUV);
         #else
         result += CalcPointLight(pointLights[i], norm, fragPos, viewDir, cUV);
-        #endif
+        #endif // PARALLAX_MAP
     }
     result.a /= float(numlights);
-    #endif
-#endif
+    #endif // MAX_POINT_LIGHTS > 0
+#endif // !defined(NONE)
     color = result;
 }

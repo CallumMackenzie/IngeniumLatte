@@ -57,8 +57,10 @@ public class App extends Ingenium {
         cardShader.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/card.fs", new HashMap<>() {
             {
                 put("normalMap", "1");
-                put("parallaxMap", "0");
-                put("parallaxClipEdge", "1");
+                put("parallaxMap", "1");
+                put("parallaxClipEdge", "0");
+                put("minParallaxLayers", "10.0");
+                put("maxParallaxLayers", "40.0");
                 put("maxPointLights", "0");
                 put("lightModel", "BLINN");
             }

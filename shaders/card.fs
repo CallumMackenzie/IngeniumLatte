@@ -8,6 +8,8 @@ precision $precision(mediump)$ float;
 #define NORMAL_MAP $normalMap(1)$
 #define PARALLAX_MAP $parallaxMap(0)$
 #define PARALLAX_CLIP_EDGE $parallaxClipEdge(0)$
+#define MIN_PARALLAX_LAYERS $minParallaxLayers(8.0)$
+#define MAX_PARALLAX_LAYERS $maxParallaxLayers(32.0)$
 #define PARALLAX_INVERT $parallaxInvert(1)$
 #define MAX_POINT_LIGHTS $maxPointLights(0)$
 
@@ -128,9 +130,7 @@ vec4 CalcPointLight(PointLight light, vec3 cnormal, vec3 cfragPos, vec3 viewDir,
 #if PARALLAX_MAP
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
-    const float minLayers = 8.0;
-    const float maxLayers = 32.0;
-    float numLayers = mix(maxLayers, minLayers, abs(dot(normal, viewDir)));  
+    float numLayers = mix(MAX_PARALLAX_LAYERS, MIN_PARALLAX_LAYERS, abs(dot(normal, viewDir)));  
     float layerDepth = 1.0 / numLayers;
     float currentLayerDepth = 0.0;
     vec2 P = viewDir.xy / viewDir.z * material.heightScale; 

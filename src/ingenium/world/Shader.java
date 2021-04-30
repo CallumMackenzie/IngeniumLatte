@@ -109,6 +109,7 @@ public class Shader {
         }
         vertSource = vertSource.replace("$", "");
         fragSource = fragSource.replace("$", "");
+        System.out.println(fragSource);
         compile(gl, vertSource, fragSource);
     }
 
