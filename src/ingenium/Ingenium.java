@@ -1,6 +1,10 @@
 package ingenium;
 
 import com.jogamp.opengl.GLProfile;
+
+import ingenium.mesh.Geometry;
+import ingenium.mesh.Mesh3D;
+
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GL2;
 
@@ -85,6 +89,12 @@ public class Ingenium extends GLWindow {
         gl.glDepthRange(0.0, 1.0);
         gl.glEnable(GL2.GL_CULL_FACE);
         gl.glCullFace(GL2.GL_BACK);
+    }
+
+    public static void useAllCaches () {
+        Geometry.getReferenceCache().use(true);
+        Geometry.getValueCache().use(true);
+        Mesh3D.getTextureReferenceCache().use(true);
     }
 
     public Input getInput() {

@@ -1,99 +1,46 @@
 import ingenium.Ingenium;
-
-import java.util.HashMap;
 import com.jogamp.opengl.GL2;
 import ingenium.math.*;
 import ingenium.mesh.*;
-import ingenium.utilities.RenderBuffer;
 import ingenium.world.*;
 import ingenium.world.light.*;
 
 public class App extends Ingenium {
-    Player player = new Player(3);
-    RenderBuffer postBuffer;
-    Mesh2D renderSurface;
-
-    Shader shader2D = new Shader();
     Shader shader3D = new Shader();
-    Shader post = new Shader();
-    Shader cardShader = new Shader();
-
-    Camera2D camera2d = new Camera2D(9f / 16f);
     Camera3D camera3D = new Camera3D(9f / 16f);
-
     DirectionalLight dLight = new DirectionalLight();
-    PointLight p[] = new PointLight[] {
-            new PointLight(new Vec3(0, 2, 0), new Vec3(0.05, 0.1, 0.08), new Vec3(0.1, 0.9, 0.2), new Vec3(0.2, 0.7, 0.4))
-    };
+    Mesh3D mesh;
 
     public static void main(String[] args) throws Exception {
-        Geometry.getReferenceCache().use(true);
-        Geometry.getValueCache().use(true);
-        Mesh3D.getTextureReferenceCache().use(true);
-        new App().start();
+        App app = new App();
+        app.start();
     }
 
     public App() {
-        super("Card Game", 1600f, 900f);
-        time.setTargetRenderFPS(80);
-        // frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
-        // frame.setUndecorated(true);
-        showFrame();
+        super("Demo", 1600f, 900f); // Create window called "Demo" at resolution 1600 x 900
+        time.setTargetRenderFPS(60); // Set the framerate to 60 fps
+        showFrame(); // Show the window
     }
 
     @Override
     protected void onCreate(GL2 gl) {
-        init2D(gl);
-        init3D(gl);
-        gl.glDisable(GL2.GL_CULL_FACE);
-        setClearColour(gl, 0x404040, 1);
-        Card.init(gl);
-        shader3D.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/3D/asn.fs", new HashMap<>() {
-            {
-                put("maxPointLights", "1");
-                put("normalMap", "0");
-            }
-        });
-        cardShader.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/card.fs", new HashMap<>() {
-            {
-                put("normalMap", "1");
-                put("parallaxMap", "1");
-                put("parallaxClipEdge", "0");
-                put("minParallaxLayers", "10.0");
-                put("maxParallaxLayers", "40.0");
-                put("maxPointLights", "0");
-                put("lightModel", "BLINN");
-            }
-        });
-        shader2D.compileWithParametersFromPath(gl, "./shaders/2D/vert2d.vs", "./shaders/2D/default.fs");
-        post.compileWithParametersFromPath(gl, "./shaders/post/fbo.vs", "./shaders/post/fbo.fs");
-
-        postBuffer = RenderBuffer.createRenderTexture(gl, 1600, 900);
-
-        renderSurface = new Mesh2D();
-        renderSurface.make(gl, Ingenium.NO_VALUE);
-        renderSurface.getMaterial().setDiffuseTexture(postBuffer.getTextures()[0]);
-        renderSurface.setScale(new Vec2(16f / 9f, 1));
-
-        player.setRandomCards(gl);
-        dLight.setDirection(new Vec3(-0.4, -1, -0.4));
-        dLight.setIntensity(0.9f);
+        init3D(gl); // Tell Ingenium we're rendering in 3D
+        setClearColour(gl, 0x404040); // Set the clear colour to gray
+        shader3D.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/3D/asn.fs"); // Create the 3D shader
+        // Create the mesh with the provided object and texture files
+        mesh = Mesh3D.createAndMake(gl, "./resource/sphere.obj", "./resource/metal/b.jpg", "./resource/metal/s.jpg", "./resource/metal/n.jpg");
     }
 
     @Override
     protected void onRender(GL2 gl) {
+        // Camera rotation: arrow keys
+        // Camera movement: WASD
         camera3D.stdControl(input, time.getRenderDeltaTime(), 4, 6);
-        player.update(time);
+        clear(gl); // Clear the screen
 
-        clear(gl);
-        for (Card c : player.getCards()) {
-            RenderBuffer.renderToRenderTexture(gl, c.getRbo());
-            Mesh3D.renderAll(gl, shader3D, c.getCamera(), dLight, c.getMeshes(), p);
-        }
-        RenderBuffer.renderToRenderTexture(gl, postBuffer);
-        Mesh3D.renderAll(gl, cardShader, camera3D, dLight, player.getCards(), p);
-        RenderBuffer.setDefaultRenderBuffer(gl, this);
-        renderSurface.render(gl, post, camera2d);
+        // Rotate the mesh, accounting for frame time deviation
+        mesh.setRotation(mesh.getRotation().add(new Vec3(1, 1, 1).mulFloat(time.getRenderDeltaTime()))); 
+        mesh.render(gl, shader3D, camera3D, dLight); // Show our 3d object on screen
     }
 
     @Override
