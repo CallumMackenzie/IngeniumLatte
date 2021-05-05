@@ -149,6 +149,7 @@ public class Camera3D extends Position<Vec3, Vec3> {
         this.rotation = this.rotation.add(rotate.mulFloat(deltaTime));
         this.position = this.position.add(forward.normalized().mulFloat(speed * deltaTime));
 
+        // This should probably be a function...
         if (this.rotation.getX() >= Rotation.degToRad(87.f))
             this.rotation.setX(Rotation.degToRad(87.f));
         if (this.rotation.getX() <= -Rotation.degToRad(87.f))
