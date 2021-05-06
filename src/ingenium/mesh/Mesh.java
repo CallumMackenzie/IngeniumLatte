@@ -13,7 +13,7 @@ import ingenium.math.Vec3;
 import ingenium.utilities.Cache;
 import ingenium.world.Position;
 
-public class Mesh<positionType, rotationType> extends Position<positionType, rotationType> implements Loadable {
+public abstract class Mesh<positionType, rotationType> extends Position<positionType, rotationType> implements Loadable {
     protected static final Cache<String, Integer> textureReferenceCache = new Cache<>("geometry cache", false);
 
     protected Vec3 tint = new Vec3(1, 1, 1);
@@ -214,6 +214,27 @@ public class Mesh<positionType, rotationType> extends Position<positionType, rot
      */
     public boolean usingGeometryReferenceCache() {
         return useGeometryReferenceCache;
+    }
+
+    public float[] getRawVertexdata (int index, int length, int stride) {
+        float l[] = new float[length];
+        int j = 0;
+        for (int i = 0; i < length; i += stride) {
+            l[j] = data.get(index + i);
+            j++;
+        }
+        return l;
+    }
+
+    public void setVertexRawData (GL2 gl, int index, float[] vData, int stride) {
+        if (stride == 1) {
+            for (int i = 0; i < vData.length; i++)
+            data.put(index + i, vData[i]);
+            FloatBuffer b = Buffers.newDirectFloatBuffer(vData);
+            bindVAO(gl);
+            bindVBO(gl);
+            gl.glBufferSubData(GL2.GL_ARRAY_BUFFER, index * Float.BYTES, vData.length * Float.BYTES, b);
+        }
     }
 
     /**
