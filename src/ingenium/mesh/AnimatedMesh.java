@@ -27,7 +27,12 @@ public class AnimatedMesh<meshType extends Mesh<?, ?>> {
                 currentFrame = startFrame;
             lastFrame = System.nanoTime();
             if (!interpolating) {
-                primaryMesh = meshes[currentFrame];
+                primaryMesh.mVAO = meshes[currentFrame].mVAO;
+                primaryMesh.mVBO = meshes[currentFrame].mVBO;
+                primaryMesh.data = meshes[currentFrame].data;
+                primaryMesh.tint = meshes[currentFrame].tint;
+                primaryMesh.numVerts = meshes[currentFrame].numVerts;
+                primaryMesh.material = meshes[currentFrame].material;
             } else {
                 primaryMesh.setNumVerts(meshes[currentFrame].numVerts);
                 primaryMesh.setMaterial(meshes[currentFrame].material);
