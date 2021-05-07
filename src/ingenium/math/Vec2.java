@@ -239,4 +239,8 @@ public class Vec2 extends Vec {
     public static float dot(Vec2 v1, Vec2 v2) {
         return v1.x * v2.x + v1.y * v2.y;
     }
+
+    public static Vec2 lerp (Vec2 a, Vec2 b, float t) {
+        return new Vec2(Mathematics.lerp(a.x, b.x, t), Mathematics.lerp(a.y, b.y, t));
+    }
 }

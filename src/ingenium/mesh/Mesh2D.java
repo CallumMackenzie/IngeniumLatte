@@ -7,6 +7,8 @@ import ingenium.math.Mat2;
 import ingenium.math.Vec2;
 import ingenium.world.Camera2D;
 import ingenium.world.Shader;
+
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 
 public class Mesh2D extends Mesh<Vec2, Float> {
@@ -268,5 +270,12 @@ public class Mesh2D extends Mesh<Vec2, Float> {
             meshes[i].sendToShader(gl, shader);
             gl.glDrawArrays(GL2.GL_TRIANGLES, 0, meshes[i].numVerts);
         }
+    }
+
+    public static Mesh2D createEmpty (GL2 gl, int numVerts) {
+        Mesh2D m = new Mesh2D();
+        m.setData(Buffers.newDirectFloatBuffer(numVerts * Tri2D.Vert.vertSize));
+        m.load(gl);
+        return m;
     }
 }

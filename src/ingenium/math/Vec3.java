@@ -351,4 +351,8 @@ public class Vec3 extends Vec {
         v.z = v1.x * v2.y - v1.y * v2.x;
         return v;
     }
+
+    public static Vec3 lerp (Vec3 a, Vec3 b, float t) {
+        return new Vec3(Mathematics.lerp(a.x, b.x, t), Mathematics.lerp(a.y, b.y, t), Mathematics.lerp(a.z, b.z, t));
+    }
 }

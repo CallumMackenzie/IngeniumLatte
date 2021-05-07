@@ -1,5 +1,6 @@
 package ingenium.mesh;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 
 import ingenium.Ingenium;
@@ -294,4 +295,10 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         return createAndMakePreloaded(gl, preloadedPath, diffusePath, Ingenium.NO_VALUE);
     }
 
+    public static Mesh3D createEmpty (GL2 gl, int numVerts) {
+        Mesh3D m = new Mesh3D();
+        m.setData(Buffers.newDirectFloatBuffer(numVerts * Tri3D.Vert.vertSize));
+        m.load(gl);
+        return m;
+    }
 }
