@@ -269,6 +269,10 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         return createAndMake(gl, objPath, diffusePath, Ingenium.NO_VALUE);
     }
 
+    public static Mesh3D createAndMake(GL2 gl, String objPath) {
+        return createAndMake(gl, objPath, Ingenium.NO_VALUE);
+    }
+
     public static Mesh3D createAndMakePreloaded(GL2 gl, String preloadedPath, String diffusePath, String specularPath,
             String normalPath) {
         Mesh3D m = new Mesh3D();
@@ -282,6 +286,10 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
 
     public static Mesh3D createAndMakePreloaded(GL2 gl, String preloadedPath, String diffusePath) {
         return createAndMakePreloaded(gl, preloadedPath, diffusePath, Ingenium.NO_VALUE);
+    }
+
+    public static Mesh3D createAndMakePreloaded(GL2 gl, String preloadedPath) {
+        return createAndMakePreloaded(gl, preloadedPath, Ingenium.NO_VALUE);
     }
 
     public static Mesh3D createEmpty(GL2 gl, int numVerts) {

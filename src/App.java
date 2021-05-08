@@ -21,6 +21,8 @@ public class App extends Ingenium {
             new PointLight(new Vec3(-1, 2, -2), new Vec3(), new Vec3(0.2, 1, 1), new Vec3(0.2, 1, 1)) };
     AnimatedMesh<Mesh3D> animMesh;
 
+    Mesh3D meshes[] = new Mesh3D[0];
+
     public static void main(String[] args) throws Exception {
         Mesh.getTextureReferenceCache().use(true);
         Geometry.getReferenceCache().use(true);
@@ -43,7 +45,7 @@ public class App extends Ingenium {
         // Create the 3D shader
         shader3D.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/3D/asn.fs", new HashMap<>() {
             {
-                put("maxPointLights", "1");
+                put("maxPointLights", "0");
             }
         });
         // Create the post-processing shader
@@ -56,16 +58,18 @@ public class App extends Ingenium {
         renderSurface.getMaterial().setDiffuseTexture(postBuffer.getTextures()[0]);
         renderSurface.setScale(new Vec2(16f / 9f, 1));
 
-        Mesh3D mshs[] = new Mesh3D[12];
-        for (int i = 0; i < mshs.length; i++)
-            mshs[i] = Mesh3D.createAndMakePreloaded(gl, "./resource/suzanneanim/" + i + ".ing",
-                    "./resource/alien/b.jpg", "./resource/alien/s.jpg", "./resource/alien/n.jpg");
+        Mesh3D mshs[] = new Mesh3D[6];
+        for (int i = 0; i < mshs.length; i++) {
+            mshs[i] = Mesh3D.createAndMake(gl, "./resource/person/" + i + ".obj", "./resource/metal/b.jpg",
+                    "./resource/metal/s.jpg", "./resource/metal/n.jpg");
+            mshs[i].getMaterial().setScaleUV(new Vec2(20, 20));
+        }
 
         animMesh = new AnimatedMesh<Mesh3D>(gl, Mesh3D.createEmpty(gl, mshs[0].getNumVerts()));
         animMesh.setMeshes(mshs);
         animMesh.setInterpolating(true);
         animMesh.setEndFrame(mshs.length - 1);
-        animMesh.setFrameTime(100);
+        animMesh.setFrameTime(200);
     }
 
     @Override
@@ -81,6 +85,7 @@ public class App extends Ingenium {
         clear(gl);
 
         RenderBuffer.renderToRenderTexture(gl, postBuffer);
+        Mesh3D.renderAll(gl, shader3D, camera3D, dLight, meshes, p);
         animMesh.getPrimaryMesh().render(gl, shader3D, camera3D, dLight, p);
         animMesh.checkAdvanceFrame(gl);
         RenderBuffer.setDefaultRenderBuffer(gl, this);
