@@ -43,9 +43,6 @@ public class App extends Ingenium {
         animMesh.setMeshes(mshs);
         animMesh.setEndFrame(mshs.length - 1);
         animMesh.setFrameTime(100);
-        animMesh.checkAdvanceFrame(gl);
-        animMesh.setStartFrame(0);
-        animMesh.setCurrentFrame(0);
     }
 
     @Override
