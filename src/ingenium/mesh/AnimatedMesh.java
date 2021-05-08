@@ -53,10 +53,14 @@ public class AnimatedMesh<meshType extends Mesh<?, ?>> {
                 for (int i = 0; i < currentData.length; i++)
                     currentData[i] = (float) Mathematics.lerp(currentData[i], prevData[i], f);
                 primaryMesh.setVertexRawData(gl, 0, currentData, 1);
-            }
+            } else
+                primaryMesh.setVertexRawData(gl, 0, meshes[currentFrame].getRawVertexdata(0,
+                        meshes[currentFrame].numVerts * Tri3D.Vert.vertSize, 1), 1);
 
             if (interpolatingTint)
                 primaryMesh.setTint(Vec3.lerp(meshes[currentFrame].getTint(), meshes[prevFrame].getTint(), f));
+            else
+                primaryMesh.setTint(meshes[currentFrame].getTint());
         }
     }
 

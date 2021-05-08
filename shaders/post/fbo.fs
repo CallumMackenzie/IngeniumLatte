@@ -49,5 +49,5 @@ void main() {
     // for(int i = 0; i < 9; i++)
     //     col += sampleTex[i] * sharpenKernel[i];
     // color = vec4(col, 1.0);
-    color = texture(material.diffuse, UV.st);
+    color = texture(material.diffuse, UV.st).rgba;
 }

@@ -168,20 +168,57 @@ public class Vec2 extends Vec {
         return new Vec2(this.x / l, this.y / l, this.w);
     }
 
-    public Vec2 mulFloat(float f) {
-        return new Vec2(this.x * f, this.y * f, this.w);
+    public Vec2 mulFloat(float... ns) {
+        Vec2 vec = new Vec2(this);
+        for (float n : ns) {
+            vec.x *= n;
+            vec.y *= n;
+        }
+        return vec;
     }
 
-    public Vec2 divFloat(float f) {
-        return new Vec2(this.x / f, this.y / f, this.w);
+    public Vec2 mul(float... f) {
+        return this.mulFloat(f);
     }
 
-    public Vec2 addFloat(float f) {
-        return new Vec2(this.x + f, this.y + f, this.w);
+    public Vec2 divFloat(float... ns) {
+        Vec2 vec = new Vec2(this);
+        for (float n : ns) {
+            vec.x /= n;
+            vec.y /= n;
+
+        }
+        return vec;
     }
 
-    public Vec2 subFloat(float f) {
-        return new Vec2(this.x - f, this.y - f, this.w);
+    public Vec2 div(float... f) {
+        return this.divFloat(f);
+    }
+
+    public Vec2 addFloat(float... ns) {
+        Vec2 vec = new Vec2(this);
+        for (float n : ns) {
+            vec.x += n;
+            vec.y += n;
+        }
+        return vec;
+    }
+
+    public Vec2 add(float... f) {
+        return this.addFloat(f);
+    }
+
+    public Vec2 subFloat(float... ns) {
+        Vec2 vec = new Vec2(this);
+        for (float n : ns) {
+            vec.x -= n;
+            vec.y -= n;
+        }
+        return vec;
+    }
+
+    public Vec2 sub(float... f) {
+        return this.subFloat(f);
     }
 
     /**
@@ -209,6 +246,53 @@ public class Vec2 extends Vec {
      */
     public boolean equalsXYW(Vec2 v) {
         return (v.x == this.x && v.y == this.y && v.w == this.w);
+    }
+
+    public Vec2 addEquals(Vec2... vectors) {
+        Vec2 result = this.add(vectors);
+        return this.set(result);
+    }
+
+    public Vec2 addEquals(float... ns) {
+        Vec2 result = this.add(ns);
+        return this.set(result);
+    }
+
+    public Vec2 subEquals(Vec2... vectors) {
+        Vec2 result = this.sub(vectors);
+        return this.set(result);
+    }
+
+    public Vec2 subEquals(float... ns) {
+        Vec2 result = this.sub(ns);
+        return this.set(result);
+    }
+
+    public Vec2 mulEquals(Vec2... vectors) {
+        Vec2 result = this.mul(vectors);
+        return this.set(result);
+    }
+
+    public Vec2 mulEquals(float... ns) {
+        Vec2 result = this.mul(ns);
+        return this.set(result);
+    }
+
+    public Vec2 divEquals(Vec2... vectors) {
+        Vec2 result = this.div(vectors);
+        return this.set(result);
+    }
+
+    public Vec2 divEquals(float... ns) {
+        Vec2 result = this.div(ns);
+        return this.set(result);
+    }
+
+    public Vec2 set(Vec2 newVector) {
+        this.x = newVector.x;
+        this.y = newVector.y;
+        this.w = newVector.w;
+        return this;
     }
 
     public int hashCode() {
@@ -240,7 +324,7 @@ public class Vec2 extends Vec {
         return v1.x * v2.x + v1.y * v2.y;
     }
 
-    public static Vec2 lerp (Vec2 a, Vec2 b, float t) {
+    public static Vec2 lerp(Vec2 a, Vec2 b, float t) {
         return new Vec2(Mathematics.lerp(a.x, b.x, t), Mathematics.lerp(a.y, b.y, t));
     }
 }

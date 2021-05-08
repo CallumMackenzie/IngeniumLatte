@@ -201,18 +201,7 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
      * @param pointLights point lights
      */
     public void render(GL2 gl, Shader shader, Camera3D camera, DirectionalLight dirLight, PointLight pointLights[]) {
-        shader.use(gl);
-        Material.sendToShader(gl, shader);
-        camera.sendToShader(gl, shader);
-        shader.setUniform(gl, Shader.Uniforms.ingenium_time, (float) System.currentTimeMillis() / 1000.f);
-        dirLight.sendToShader(gl, shader);
-
-        for (int i = 0; i < pointLights.length; i++)
-            pointLights[i].sendToShader(gl, shader, i);
-
-        sendToShader(gl, shader);
-
-        gl.glDrawArrays(GL2.GL_TRIANGLES, 0, numVerts);
+        Mesh3D.renderAll(gl, shader, camera, dirLight, new Mesh3D[] { this }, pointLights);
     }
 
     /**
@@ -295,7 +284,7 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         return createAndMakePreloaded(gl, preloadedPath, diffusePath, Ingenium.NO_VALUE);
     }
 
-    public static Mesh3D createEmpty (GL2 gl, int numVerts) {
+    public static Mesh3D createEmpty(GL2 gl, int numVerts) {
         Mesh3D m = new Mesh3D();
         m.setData(Buffers.newDirectFloatBuffer(numVerts * Tri3D.Vert.vertSize));
         m.load(gl);

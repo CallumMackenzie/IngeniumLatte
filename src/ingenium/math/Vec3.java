@@ -221,6 +221,10 @@ public class Vec3 extends Vec {
         return vec;
     }
 
+    public Vec3 mul(float... ns) {
+        return this.mulFloat(ns);
+    }
+
     /**
      * 
      * @param ns floats to add
@@ -234,6 +238,10 @@ public class Vec3 extends Vec {
             vec.z += n;
         }
         return vec;
+    }
+
+    public Vec3 add(float... ns) {
+        return this.addFloat(ns);
     }
 
     /**
@@ -251,6 +259,10 @@ public class Vec3 extends Vec {
         return vec;
     }
 
+    public Vec3 sub(float... ns) {
+        return this.subFloat(ns);
+    }
+
     /**
      * 
      * @param ns floats to multiply
@@ -264,6 +276,58 @@ public class Vec3 extends Vec {
             vec.z /= n;
         }
         return vec;
+    }
+
+    public Vec3 div(float... ns) {
+        return this.divFloat(ns);
+    }
+
+    public Vec3 addEquals(Vec3... vectors) {
+        Vec3 result = this.add(vectors);
+        return this.set(result);
+    }
+
+    public Vec3 addEquals(float... ns) {
+        Vec3 result = this.add(ns);
+        return this.set(result);
+    }
+
+    public Vec3 subEquals(Vec3... vectors) {
+        Vec3 result = this.sub(vectors);
+        return this.set(result);
+    }
+
+    public Vec3 subEquals(float... ns) {
+        Vec3 result = this.sub(ns);
+        return this.set(result);
+    }
+
+    public Vec3 mulEquals(Vec3... vectors) {
+        Vec3 result = this.mul(vectors);
+        return this.set(result);
+    }
+
+    public Vec3 mulEquals(float... ns) {
+        Vec3 result = this.mul(ns);
+        return this.set(result);
+    }
+
+    public Vec3 divEquals(Vec3... vectors) {
+        Vec3 result = this.div(vectors);
+        return this.set(result);
+    }
+
+    public Vec3 divEquals(float... ns) {
+        Vec3 result = this.div(ns);
+        return this.set(result);
+    }
+
+    public Vec3 set(Vec3 newVector) {
+        this.x = newVector.x;
+        this.y = newVector.y;
+        this.z = newVector.z;
+        this.w = newVector.w;
+        return this;
     }
 
     /**
@@ -352,7 +416,7 @@ public class Vec3 extends Vec {
         return v;
     }
 
-    public static Vec3 lerp (Vec3 a, Vec3 b, float t) {
+    public static Vec3 lerp(Vec3 a, Vec3 b, float t) {
         return new Vec3(Mathematics.lerp(a.x, b.x, t), Mathematics.lerp(a.y, b.y, t), Mathematics.lerp(a.z, b.z, t));
     }
 }
