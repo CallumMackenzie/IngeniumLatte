@@ -35,6 +35,7 @@ public class App extends Ingenium {
             mshs[i] = Mesh3D.createAndMakePreloaded(gl, "./resource/sphereanim/" + i + ".ing", "./resource/alien/b.jpg", "./resource/alien/s.jpg", "./resource/alien/n.jpg");
             // Geometry.createPreloadedModel("./resource/sphereanim/s_" + "0".repeat(6 - Integer.toString(i).length()) + i + ".obj", "./resource/sphereanim/" + i + ".ing");
             mshs[i].getMaterial().setShininess(0.4);
+            mshs[i].setTint(new Vec3(Math.random(), Math.random(), Math.random()));
         }
         // System.exit(0);
         animMesh = new AnimatedMesh<Mesh3D>(gl, Mesh3D.createEmpty(gl, mshs[0].getNumVerts()));

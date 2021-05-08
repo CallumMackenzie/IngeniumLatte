@@ -14,6 +14,8 @@ public class AnimatedMesh<meshType extends Mesh<?, ?>> {
     protected double frameTime = 1.0;
     protected long lastFrame = System.nanoTime();
     protected boolean interpolating = true;
+    protected boolean interpolatingTint = true;
+    protected boolean interpolatingVertecies = true;
 
     public AnimatedMesh(GL2 gl, meshType base) {
         primaryMesh = base;
@@ -36,17 +38,20 @@ public class AnimatedMesh<meshType extends Mesh<?, ?>> {
 
         if (interpolating) {
             int prevFrame = ((currentFrame + 1 > endFrame) ? startFrame : (currentFrame + 1));
-            float[] prevData = meshes[prevFrame].getRawVertexdata(0, meshes[prevFrame].numVerts * Tri3D.Vert.vertSize,
-                    1);
-            float[] currentData = meshes[currentFrame].getRawVertexdata(0,
-                    meshes[currentFrame].numVerts * Tri3D.Vert.vertSize, 1);
-
             float f = (float) ((System.nanoTime() - lastFrame) / (frameTime * 1000000));
-            for (int i = 0; i < currentData.length; i++)
-                currentData[i] = (float) Mathematics.lerp(currentData[i], prevData[i], f);
+            if (interpolatingVertecies) {
+                float[] prevData = meshes[prevFrame].getRawVertexdata(0,
+                        meshes[prevFrame].numVerts * Tri3D.Vert.vertSize, 1);
+                float[] currentData = meshes[currentFrame].getRawVertexdata(0,
+                        meshes[currentFrame].numVerts * Tri3D.Vert.vertSize, 1);
 
-            primaryMesh.setTint(Vec3.lerp(meshes[currentFrame].getTint(), meshes[prevFrame].getTint(), f));
-            primaryMesh.setVertexRawData(gl, 0, currentData, 1);
+                for (int i = 0; i < currentData.length; i++)
+                    currentData[i] = (float) Mathematics.lerp(currentData[i], prevData[i], f);
+                primaryMesh.setVertexRawData(gl, 0, currentData, 1);
+            }
+
+            if (interpolatingTint)
+                primaryMesh.setTint(Vec3.lerp(meshes[currentFrame].getTint(), meshes[prevFrame].getTint(), f));
         }
     }
 
@@ -104,5 +109,21 @@ public class AnimatedMesh<meshType extends Mesh<?, ?>> {
 
     public void setInterpolating(boolean interpolating) {
         this.interpolating = interpolating;
+    }
+
+    public boolean isInterpolatingTint() {
+        return interpolatingTint;
+    }
+
+    public boolean isInterpolatingVertecies() {
+        return interpolatingVertecies;
+    }
+
+    public void setInterpolatingTint(boolean interpolatingTint) {
+        this.interpolatingTint = interpolatingTint;
+    }
+
+    public void setInterpolatingVertecies(boolean interpolatingVertecies) {
+        this.interpolatingVertecies = interpolatingVertecies;
     }
 }
