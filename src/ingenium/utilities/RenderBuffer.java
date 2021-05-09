@@ -2,6 +2,10 @@ package ingenium.utilities;
 
 import com.jogamp.opengl.GL2;
 
+import ingenium.Ingenium;
+import ingenium.math.Vec2;
+import ingenium.mesh.Mesh2D;
+
 public class RenderBuffer extends FrameBuffer {
     private int width = 0;
     private int height = 0;
@@ -46,6 +50,14 @@ public class RenderBuffer extends FrameBuffer {
 
     public int[] getTextures() {
         return textures;
+    }
+
+    public Mesh2D createRenderQuad (GL2 gl) {
+        Mesh2D m = new Mesh2D();
+        m.make(gl, Ingenium.NO_VALUE);
+        m.getMaterial().setDiffuseTexture(this.getTextures()[0]);
+        m.setScale(new Vec2((float) width / (float) height, 1));
+        return m;
     }
 
     public static RenderBuffer createRenderTexture(GL2 gl, int width, int height) {

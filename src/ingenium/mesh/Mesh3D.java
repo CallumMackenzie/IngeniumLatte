@@ -188,7 +188,6 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
         shader.setUniform(gl, Shader.Uniforms.mesh3D_modelMatrix, model);
         shader.setUniform(gl, Shader.Uniforms.mesh3D_invModelMatrix, model.inverse());
         shader.setUVec4(gl, Shader.Uniforms.mesh3D_tint, tint);
-
         this.material.sendDataToShader(gl, shader);
     }
 

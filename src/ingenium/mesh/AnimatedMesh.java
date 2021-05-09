@@ -17,6 +17,21 @@ public class AnimatedMesh<meshType extends Mesh<?, ?>> {
     protected boolean interpolatingTint = true;
     protected boolean interpolatingVertecies = true;
 
+    public AnimatedMesh(GL2 gl, meshType base, meshType meshes[], int endFrame, double frameTime) {
+        primaryMesh = base;
+        this.meshes = meshes;
+        this.endFrame = endFrame;
+        this.frameTime = frameTime;
+    }
+
+    public AnimatedMesh(GL2 gl, meshType base, meshType meshes[], int endFrame) {
+        this(gl, base, meshes, endFrame, 100);
+    }
+
+    public AnimatedMesh(GL2 gl, meshType base, meshType meshes[]) {
+        this(gl, base, meshes, 0);
+    }
+
     public AnimatedMesh(GL2 gl, meshType base) {
         primaryMesh = base;
     }

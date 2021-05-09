@@ -223,6 +223,5 @@ public class Material {
         shader.setUniform(gl, Shader.Uniforms.material_specular, 1);
         shader.setUniform(gl, Shader.Uniforms.material_normal, 2);
         shader.setUniform(gl, Shader.Uniforms.material_parallax, 3);
-        shader.setUniform(gl, Shader.Uniforms.material_option, 4);
     }
 }
