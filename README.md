@@ -10,3 +10,4 @@ A 2D & 3D game engine written in Java using OpenGL.
 - Object & texture caching
 - Preprocessed 3D objects for faster loading
 - .obj file parsing & preprocessing
+- 2D & 3D mesh animation with built-in frame interpolation 
