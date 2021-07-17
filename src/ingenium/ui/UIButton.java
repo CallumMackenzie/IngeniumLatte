@@ -1,12 +1,8 @@
 package ingenium.ui;
 
 import com.jogamp.opengl.GL2;
-
-import ingenium.Ingenium;
 import ingenium.math.Vec2;
-import ingenium.math.Vec3;
 import ingenium.mesh.Mesh2D;
-import ingenium.world.Camera2D;
 
 public class UIButton extends Mesh2D {
     

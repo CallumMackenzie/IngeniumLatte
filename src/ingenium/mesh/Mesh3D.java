@@ -254,10 +254,15 @@ public class Mesh3D extends Mesh<Vec3, Vec3> {
     }
 
     public static Mesh3D createAndMake(GL2 gl, String objPath, String diffusePath, String specularPath,
-            String normalPath) {
+            String normalPath, String parallaxPath) {
         Mesh3D m = new Mesh3D();
-        m.make(gl, objPath, diffusePath, specularPath, normalPath);
+        m.make(gl, objPath, diffusePath, specularPath, normalPath, parallaxPath);
         return m;
+    }
+
+    public static Mesh3D createAndMake(GL2 gl, String objPath, String diffusePath, String specularPath,
+            String normalPath) {
+        return createAndMake(gl, objPath, diffusePath, specularPath, normalPath, Ingenium.NO_VALUE);
     }
 
     public static Mesh3D createAndMake(GL2 gl, String objPath, String diffusePath, String specularPath) {

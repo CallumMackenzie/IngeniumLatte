@@ -6,11 +6,11 @@ package ingenium.math;
 public class Mat4 {
     private float m[][] = new float[4][4];
 
-    public Mat4 () {
+    public Mat4() {
         return;
     }
 
-    public Mat4 (float m[][]) {
+    public Mat4(float m[][]) {
         this.m = m;
     }
 
@@ -62,6 +62,18 @@ public class Mat4 {
      */
     public void setM(float[][] m) {
         this.m = m;
+    }
+
+    @Override
+    public String toString() {
+        String ret = "";
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                ret += Float.toString(m[i][j]) + ", ";
+            }
+            ret += "\n";
+        }
+        return ret;
     }
 
     /**

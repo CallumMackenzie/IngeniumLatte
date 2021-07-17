@@ -3,7 +3,6 @@ package ingenium.mesh;
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
-
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
@@ -13,7 +12,7 @@ import ingenium.math.Vec3;
 import ingenium.utilities.Cache;
 import ingenium.world.Position;
 
-public abstract class Mesh <positionType, rotationType> extends Position<positionType, rotationType>
+public abstract class Mesh<positionType, rotationType> extends Position<positionType, rotationType>
         implements Loadable {
     protected static final Cache<String, Integer> textureReferenceCache = new Cache<>("geometry cache", false);
 
@@ -28,6 +27,16 @@ public abstract class Mesh <positionType, rotationType> extends Position<positio
     protected boolean useTextureReferenceCache = true;
     protected boolean useGeometryReferenceCache = true;
     protected boolean useGeometryValueCache = true;
+
+    public void delete(GL2 gl) {
+        if (mVAO != GL2.GL_NONE)
+            gl.glDeleteVertexArrays(1, Buffers.newDirectIntBuffer(new int[] { mVAO }));
+        if (mVBO != GL2.GL_NONE) 
+            gl.glDeleteBuffers(1, Buffers.newDirectIntBuffer(new int[] { mVBO }));
+        data = null;
+        numVerts = 0;
+        material.delete(gl);
+    }
 
     /**
      * 

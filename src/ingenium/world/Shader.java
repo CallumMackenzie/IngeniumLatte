@@ -67,6 +67,8 @@ public class Shader {
      * @param fragSource the source code for the fragment shader
      */
     public void compile(GL2 gl, String vertSource, String fragSource) {
+        if (program != GL2.GL_NONE) 
+            delete(gl);
         int vShader = compileShader(gl, GL2.GL_VERTEX_SHADER, vertSource);
         int fShader = compileShader(gl, GL2.GL_FRAGMENT_SHADER, fragSource);
         program = gl.glCreateProgram();
@@ -77,6 +79,13 @@ public class Shader {
 
         gl.glDeleteShader(vShader);
         gl.glDeleteShader(fShader);
+    }
+
+    public void delete(GL2 gl) {
+        if (program == GL2.GL_NONE)
+            return;
+        gl.glDeleteProgram(program);
+        program = GL2.GL_NONE;
     }
 
     public void compileWithParameters(GL2 gl, String vertSource, String fragSource, HashMap<String, String> gParams,

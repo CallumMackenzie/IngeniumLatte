@@ -1,7 +1,7 @@
 package ingenium.utilities;
 
 import com.jogamp.opengl.GL2;
-
+import com.jogamp.common.nio.Buffers;
 import ingenium.Ingenium;
 import ingenium.math.Vec2;
 import ingenium.mesh.Mesh2D;
@@ -50,6 +50,18 @@ public class RenderBuffer extends FrameBuffer {
 
     public int[] getTextures() {
         return textures;
+    }
+
+    @Override
+    public void delete (GL2 gl) {
+        width = 0;
+        height = 0;
+        gl.glDeleteTextures(textures.length, Buffers.newDirectIntBuffer(textures));
+        textures = new int[0];
+        gl.glDeleteFramebuffers(1, Buffers.newDirectIntBuffer(new int[] { FBO }));
+        gl.glDeleteRenderbuffers(1, Buffers.newDirectIntBuffer(new int[] { RBO }));
+        FBO = GL2.GL_NONE;
+        RBO = GL2.GL_NONE;
     }
 
     public Mesh2D createRenderQuad (GL2 gl) {

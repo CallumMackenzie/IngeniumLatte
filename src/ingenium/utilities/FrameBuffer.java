@@ -1,6 +1,7 @@
 package ingenium.utilities;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.common.nio.Buffers;
 
 public class FrameBuffer {
     protected int FBO;
@@ -20,6 +21,13 @@ public class FrameBuffer {
         gl.glGenRenderbuffers(1, buffers, 1);
         this.FBO = buffers[0];
         this.RBO = buffers[1];
+    }
+
+    public void delete(GL2 gl) {
+        gl.glDeleteFramebuffers(1, Buffers.newDirectIntBuffer(new int[] { FBO }));
+        gl.glDeleteRenderbuffers(1, Buffers.newDirectIntBuffer(new int[] { RBO }));
+        FBO = GL2.GL_NONE;
+        RBO = GL2.GL_NONE;
     }
 
     public void bind(GL2 gl) {

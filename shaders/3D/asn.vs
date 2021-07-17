@@ -57,7 +57,6 @@ void main () {
 #endif
     normal = mat3(transpose(mesh.inverseTransform)) * vertexNormal;
     fragPos = vec3(mesh.transform * vertexPosition);
-
 #if NORMAL_MAP || PARALLAX_MAP
     vec3 tangentTheta = (mesh.transform * vec4(vertexTangent, 0.0)).xyz;   
     TBN = getTBN(normal, tangentTheta);

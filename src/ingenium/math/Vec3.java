@@ -389,7 +389,7 @@ public class Vec3 extends Vec {
 
     @Override
     public String toString() {
-        return "Vec3(" + x + "," + y + "," + z + ")";
+        return "Vec3(" + x + "," + y + "," + z + ", " + w + ")";
     }
 
     /**
@@ -418,5 +418,13 @@ public class Vec3 extends Vec {
 
     public static Vec3 lerp(Vec3 a, Vec3 b, float t) {
         return new Vec3(Mathematics.lerp(a.x, b.x, t), Mathematics.lerp(a.y, b.y, t), Mathematics.lerp(a.z, b.z, t));
+    }
+
+    public static Vec3 filledWith(float v) {
+        return new Vec3(v, v, v);
+    }
+
+    public static Vec3 filledWith(double v) {
+        return filledWith((float) v);
     }
 }

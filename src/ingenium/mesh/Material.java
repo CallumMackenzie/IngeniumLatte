@@ -1,7 +1,7 @@
 package ingenium.mesh;
 
 import com.jogamp.opengl.GL2;
-
+import com.jogamp.common.nio.Buffers;
 import ingenium.math.Vec2;
 import ingenium.world.Shader;
 
@@ -13,7 +13,7 @@ public class Material {
     private int optionTextures[] = new int[0];
     private Vec2 scaleUV = new Vec2(1, 1);
     private float shininess = 0.5f;
-    private float parallaxScale = 1.f;
+    private float parallaxScale = 0.3f;
     private Vec2 UVScale = new Vec2(1, 1);
 
     /**
@@ -56,6 +56,44 @@ public class Material {
      */
     public Material() {
 
+    }
+
+    public void sendDataToShader(GL2 gl, Shader shader) {
+        shader.setUniform(gl, Shader.Uniforms.material_shininess, getShininess());
+        shader.setUniform(gl, Shader.Uniforms.material_heightScale, getParallaxScale());
+        shader.setUVec2(gl, Shader.Uniforms.material_scaleUVLoc, getScaleUV());
+        gl.glActiveTexture(GL2.GL_TEXTURE0);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, getDiffuseTexture());
+        gl.glActiveTexture(GL2.GL_TEXTURE1);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, getSpecularTexture());
+        gl.glActiveTexture(GL2.GL_TEXTURE2);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, getNormalTexture());
+        gl.glActiveTexture(GL2.GL_TEXTURE3);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, getParallaxTexture());
+        for (int i = 1; i < optionTextures.length + 1 && i + GL2.GL_TEXTURE3 < GL2.GL_TEXTURE31; i++) {
+            shader.setUniform(gl, Shader.Uniforms.material_option + (i - 1), 3 + i);
+            gl.glActiveTexture(GL2.GL_TEXTURE3 + i);
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, getOptionTextures()[i - 1]);
+        }
+    }
+
+    public void delete(GL2 gl) {
+        java.util.ArrayList<Integer> texsToDel = new java.util.ArrayList<>();
+        texsToDel.add(Integer.valueOf(diffuseTexture));
+        texsToDel.add(Integer.valueOf(specularTexture));
+        texsToDel.add(Integer.valueOf(normalTexture));
+        texsToDel.add(Integer.valueOf(parallaxTexture));
+        for (int tex : optionTextures)
+            texsToDel.add(Integer.valueOf(tex));
+        int[] texsToDelPrimitive = new int[texsToDel.size()];
+        for (int i = 0; i < texsToDelPrimitive.length; i++)
+            texsToDelPrimitive[i] = texsToDel.get(i).intValue();
+        gl.glDeleteTextures(texsToDelPrimitive.length, Buffers.newDirectIntBuffer(texsToDelPrimitive));
+        diffuseTexture = GL2.GL_NONE;
+        specularTexture = GL2.GL_NONE;
+        normalTexture = GL2.GL_NONE;
+        parallaxTexture = GL2.GL_NONE;
+        optionTextures = new int[0];
     }
 
     /**
@@ -192,25 +230,6 @@ public class Material {
 
     public void setOptionTextures(int[] optionTextures) {
         this.optionTextures = optionTextures;
-    }
-
-    public void sendDataToShader(GL2 gl, Shader shader) {
-        shader.setUniform(gl, Shader.Uniforms.material_shininess, getShininess());
-        shader.setUniform(gl, Shader.Uniforms.material_heightScale, getParallaxScale());
-        shader.setUVec2(gl, Shader.Uniforms.material_scaleUVLoc, getScaleUV());
-        gl.glActiveTexture(GL2.GL_TEXTURE0);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, getDiffuseTexture());
-        gl.glActiveTexture(GL2.GL_TEXTURE1);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, getSpecularTexture());
-        gl.glActiveTexture(GL2.GL_TEXTURE2);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, getNormalTexture());
-        gl.glActiveTexture(GL2.GL_TEXTURE3);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, getParallaxTexture());
-        for (int i = 1; i < optionTextures.length + 1 && i + GL2.GL_TEXTURE3 < GL2.GL_TEXTURE31; i++) {
-            shader.setUniform(gl, Shader.Uniforms.material_option + (i - 1), 3 + i);
-            gl.glActiveTexture(GL2.GL_TEXTURE3 + i);
-            gl.glBindTexture(GL2.GL_TEXTURE_2D, getOptionTextures()[i - 1]);
-        }
     }
 
     /**
