@@ -43,15 +43,11 @@ public class App extends Ingenium {
         // Create the 3D shader with at most 1 point light
         shader3D.compileWithParametersFromPath(gl, "./shaders/3D/asn.vs", "./shaders/3D/asn.fs", new HashMap<>() {
             {
-                put("normalMap", "1");
                 put("maxPointLights", "1");
-                put("parallaxMap", "0");
-                put("parallaxClipEdge", "1");
-                put("parallaxInvert", "1");
             }
         });
 
-        meshes[0] = Mesh3D.createAndMake(gl, "./resource/cube.obj", "./resource/metal/b.jpg", "./resource/metal/s.jpg",
+        meshes[0] = Mesh3D.createAndMake(gl, "./resource/sphere.obj", "./resource/metal/b.jpg", "./resource/metal/s.jpg",
                 "./resource/metal/n.jpg", "./resource/metal/h.png");
         meshes[0].getMaterial().setShininess(0.1); // Shiny metal
         meshes[0].getMaterial().setParallaxScale(0.1);
@@ -84,7 +80,7 @@ public class App extends Ingenium {
 
         // Mesh3D.renderAll(gl, shader3D, camera3D, dLight, meshes, p);
         monke.checkAdvanceFrame(gl);
-        Mesh3D.renderAll(gl, shader3D, camera3D, dLight, new Mesh3D[] { monke.getPrimaryMesh() }, p);
+        Mesh3D.renderAll(gl, shader3D, camera3D, dLight, new Mesh3D[] { monke.getPrimaryMesh(), meshes[0] }, p);
     }
 
     @Override
